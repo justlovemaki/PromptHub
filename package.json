@@ -1,0 +1,32 @@
+{
+  "name": "saas-starter-template",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "react": "18",
+    "react-dom": "18",
+    "i18next": "^23.11.5",
+    "react-i18next": "^14.1.2",
+    "i18next-resources-to-backend": "^1.2.1",
+    "better-auth": "^1.0.0",
+    "better-sqlite3": "^9.4.3",
+    "drizzle-orm": "^0.29.4",
+    "@libsql/client": "^0.5.6"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
+  }
+}

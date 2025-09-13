@@ -1,0 +1,20 @@
+{
+  "home": "ホーム",
+  "pricing": "価格",
+  "contact": "お問い合わせ",
+  "terms": "利用規約",
+  "privacy": "プライバシーポリシー",
+  "login": "ログイン",
+  "logout": "ログアウト",
+  "language": "言語",
+  "english": "英語",
+  "chinese": "中国語",
+  "japanese": "日本語",
+  "signup": "登録",
+  "signin": "ログイン",
+  "email": "メール",
+  "password": "パスワード",
+  "name": "名前",
+  "confirmPassword": "パスワード確認",
+  "orContinueWith": "または次で続ける"
+}

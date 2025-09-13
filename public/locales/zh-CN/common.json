@@ -1,0 +1,20 @@
+{
+  "home": "首页",
+  "pricing": "价格",
+  "contact": "联系我们",
+  "terms": "服务条款",
+  "privacy": "隐私政策",
+  "login": "登录",
+  "logout": "退出",
+  "language": "语言",
+  "english": "英语",
+  "chinese": "中文",
+  "japanese": "日语",
+  "signup": "注册",
+  "signin": "登录",
+  "email": "邮箱",
+  "password": "密码",
+  "name": "姓名",
+  "confirmPassword": "确认密码",
+  "orContinueWith": "或继续使用"
+}

@@ -1,0 +1,20 @@
+{
+  "home": "Home",
+  "pricing": "Pricing",
+  "contact": "Contact",
+  "terms": "Terms of Service",
+  "privacy": "Privacy Policy",
+  "login": "Login",
+  "logout": "Logout",
+  "language": "Language",
+  "english": "English",
+  "chinese": "Chinese",
+  "japanese": "Japanese",
+  "signup": "Sign Up",
+  "signin": "Sign In",
+  "email": "Email",
+  "password": "Password",
+  "name": "Name",
+  "confirmPassword": "Confirm Password",
+  "orContinueWith": "Or continue with"
+}
