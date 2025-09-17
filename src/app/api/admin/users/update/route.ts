@@ -1,0 +1,82 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { UserService } from '@/lib/services';
+import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { verifyAdminInApiRoute } from '@/lib/auth-helpers';
+import { z } from 'zod';
+import { db } from '@/lib/database';
+import { user } from '@/drizzle-schema';
+import { eq } from 'drizzle-orm';
+
+// 更新用户验证模式
+const updateUserSchema = z.object({
+  id: z.string().min(1, 'User ID is required'),
+  data: z.object({
+    role: z.enum(['USER', 'ADMIN']).optional(),
+    subscriptionStatus: z.enum(['FREE', 'PRO', 'TEAM']).optional(),
+    name: z.string().optional(),
+  }),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    
+    // 验证管理员身份
+    const adminUser = await verifyAdminInApiRoute(request);
+    
+    if (!adminUser) {
+      return NextResponse.json(
+        errorResponse('Forbidden: Admin access required'),
+        { status: HTTP_STATUS.FORBIDDEN }
+      );
+    }
+    
+    // 验证请求数据
+    const validation = updateUserSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        errorResponse('Invalid input: ' + validation.error.errors.map(e => e.message).join(', ')),
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
+    }
+
+    const { id, data } = validation.data;
+
+    // 检查目标用户是否存在
+    const targetUser = await UserService.findUserById(id);
+    if (!targetUser) {
+      return NextResponse.json(
+        errorResponse('User not found'),
+        { status: HTTP_STATUS.NOT_FOUND }
+      );
+    }
+
+    // 更新用户
+    const [updatedUser] = await db.update(user)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, id))
+      .returning({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        subscriptionStatus: user.subscriptionStatus,
+        updatedAt: user.updatedAt,
+      });
+
+    return NextResponse.json(
+      successResponse(updatedUser, 'User updated successfully'),
+      { status: HTTP_STATUS.OK }
+    );
+    
+  } catch (error) {
+    console.error('Admin user update error:', error);
+    return NextResponse.json(
+      errorResponse('Internal server error'),
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+    );
+  }
+}

@@ -1,26 +1,72 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { fallbackLng, languages } from './i18n/settings'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { fallbackLng, languages } from './i18n/settings';
 
-export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname
+export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
 
-  // Check if the pathname already includes a locale
-  const pathnameIsMissingLocale = languages.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  )
-
-  // If the pathname is missing a locale, redirect to the default locale
-  if (pathnameIsMissingLocale) {
-    // 修复：确保重定向URL正确构建
-    const url = request.nextUrl.clone()
-    url.pathname = `/${fallbackLng}${pathname === '/' ? '' : pathname}`
-    return NextResponse.redirect(url)
+  // API 路由保护
+  if (pathname.startsWith('/api/')) {
+    return await handleApiRoutes(request);
   }
 
-  return NextResponse.next()
+  // 国际化路由处理
+  const pathnameIsMissingLocale = languages.every(
+    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  );
+
+  if (pathnameIsMissingLocale) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${fallbackLng}${pathname === '/' ? '' : pathname}`;
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
+
+async function handleApiRoutes(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  
+  // 公开路由（不需要认证）
+  const publicRoutes = [
+    '/api/auth',
+    '/api/billing/webhook', // Stripe webhook
+    '/api/health', // 健康检查
+  ];
+  
+  // 检查是否为公开路由
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+  
+  // 对于需要认证的路由，我们简化验证逻辑
+  // 将详细的用户信息验证移到各个 API 路由中处理
+  const authHeader = request.headers.get('authorization');
+  
+  console.log('Auth header:', authHeader);
+  // 基本的 session/token 存在性检查
+  if (!authHeader) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: No authentication token provided' },
+      { status: 401 }
+    );
+  }
+  
+  // 对于管理员路由，我们需要在具体的 API 路由中进行详细验证
+  // 这里只是标记，让 API 路由知道需要进行管理员权限检查
+  const requestHeaders = new Headers(request.headers);
+  if (pathname.startsWith('/api/admin')) {
+    requestHeaders.set('x-require-admin', 'true');
+  }
+  
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};

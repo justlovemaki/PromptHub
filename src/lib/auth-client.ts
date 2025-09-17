@@ -15,7 +15,7 @@ export const loginOrRegister = async (email: string, password: string) => {
 
     // 如果登录成功，返回结果
     if (!!loginResult.data) {
-      return loginResult;
+      return { ...loginResult, isnew: false };
     }
 
     // 如果登录失败是因为用户不存在，则尝试注册
@@ -25,20 +25,16 @@ export const loginOrRegister = async (email: string, password: string) => {
         email,
         password,
         name: email.split("@")[0], // 使用邮箱前缀作为用户名
+        // callbackURL: "/api/auth/newuser"
       });
 
       // 如果注册成功，再次尝试登录
-      if (!registerResult.error) {
-        return await signIn.email({
-          email,
-          password,
-        });
-      }
-
-      return registerResult;
+      console.log("Register result:", registerResult);
+      
+      return { ...registerResult, isnew: true };
     }
 
-    return loginResult;
+    return  { ...loginResult, isnew: false };
   } catch (error) {
     console.error("Login or register error:", error);
     return { error: { message: "An unexpected error occurred" } };

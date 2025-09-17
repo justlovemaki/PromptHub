@@ -1,70 +1,295 @@
-# Podcast Template
+# AI 提示词管理平台
 
-A simple template for podcast applications with Next.js, TypeScript, Tailwind CSS, and i18n support.
+一个高效、可扩展的AI提示词管理平台，基于 Next.js 14 和空间中心化的架构设计，支持个人和团队协作。
 
-## Features
+## 🎯 项目特性
 
-- Next.js 14 with App Router
-- TypeScript
-- Tailwind CSS
-- Multi-language support (English, Chinese, Japanese)
-- Authentication with Better Auth and SQLite
-- Responsive design
-- SEO-friendly
+### 核心功能
+- **🔐 安全认证**: JWT + OAuth (Google/GitHub) 双重认证
+- **📝 提示词管理**: 创建、编辑、删除、标签管理
+- **🏢 空间中心化**: 支持个人空间，为未来团队版本做好准备
+- **⚡ 实时同步**: SSE 长连接实现实时更新
+- **💳 订阅计费**: Stripe 集成，支持多层级订阅
+- **👑 管理后台**: 完整的用户和平台数据管理
 
-## Getting Started
+### 技术亮点
+- **未来兼容**: 数据结构设计支持无缝扩展到团队协作
+- **API 规范**: 严格的 GET/POST API 设计，便于前端集成
+- **类型安全**: 完整的 TypeScript 类型定义
+- **权限控制**: 细粒度的用户权限和资源访问控制
 
-1. Install dependencies:
+## 🛠 技术栈
+
+### 后端核心
+- **框架**: Next.js 14 (App Router)
+- **语言**: TypeScript
+- **数据库**: SQLite + Drizzle ORM
+- **认证**: JWT + Better Auth
+- **支付**: Stripe
+- **实时通信**: Server-Sent Events (SSE)
+
+### 关键依赖
+```json
+{
+  "jsonwebtoken": "^9.0.2",
+  "bcryptjs": "^2.4.3",
+  "cuid": "^3.0.0",
+  "stripe": "^14.12.0",
+  "zod": "^3.22.4",
+  "drizzle-orm": "^0.29.4"
+}
+```
+
+## 🚀 快速开始
+
+### 1. 环境配置
+
+```bash
+# 克隆项目
+git clone <your-repo>
+cd prompt-manager
+
+# 复制环境变量配置
+cp .env.example .env
+```
+
+#### 依赖安装
+
+由于 Windows 环境下 better-sqlite3 编译问题，推荐使用 Bun 作为包管理器：
+
+```bash
+# 方案1: 使用 Bun (推荐)
+npm install -g bun
+bun install
+bun pm trust --all
+
+# 方案2: 使用 npm (可能遇到编译问题)
+npm install
+
+# 方案3: 使用 yarn 替代
+npm install -g yarn
+yarn install
+```
+
+**注意**: 如果使用 npm 遇到 better-sqlite3 安装失败，请切换到 Bun。
+
+### 2. 配置环境变量
+
+编辑 `.env` 文件，填入必要的配置：
+
+```env
+# 数据库
+DB_FILE_NAME=sqlite.db
+
+# JWT 密钥
+JWT_SECRET=your-super-secret-jwt-key
+
+# OAuth 配置
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+# Stripe 配置
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+```
+
+### 3. 数据库初始化
+
+```bash
+# 生成数据库迁移
+npm run db:generate
+
+# 执行迁移
+npm run db:migrate
+```
+
+### 4. 启动开发服务器
+
+```bash
+# 使用 Bun
+bun run dev
+
+# 或使用 npm
+npm run dev
+```
+
+访问 `http://localhost:3000` 即可开始使用。
+
+### 5. 常见问题解决
+
+#### better-sqlite3 安装失败
+
+如果遇到以下错误：
+```
+gyp ERR! configure error
+subprocess.CalledProcessError: Command returned non-zero exit status 1
+```
+
+**解决方案**：
+1. 使用 Bun 替代 npm: `bun install`
+2. 配置镜像源:
    ```bash
+   npm config set registry https://registry.npmmirror.com
+   $env:BETTER_SQLITE3_BINARY_HOST="https://npmmirror.com/mirrors/better-sqlite3"
    npm install
    ```
+3. 使用 yarn: `yarn install`
 
-2. Run the development server:
-   ```bash
-   npm run dev
-   ```
+## 📊 数据库设计
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### 核心表结构
 
-## Authentication
+```mermaid
+erDiagram
+    USER {
+        string id PK
+        string email UK
+        string name
+        string role
+        string subscriptionStatus
+        string stripeCustomerId
+        timestamp createdAt
+    }
+    
+    SPACE {
+        string id PK
+        string name
+        string type
+        string ownerId FK
+        timestamp createdAt
+    }
+    
+    MEMBERSHIP {
+        string id PK
+        string role
+        string userId FK
+        string spaceId FK
+        timestamp createdAt
+    }
+    
+    PROMPT {
+        string id PK
+        string title
+        text content
+        string description
+        string tags
+        string spaceId FK
+        string createdBy FK
+        timestamp createdAt
+    }
+    
+    USER ||--o{ SPACE : owns
+    USER ||--o{ MEMBERSHIP : belongs
+    SPACE ||--o{ MEMBERSHIP : contains
+    SPACE ||--o{ PROMPT : contains
+    USER ||--o{ PROMPT : creates
+```
 
-This template includes a basic authentication system using Better Auth with SQLite as the database.
+## 🔌 API 接口
 
-To test the authentication:
-1. Navigate to [http://localhost:3000/test-auth](http://localhost:3000/test-auth)
-2. Click the "Sign in with test account" button
-3. You should be signed in with the test account (test@example.com)
+### 认证相关
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/login` - 用户登录
+- `GET /api/auth/oauth/google` - Google OAuth
+- `GET /api/auth/oauth/github` - GitHub OAuth
 
-To create a new account:
-1. Navigate to [http://localhost:3000/signup](http://localhost:3000/signup)
-2. Fill in the registration form
-3. After registration, you'll be redirected to the login page
+### 提示词管理
+- `POST /api/prompts/create` - 创建提示词
+- `GET /api/prompts/list` - 获取提示词列表
+- `POST /api/prompts/update` - 更新提示词
+- `POST /api/prompts/delete` - 删除提示词
 
-## Project Structure
+### 实时通信
+- `GET /api/sse` - 建立 SSE 连接
 
-- `src/app`: Main application pages
-- `src/app/[lang]`: Multi-language pages
-- `src/components`: Reusable components
-- `src/i18n`: Internationalization setup
-- `src/lib`: Library and utility functions
-- `public/locales`: Language translation files
+### 订阅计费
+- `POST /api/billing/create-checkout-session` - 创建支付会话
+- `POST /api/billing/webhook` - Stripe Webhook
 
-## Customization
+### 管理后台
+- `GET /api/admin/users/list` - 用户列表
+- `POST /api/admin/users/update` - 更新用户
+- `GET /api/admin/stats/get` - 平台统计
 
-1. Update the translation files in `public/locales` to match your content
-2. Modify the pages in `src/app` to add your own content
-3. Customize the styling in `src/app/globals.css` and Tailwind configuration
+## 🔒 安全设计
 
-## Learn More
+### 认证流程
+1. 用户注册时自动创建个人空间
+2. JWT 包含用户ID、角色、个人空间ID
+3. 中间件验证所有API请求
+4. 管理员路由需要 ADMIN 角色
 
-To learn more about the technologies used in this template:
+### 权限控制
+- **资源隔离**: 所有提示词属于特定空间
+- **所有权验证**: 用户只能操作自己空间的资源
+- **角色区分**: USER 和 ADMIN 不同权限
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [i18next Documentation](https://www.i18next.com/)
-- [Better Auth Documentation](https://www.better-auth.com/)
+## 📈 扩展性设计
 
-## Deploy
+### 团队版准备
+- 空间类型支持 `PERSONAL` 和 `TEAM`
+- 成员关系表支持多用户协作
+- 权限系统支持 `ADMIN` 和 `MEMBER` 角色
 
-The easiest way to deploy your Next.js app is to use [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), the creators of Next.js.
+### Monorepo 兼容
+- 核心类型定义可独立为包
+- 业务逻辑层可共享
+- API 客户端可复用
+
+## 🔧 开发指南
+
+### 项目结构
+```
+src/
+├── app/
+│   ├── api/                 # API 路由
+│   │   ├── auth/           # 认证相关
+│   │   ├── prompts/        # 提示词管理
+│   │   ├── admin/          # 管理后台
+│   │   ├── billing/        # 订阅计费
+│   │   └── sse/           # 实时通信
+│   └── [lang]/            # 国际化页面
+├── lib/
+│   ├── database.ts        # 数据库连接
+│   ├── utils.ts          # 工具函数
+│   └── services.ts       # 业务逻辑
+├── components/           # React 组件
+├── i18n/                # 国际化配置
+├── drizzle-schema.ts    # 数据库模型
+└── middleware.ts        # 路由中间件
+```
+
+### 添加新功能
+1. 在 `drizzle-schema.ts` 中定义数据模型
+2. 在 `services.ts` 中添加业务逻辑
+3. 创建对应的 API 路由
+4. 更新中间件权限检查
+
+## 📝 环境变量说明
+
+| 变量名 | 说明 | 必需 |
+|--------|------|------|
+| `DB_FILE_NAME` | SQLite 数据库文件路径 | ✅ |
+| `JWT_SECRET` | JWT 签名密钥 | ✅ |
+| `GOOGLE_CLIENT_ID` | Google OAuth 客户端ID | ❌ |
+| `GITHUB_CLIENT_ID` | GitHub OAuth 客户端ID | ❌ |
+| `STRIPE_SECRET_KEY` | Stripe 私钥 | ❌ |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 密钥 | ❌ |
+
+## 🤝 贡献指南
+
+1. Fork 项目
+2. 创建功能分支: `git checkout -b feature/amazing-feature`
+3. 提交更改: `git commit -m 'Add amazing feature'`
+4. 推送分支: `git push origin feature/amazing-feature`
+5. 提交 Pull Request
+
+## 📄 许可证
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
+
+## 🎉 致谢
+
+感谢所有贡献者和开源社区的支持！
