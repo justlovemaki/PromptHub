@@ -1,11 +1,33 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import AdminPanelLayout from '../../../components/layout/AdminPanelLayout'
 import { useAuth } from '@promptmanager/core-logic'
 
 export default function AdminPage({ params }: { params: { lang: string } }) {
+  const [isClient, setIsClient] = useState(false)
   const { user, isLoading, error, isAdmin } = useAuth()
 
+  // 客户端 hydration 检查
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // 在服务端渲染期间，直接显示布局和加载状态
+  if (!isClient) {
+    return (
+      <AdminPanelLayout lang={params.lang}>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue mx-auto"></div>
+            <p className="mt-4 text-gray-600">加载中...</p>
+          </div>
+        </div>
+      </AdminPanelLayout>
+    )
+  }
+
+  // 客户端渲染后的状态检查
   // 加载状态
   if (isLoading) {
     return (
@@ -113,8 +135,8 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
                 <p className="text-sm font-medium text-gray-600">Pro 用户</p>
                 <p className="text-2xl font-bold text-gray-900">156</p>
               </div>
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
               </div>

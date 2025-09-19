@@ -35,7 +35,7 @@ export default async function Pricing({ params }: { params: { lang: string } }) 
               {params.lang === 'en' && 'Email support'}
             </li>
           </ul>
-          <button className="bg-brand-purple text-white px-4 py-2 rounded hover:bg-brand-pink">
+          <button className="bg-brand-blue text-white px-4 py-2 rounded hover:bg-brand-blue/90">
             {params.lang === 'zh-CN' && '开始使用'}
             {params.lang === 'ja' && '始める'}
             {params.lang === 'en' && 'Get Started'}

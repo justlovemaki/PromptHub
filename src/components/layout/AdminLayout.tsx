@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, use } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useAuth, useAuthStore } from '@promptmanager/core-logic'
+import { useAuthStore, useAuthStatus } from '@promptmanager/core-logic'
 import LanguageSwitcher from '../LanguageSwitcher'
 import LoginButton from '../LoginButton'
 import { useSession } from '@/lib/auth-client'
@@ -14,12 +14,11 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [hasInitialized, setHasInitialized] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { isAdmin, isAuthenticated, user, refreshUser } = useAuth()
-  const { setToken } = useAuthStore()
+  const { isAdmin, isTokenExpired } = useAuthStatus()
+  const { setToken, refreshUser } = useAuthStore()
   const { data: session, isPending } = useSession()
 
   // 客户端 hydration 检查
@@ -27,51 +26,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
     setIsClient(true)
   }, [])
 
-  // 页面初始化时设置token并刷新用户信息（只执行一次）
+  // 页面初始化时设置token（只在store没有token时执行，只执行一次）
   useEffect(() => {
-    // 只在客户端执行
-    if (!isClient) return
-    
-    console.log('AdminLayout: 页面初始化', { 
-      isAuthenticated, 
-      hasUser: !!user, 
-      hasSession: !!session,
-      isPending,
-      sessionToken: session?.session?.token,
-      hasInitialized
-    })
-    
-    // 如果已经初始化过，直接返回
-    if (hasInitialized) {
-      console.log('AdminLayout: 已经初始化过，跳过')
-      return
-    }
-    
     // 等待session加载完成
     if (isPending) {
       console.log('AdminLayout: session正在加载中，等待...')
       return
     }
     
-    // 标记为已初始化
-    setHasInitialized(true)
-    
-    // 如果session加载完成且有token，设置到store中
-    if (session?.session?.token) {
-      console.log('AdminLayout: session加载完成，设置token', session.session.token)
+    // 只有当store中没有token，但session中有token时，才设置token
+    if (session?.session?.token && isTokenExpired) {
+      console.log('AdminLayout: store中无token但session有token，设置token', session.session.token)
       setToken(session.session.token)
-      
-      // 设置token后刷新用户信息
-      console.log('AdminLayout: 调用refreshUser')
       refreshUser()
-    } else if (isAuthenticated) {
-      // 如果已认证但没有session token，仍然尝试刷新用户信息
-      console.log('AdminLayout: 已认证但无session token，调用refreshUser')
-      refreshUser()
-    } else {
-      console.log('AdminLayout: session加载完成但无token，无需操作')
     }
-  }, [isClient, session, isAuthenticated, isPending, setToken, refreshUser, hasInitialized])
+  }, [isClient, isPending])
 
   const navigationItems = [
     {
@@ -82,8 +51,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       ),
-      current: pathname === `/${lang}/dashboard`,
-      children: undefined as { name: string; href: string }[] | undefined
+      current: pathname.startsWith(`/${lang}/dashboard`),
+      children: [
+        {
+          name: '概览',
+          href: `/${lang}/dashboard`
+        },
+        {
+          name: '提示词管理',
+          href: `/${lang}/dashboard/prompts`
+        }
+      ]
     },
     {
       name: '账户设置',
@@ -186,7 +164,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
                           <button
                             key={child.name}
                             onClick={() => handleNavigation(child.href)}
-                            className="w-full text-left px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
+                            className={`w-full text-left px-3 py-1 text-sm transition-colors rounded ${
+                              pathname === child.href
+                                ? 'text-white bg-brand-blue/20'
+                                : 'text-gray-400 hover:text-white hover:bg-brand-navy-light'
+                            }`}
                           >
                             {child.name}
                           </button>

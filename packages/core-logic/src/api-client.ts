@@ -8,6 +8,9 @@ import type {
   PromptListQuery,
   PromptListResponse,
   Prompt,
+  PromptStats,
+  PromptStatsQuery,
+  DashboardStats,
   AdminUserListQuery,
   AdminUserListResponse,
   AdminUpdateUserRequest,
@@ -189,6 +192,31 @@ export class ApiClient {
     return this.get<Prompt>(`/api/prompts/${id}`);
   }
 
+  async getPromptStats(query?: PromptStatsQuery): Promise<ApiResponse<PromptStats>> {
+    const params = new URLSearchParams();
+    
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString());
+        }
+      });
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/prompts/stats?${queryString}` : '/api/prompts/stats';
+    
+    return this.get<PromptStats>(endpoint);
+  }
+
+  async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
+    return this.get<DashboardStats>('/api/dashboard/stats');
+  }
+
+  async incrementPromptUseCount(promptId: string): Promise<ApiResponse<{ id: string; useCount: number }>> {
+    return this.post<{ id: string; useCount: number }>('/api/prompts/use', { promptId });
+  }
+
   // ============== 管理员相关 API ==============
 
   async getAdminStats(): Promise<ApiResponse<AdminStats>> {
@@ -304,6 +332,9 @@ export const api = {
   updatePrompt: (data: UpdatePromptRequest) => getApiClient().updatePrompt(data),
   deletePrompt: (data: DeletePromptRequest) => getApiClient().deletePrompt(data),
   getPrompt: (id: string) => getApiClient().getPrompt(id),
+  getPromptStats: (query?: PromptStatsQuery) => getApiClient().getPromptStats(query),
+  getDashboardStats: () => getApiClient().getDashboardStats(),
+  incrementPromptUseCount: (promptId: string) => getApiClient().incrementPromptUseCount(promptId),
   
   // 管理员
   getAdminStats: () => getApiClient().getAdminStats(),

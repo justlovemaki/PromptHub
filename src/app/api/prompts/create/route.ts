@@ -10,6 +10,7 @@ const createPromptSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  isPublic: z.boolean().optional().default(false),
 });
 
 export async function POST(request: NextRequest) {
@@ -35,14 +36,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, content, description, tags } = validation.data;
+    const { title, content, description, tags, isPublic } = validation.data;
+
+    // 处理标签默认值
+    const processedTags = tags && tags.length > 0 ? tags : ['未打标'];
 
     // 创建提示词
     const newPrompt = await PromptService.createPrompt({
       title,
       content,
       description,
-      tags,
+      tags: processedTags,
+      isPublic: isPublic ?? false,
       spaceId: user.personalSpaceId,
       createdBy: user.id,
     });
@@ -54,8 +59,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const newDbPrompt = await PromptService.getPromptsById(newPrompt.id)
     return NextResponse.json(
-      successResponse(newPrompt, 'Prompt created successfully'),
+      successResponse(newDbPrompt, 'Prompt created successfully'),
       { status: HTTP_STATUS.CREATED }
     );
     

@@ -5,12 +5,12 @@ import { cn } from "../lib/utils";
 
 const buttonVariants = {
   variant: {
-    default: "bg-brand-purple hover:bg-brand-purple/90 text-white",
+    default: "bg-brand-blue hover:bg-brand-blue/90 text-white",
     destructive: "bg-red-500 hover:bg-red-500/90 text-white",
     outline: "border border-gray-300 bg-white hover:bg-gray-50 text-gray-700",
     secondary: "bg-gray-100 hover:bg-gray-200 text-gray-900",
     ghost: "hover:bg-gray-100 text-gray-700",
-    link: "text-brand-purple hover:text-brand-purple/90 underline-offset-4 hover:underline",
+    link: "text-brand-blue hover:text-brand-blue/90 underline-offset-4 hover:underline",
   },
   size: {
     default: "h-10 px-4 py-2",
@@ -35,7 +35,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", asChild = false, isLoading = false, children, disabled, ...props }, ref) => {
     const Component = asChild ? "span" : "button";
     
-    const baseClasses = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+    const baseClasses = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
     
     const variantClasses = buttonVariants.variant[variant] || buttonVariants.variant.default;
     const sizeClasses = buttonVariants.size[size] || buttonVariants.size.default;

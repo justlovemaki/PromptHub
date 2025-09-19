@@ -3,12 +3,16 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { User, LoginRequest, ApiResponse, LoginResponse } from '../types';
 import { api } from '../api-client';
 
+// Token 过期时间设置（毫秒）
+const DEFAULT_TOKEN_EXPIRE_TIME = 60 * 1000; // 1 分钟
+
 // ============== 认证状态接口 ==============
 
 export interface AuthState {
   // 状态
   user: User | null;
   token: string | null;
+  userDataExpireTime: number | null; // Token 过期时间戳
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -24,12 +28,14 @@ export interface AuthState {
   isAdmin: () => boolean;
   isPro: () => boolean;
   hasValidSubscription: () => boolean;
+  isTokenExpired: () => boolean;
 
   // 内部方法
   setUser: (user: User | null) => void;
-  setToken: (token: string | null) => void;
+  setToken: (token: string | null, userDataExpireTime?: number | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  checkTokenExpiration: () => void;
 }
 
 // ============== 创建认证Store ==============
@@ -39,6 +45,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       // 初始状态
       user: null,
       token: null,
+      userDataExpireTime: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
@@ -53,9 +60,12 @@ export const useAuthStore = create<AuthState>()(  persist(
 
           if (response.success) {
             const { user, token } = response.data;
+            // 设置默认过期时间为24小时
+            const userDataExpireTime = Date.now() + DEFAULT_TOKEN_EXPIRE_TIME;
             set({
               user,
               token,
+              userDataExpireTime,
               isAuthenticated: true,
               isLoading: false,
               error: null,
@@ -86,9 +96,12 @@ export const useAuthStore = create<AuthState>()(  persist(
 
           if (response.success) {
             const { user, token } = response.data;
+            // 设置默认过期时间为24小时
+            const userDataExpireTime = Date.now() + DEFAULT_TOKEN_EXPIRE_TIME;
             set({
               user,
               token,
+              userDataExpireTime,
               isAuthenticated: true,
               isLoading: false,
               error: null,
@@ -123,6 +136,7 @@ export const useAuthStore = create<AuthState>()(  persist(
           set({
             user: null,
             token: null,
+            userDataExpireTime: null,
             isAuthenticated: false,
             isLoading: false,
             error: null,
@@ -131,7 +145,21 @@ export const useAuthStore = create<AuthState>()(  persist(
       },
 
       refreshUser: async (): Promise<void> => {
-        const { token, isAuthenticated } = get();
+        const { token, isAuthenticated, isTokenExpired } = get();
+        
+        // 检查token是否过期
+        if (isTokenExpired()) {
+          console.log('refreshUser: Token已过期，清理认证状态')
+          set({
+            user: null,
+            token: null,
+            userDataExpireTime: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: 'Token已过期，请重新登录',
+          });
+          return;
+        }
         
         // 如果既没有token也没有认证状态，则不进行请求
         if (!token && !isAuthenticated) {
@@ -159,6 +187,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             set({
               user: null,
               token: null,
+              userDataExpireTime: null,
               isAuthenticated: false,
               isLoading: false,
               error: (response as any).error?.message || '获取用户信息失败',
@@ -170,6 +199,7 @@ export const useAuthStore = create<AuthState>()(  persist(
           set({
             user: null,
             token: null,
+            userDataExpireTime: null,
             isAuthenticated: false,
             isLoading: false,
             error: errorMessage,
@@ -210,14 +240,38 @@ export const useAuthStore = create<AuthState>()(  persist(
         return true;
       },
 
+      isTokenExpired: (): boolean => {
+        const { userDataExpireTime } = get();
+        if (!userDataExpireTime) return true;
+        return Date.now() > userDataExpireTime;
+      },
+
       // ============== 内部方法 ==============
 
       setUser: (user: User | null): void => {
         set({ user, isAuthenticated: !!user });
       },
 
-      setToken: (token: string | null): void => {
-        set({ token, isAuthenticated: !!token });
+      setToken: (token: string | null, userDataExpireTime?: number | null): void => {
+        set({ 
+          token, 
+          userDataExpireTime: userDataExpireTime || (token ? Date.now() + DEFAULT_TOKEN_EXPIRE_TIME : null),
+          isAuthenticated: !!token 
+        });
+      },
+
+      checkTokenExpiration: (): void => {
+        const { isTokenExpired } = get();
+        if (isTokenExpired()) {
+          console.log('checkTokenExpiration: Token已过期，清理认证状态');
+          set({
+            user: null,
+            token: null,
+            userDataExpireTime: null,
+            isAuthenticated: false,
+            error: 'Token已过期，请重新登录',
+          });
+        }
       },
 
       setLoading: (isLoading: boolean): void => {
@@ -246,9 +300,23 @@ export const useAuthStore = create<AuthState>()(  persist(
         // 只持久化必要的状态
         user: state.user,
         token: state.token,
+        userDataExpireTime: state.userDataExpireTime,
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
+        // 重新加载后，检查token是否过期
+        if (state?.userDataExpireTime && Date.now() > state.userDataExpireTime) {
+          console.log('onRehydrateStorage: Token已过期，清理状态');
+          // 清理过期的认证状态
+          // ({
+          //   user: null,
+          //   token: null,
+          //   userDataExpireTime: null,
+          //   isAuthenticated: false,
+          //   error: 'Token已过期，请重新登录',
+          // });
+        }
+        
         // 重新加载后，如果有token但没有用户信息，尝试刷新用户信息
         if (state?.token && !state?.user) {
           // 延迟执行，确保组件已挂载
@@ -274,11 +342,13 @@ export const useAuth = () => {
     isAuthenticated: store.isAuthenticated,
     isLoading: store.isLoading,
     error: store.error,
+    userDataExpireTime: store.userDataExpireTime,
     
     // 权限
     isAdmin: store.isAdmin(),
     isPro: store.isPro(),
     hasValidSubscription: store.hasValidSubscription(),
+    isTokenExpired: store.isTokenExpired(),
     
     // 操作
     login: store.login,
@@ -286,6 +356,7 @@ export const useAuth = () => {
     logout: store.logout,
     refreshUser: store.refreshUser,
     clearError: store.clearError,
+    checkTokenExpiration: store.checkTokenExpiration,
   };
 };
 
@@ -309,8 +380,10 @@ export const useAuthStatus = () => {
     isAuthenticated: store.isAuthenticated,
     isLoading: store.isLoading,
     error: store.error,
+    userDataExpireTime: store.userDataExpireTime,
     isAdmin: store.isAdmin(),
     isPro: store.isPro(),
     hasValidSubscription: store.hasValidSubscription(),
+    isTokenExpired: store.isTokenExpired(),
   };
 };

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, use } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useAuth, useAuthStore } from '@promptmanager/core-logic'
+import { useAuthStore, useAuthStatus } from '@promptmanager/core-logic'
 import LanguageSwitcher from '../LanguageSwitcher'
 import LoginButton from '../LoginButton'
 import { useSession } from '@/lib/auth-client'
@@ -14,12 +14,11 @@ interface AdminPanelLayoutProps {
 
 const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [hasInitialized, setHasInitialized] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { isAdmin, isAuthenticated, user, refreshUser } = useAuth()
-  const { setToken } = useAuthStore()
+  const { isAdmin, isTokenExpired } = useAuthStatus()
+  const { setToken, refreshUser } = useAuthStore()
   const { data: session, isPending } = useSession()
 
   // 客户端 hydration 检查
@@ -27,51 +26,21 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
     setIsClient(true)
   }, [])
 
-  // 页面初始化时设置token并刷新用户信息（只执行一次）
+  // 页面初始化时设置token（只在store没有token时执行，只执行一次）
   useEffect(() => {
-    // 只在客户端执行
-    if (!isClient) return
-    
-    console.log('AdminPanelLayout: 页面初始化', { 
-      isAuthenticated, 
-      hasUser: !!user, 
-      hasSession: !!session,
-      isPending,
-      sessionToken: session?.session?.token,
-      hasInitialized
-    })
-    
-    // 如果已经初始化过，直接返回
-    if (hasInitialized) {
-      console.log('AdminPanelLayout: 已经初始化过，跳过')
-      return
-    }
-    
     // 等待session加载完成
     if (isPending) {
       console.log('AdminPanelLayout: session正在加载中，等待...')
       return
     }
     
-    // 标记为已初始化
-    setHasInitialized(true)
-    
-    // 如果session加载完成且有token，设置到store中
-    if (session?.session?.token) {
-      console.log('AdminPanelLayout: session加载完成，设置token', session.session.token)
+    // 只有当store中没有token，但session中有token时，才设置token
+    if (session?.session?.token && isTokenExpired) {
+      console.log('AdminPanelLayout: store中无token但session有token，设置token', session.session.token)
       setToken(session.session.token)
-      
-      // 设置token后刷新用户信息
-      console.log('AdminPanelLayout: 调用refreshUser')
       refreshUser()
-    } else if (isAuthenticated) {
-      // 如果已认证但没有session token，仍然尝试刷新用户信息
-      console.log('AdminPanelLayout: 已认证但无session token，调用refreshUser')
-      refreshUser()
-    } else {
-      console.log('AdminPanelLayout: session加载完成但无token，无需操作')
     }
-  }, [isClient, session, isAuthenticated, isPending, setToken, refreshUser, hasInitialized])
+  }, [isClient, isPending])
 
   const adminNavigationItems = [
     {

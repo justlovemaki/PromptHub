@@ -115,6 +115,24 @@ export const replacePromptVariables = (
   return result;
 };
 
+// 替换提示词变量（预览版本 - 只替换非空值）
+export const replacePromptVariablesForPreview = (
+  content: string,
+  variables: Record<string, string>
+): string => {
+  let result = content;
+  
+  Object.entries(variables).forEach(([key, value]) => {
+    // 只有当值不为空时才进行替换
+    if (value && value.trim()) {
+      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+      result = result.replace(regex, value);
+    }
+  });
+  
+  return result;
+};
+
 // 验证提示词内容
 export const validatePromptContent = (content: string): {
   isValid: boolean;
@@ -174,12 +192,23 @@ export const matchPromptSearch = (prompt: Prompt, searchTerm: string): boolean =
   const title = prompt.title?.toLowerCase() || '';
   const content = prompt.content?.toLowerCase() || '';
   const description = prompt.description?.toLowerCase() || '';
-  const tags = parsePromptTags(prompt.tags || '').join(' ').toLowerCase();
+  
+  // 处理tags字段，确保类型安全
+  let tagsText = '';
+  if (prompt.tags) {
+    if (Array.isArray(prompt.tags)) {
+      // 如果已经是数组，直接使用
+      tagsText = prompt.tags.join(' ').toLowerCase();
+    } else if (typeof prompt.tags === 'string') {
+      // 如果是字符串，解析后再使用
+      tagsText = parsePromptTags(prompt.tags).join(' ').toLowerCase();
+    }
+  }
   
   return title.includes(search) || 
          content.includes(search) || 
          description.includes(search) || 
-         tags.includes(search);
+         tagsText.includes(search);
 };
 
 // 提示词排序
@@ -223,7 +252,17 @@ export const getPromptStats = (prompts: Prompt[]) => {
   const totalUseCount = prompts.reduce((sum, p) => sum + (p.useCount || 0), 0);
   const avgUseCount = total > 0 ? totalUseCount / total : 0;
   
-  const allTags = prompts.flatMap(p => parsePromptTags(p.tags || ''));
+  // 处理tags字段，确保类型安全
+  const allTags = prompts.flatMap(p => {
+    if (!p.tags) return [];
+    if (Array.isArray(p.tags)) {
+      return p.tags;
+    } else if (typeof p.tags === 'string') {
+      return parsePromptTags(p.tags);
+    }
+    return [];
+  });
+  
   const tagCounts = allTags.reduce((acc, tag) => {
     acc[tag] = (acc[tag] || 0) + 1;
     return acc;

@@ -66,14 +66,20 @@ function DataTable<T extends Record<string, any>>({
     return String(record[rowKey] || index);
   };
 
-  const renderCell = (column: Column<T>, record: T, index: number) => {
-    const value = record[column.key as keyof T];
+  const renderCell = (column: Column<T>, record: T, index: number): React.ReactNode => {
+    // 如果 key 为 'thisObj'，传递整个对象给 render 函数
+    const value = String(column.key).startsWith('thisObj') ? record : record[column.key as keyof T];
     
     if (column.render) {
       return column.render(value, record, index);
     }
     
-    return value;
+    // 如果没有 render 函数且 key 为 'thisObj'，返回对象的字符串表示
+    if (String(column.key).startsWith('thisObj')) {
+      return JSON.stringify(value);
+    }
+    
+    return String(value ?? '');
   };
 
   const renderSortIcon = (columnKey: string) => {
@@ -144,13 +150,25 @@ function DataTable<T extends Record<string, any>>({
                       "px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider",
                       column.align === "center" && "text-center",
                       column.align === "right" && "text-right",
-                      column.sortable && "cursor-pointer hover:bg-gray-100"
+                      column.sortable && "cursor-pointer hover:bg-gray-100",
+                      column.width && "overflow-hidden"
                     )}
-                    style={{ width: column.width }}
+                    style={{ 
+                      width: column.width,
+                      minWidth: column.width,
+                      maxWidth: column.width
+                    }}
                     onClick={() => column.sortable && handleSort(String(column.key))}
                   >
-                    <div className="flex items-center">
-                      {column.title}
+                    <div className={cn(
+                      "flex items-center",
+                      column.width && "overflow-hidden"
+                    )}>
+                      <span className={cn(
+                        column.width && "truncate"
+                      )}>
+                        {column.title}
+                      </span>
                       {column.sortable && renderSortIcon(String(column.key))}
                     </div>
                   </th>
@@ -162,7 +180,7 @@ function DataTable<T extends Record<string, any>>({
                 <tr>
                   <td colSpan={columns.length} className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-purple border-t-transparent"></div>
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-blue border-t-transparent"></div>
                       <span className="ml-2">加载中...</span>
                     </div>
                   </td>
@@ -187,12 +205,23 @@ function DataTable<T extends Record<string, any>>({
                       <td
                         key={String(column.key)}
                         className={cn(
-                          "px-6 py-4 whitespace-nowrap text-sm text-gray-900",
+                          "px-6 py-4 text-sm text-gray-900",
                           column.align === "center" && "text-center",
-                          column.align === "right" && "text-right"
+                          column.align === "right" && "text-right",
+                          column.width ? "overflow-hidden" : "whitespace-nowrap"
                         )}
+                        style={{
+                          width: column.width,
+                          minWidth: column.width,
+                          maxWidth: column.width
+                        }}
                       >
-                        {renderCell(column, record, index)}
+                        <div className={cn(
+                          column.width && "truncate",
+                          !column.width && "whitespace-nowrap"
+                        )}>
+                          {renderCell(column, record, index)}
+                        </div>
                       </td>
                     ))}
                   </tr>

@@ -146,7 +146,7 @@ const Loading: React.FC<LoadingProps> = ({
   const renderSpinner = () => (
     <div
       className={cn(
-        "animate-spin rounded-full border-2 border-brand-purple border-t-transparent",
+        "animate-spin rounded-full border-2 border-brand-blue border-t-transparent",
         sizeClasses[size]
       )}
     />
@@ -158,7 +158,7 @@ const Loading: React.FC<LoadingProps> = ({
         <div
           key={i}
           className={cn(
-            "rounded-full bg-brand-purple animate-pulse",
+            "rounded-full bg-brand-blue animate-pulse",
             size === "sm" ? "h-2 w-2" : size === "md" ? "h-3 w-3" : "h-4 w-4"
           )}
           style={{
@@ -176,7 +176,7 @@ const Loading: React.FC<LoadingProps> = ({
         <div
           key={i}
           className={cn(
-            "bg-brand-purple animate-pulse",
+            "bg-brand-blue animate-pulse",
             size === "sm" ? "w-1" : size === "md" ? "w-2" : "w-3"
           )}
           style={{

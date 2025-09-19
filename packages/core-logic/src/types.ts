@@ -52,7 +52,7 @@ export const PromptSchema = z.object({
   title: z.string().default(''),
   content: z.string().default(''),
   description: z.string().default('').optional(),
-  tags: z.string().default('').optional(), // JSON字符串存储标签数组
+  tags: z.array(z.string()).default([]).optional(), // 字符串数组存储标签
   isPublic: z.boolean().default(false),
   useCount: z.number().default(0),
   spaceId: z.string(),
@@ -269,6 +269,59 @@ export const AdminStatsSchema = z.object({
 });
 
 export type AdminStats = z.infer<typeof AdminStatsSchema>;
+
+// ============== 提示词统计类型 ==============
+
+// 提示词统计响应
+export const PromptStatsSchema = z.object({
+  totalPrompts: z.number(),
+  publicPrompts: z.number(),
+  privatePrompts: z.number(),
+  monthlyCreated: z.number(), // 本月创建的提示词数量
+  recentPrompts: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    createdAt: z.date(),
+    isPublic: z.boolean(),
+  })),
+});
+
+export type PromptStats = z.infer<typeof PromptStatsSchema>;
+
+// 提示词统计查询参数
+export const PromptStatsQuerySchema = z.object({
+  spaceId: z.string(),
+});
+
+export type PromptStatsQuery = z.infer<typeof PromptStatsQuerySchema>;
+
+// ============== 仪表盘统计类型 ==============
+
+// 仪表盘统计响应
+export const DashboardStatsSchema = z.object({
+  // 我的提示词
+  totalPrompts: z.number(),
+  // 本月创建
+  monthlyCreated: z.number(),
+  // 剩余点数（从用户订阅状态计算）
+  remainingCredits: z.number(),
+  // 标签数量
+  tagsCount: z.number(),
+  // 最近提示词列表
+  recentPrompts: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    content: z.string(), // 添加 content 字段
+    description: z.string().optional(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    isPublic: z.boolean(),
+    useCount: z.number(),
+    tags: z.array(z.string()).optional(),
+  })),
+});
+
+export type DashboardStats = z.infer<typeof DashboardStatsSchema>;
 
 // ============== 计费相关类型 ==============
 

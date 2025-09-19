@@ -160,7 +160,7 @@ const SheetClose = React.forwardRef<HTMLButtonElement, SheetCloseProps>(
     <button
       ref={ref}
       className={cn(
-        "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2",
+        "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2",
         className
       )}
       {...props}
