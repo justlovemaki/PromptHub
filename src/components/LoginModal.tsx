@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { loginOrRegister, signIn, useSession } from '../lib/auth-client'
 import { useTranslation } from '../i18n/client'
 
@@ -39,11 +40,13 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
 
       if (result.error) {
         setError(result.error.message || 'An error occurred')
-      } else if (result.data?.user) {
+      } else if ('data' in result && result.data?.user) {
           // 成功后关闭模态框并刷新页面
           onClose()
-          if (result.isnew){
+          if ('isnew' in result && result.isnew){
             window.location.pathname = '/api/auth/newuser'
+          } else {
+            window.location.pathname = '/dashboard'
           }
       }
     } catch (err) {
@@ -61,6 +64,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       // 使用 GitHub 登录，重定向到回调页面
       await signIn.social({
         provider: "github",
+        callbackURL: `/dashboard`,
         newUserCallbackURL: `/api/auth/newuser`,
       })
     } catch (err) {
@@ -78,6 +82,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       // 使用 Google 登录，重定向到回调页面
       await signIn.social({
         provider: "google",
+        callbackURL: `/dashboard`,
         newUserCallbackURL: `/api/auth/newuser`,
       })
     } catch (err) {
@@ -89,7 +94,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
 
   if (!isOpen) return null
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-4">
@@ -185,4 +190,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       </div>
     </div>
   )
+
+  // 使用 Portal 渲染到 document.body
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null
 }
