@@ -1,24 +1,27 @@
 import type {
-  ApiResponse,
-  LoginRequest,
-  LoginResponse,
-  CreatePromptRequest,
-  UpdatePromptRequest,
-  DeletePromptRequest,
-  PromptListQuery,
-  PromptListResponse,
-  Prompt,
-  PromptStats,
-  PromptStatsQuery,
-  DashboardStats,
-  AdminUserListQuery,
-  AdminUserListResponse,
-  AdminUpdateUserRequest,
-  AdminStats,
-  CreateCheckoutSessionRequest,
-  CheckoutSessionResponse,
-  User,
-} from './types';
+   ApiResponse,
+   LoginRequest,
+   LoginResponse,
+   CreatePromptRequest,
+   UpdatePromptRequest,
+   DeletePromptRequest,
+   PromptListQuery,
+   PromptListResponse,
+   Prompt,
+   PromptStats,
+   PromptStatsQuery,
+   DashboardStats,
+   AdminUserListQuery,
+   AdminUserListResponse,
+   AdminUpdateUserRequest,
+   AdminStats,
+   PopularPromptsResponse,
+   CreateCheckoutSessionRequest,
+   CheckoutSessionResponse,
+   User,
+   SystemLogListQuery,
+   SystemLogListResponse,
+ } from './types';
 
 // ============== API 客户端配置 ==============
 
@@ -284,6 +287,72 @@ export class ApiClient {
     return this.post<User>('/api/admin/users/update', data);
   }
 
+  async getAdminPopularPrompts(limit?: number): Promise<ApiResponse<PopularPromptsResponse>> {
+    const params = new URLSearchParams();
+    if (limit) {
+      params.append('limit', limit.toString());
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/admin/prompts/popular?${queryString}` : '/api/admin/prompts/popular';
+
+    return this.get<PopularPromptsResponse>(endpoint);
+  }
+
+  async getAdminPrompts(query?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    spaceId?: string;
+    isPublic?: boolean;
+  }): Promise<ApiResponse<PromptListResponse>> {
+    const params = new URLSearchParams();
+
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'boolean') {
+            params.append(key, value.toString());
+          } else {
+            params.append(key, value.toString());
+          }
+        }
+      });
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/admin/prompts/list?${queryString}` : '/api/admin/prompts/list';
+
+    return this.get<PromptListResponse>(endpoint);
+  }
+
+  // ============== 系统日志相关 API ==============
+
+  async getSystemLogs(query?: SystemLogListQuery): Promise<ApiResponse<SystemLogListResponse>> {
+    const params = new URLSearchParams();
+
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof Date) {
+            params.append(key, value.toISOString());
+          } else if (Array.isArray(value)) {
+            value.forEach(v => params.append(key, v.toString()));
+          } else {
+            params.append(key, value.toString());
+          }
+        }
+      });
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/admin/logs/list?${queryString}` : '/api/admin/logs/list';
+
+    return this.get<SystemLogListResponse>(endpoint);
+  }
+
   // ============== 计费相关 API ==============
 
   async createCheckoutSession(
@@ -384,6 +453,9 @@ export const api = {
   getAdminStats: () => getApiClient().getAdminStats(),
   getAdminUsers: (query?: AdminUserListQuery) => getApiClient().getAdminUsers(query),
   updateAdminUser: (data: AdminUpdateUserRequest) => getApiClient().updateAdminUser(data),
+  getAdminPopularPrompts: (limit?: number) => getApiClient().getAdminPopularPrompts(limit),
+  getAdminPrompts: (query?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; spaceId?: string; isPublic?: boolean; }) => getApiClient().getAdminPrompts(query),
+  getSystemLogs: (query?: SystemLogListQuery) => getApiClient().getSystemLogs(query),
   
   // 计费
   createCheckoutSession: (data: CreateCheckoutSessionRequest) => getApiClient().createCheckoutSession(data),

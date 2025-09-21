@@ -1,6 +1,6 @@
 import { eq, and, desc, asc, like, or, sql } from 'drizzle-orm';
 import { db } from './database';
-import { user, space, membership, prompt } from '../drizzle-schema';
+import { user, space, membership, prompt, systemLogs, NewSystemLogs } from '../drizzle-schema';
 import { generateId } from './utils';
 
 // 由于当前依赖包还未安装，这里先创建服务层的结构
@@ -283,6 +283,43 @@ export class PromptService {
       monthlyCreated: Number(stats.monthlyCreated) || 0,
       recentPrompts: recentPrompts || [],
     };
+  }
+}
+
+// ============== 系统日志服务 ==============
+
+export class LogService {
+  static async writeLog(logData: {
+    level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE';
+    message: string;
+    details?: Record<string, any>;
+    userId?: string;
+    userEmail?: string;
+    ip?: string;
+    userAgent?: string;
+    statusCode?: number;
+  }) {
+    try {
+      const logEntry: NewSystemLogs = {
+        id: generateId(),
+        level: logData.level,
+        category: logData.category,
+        message: logData.message,
+        details: logData.details ? JSON.stringify(logData.details) : undefined,
+        userId: logData.userId,
+        userEmail: logData.userEmail,
+        ip: logData.ip,
+        userAgent: logData.userAgent,
+        timestamp: new Date(),
+        statusCode: logData.statusCode,
+      };
+
+      await db.insert(systemLogs).values(logEntry);
+    } catch (error) {
+      // 日志写入失败不应该影响主业务流程
+      console.error('Failed to write log:', error);
+    }
   }
 }
 

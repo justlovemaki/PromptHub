@@ -61,8 +61,8 @@ export async function GET(request: NextRequest) {
     };
 
     subscriptionStatsResult.forEach(stat => {
-      if (stat.subscriptionStatus in subscriptionStats) {
-        subscriptionStats[stat.subscriptionStatus as keyof typeof subscriptionStats] = stat.count;
+      if (stat.subscriptionStatus.toLowerCase() in subscriptionStats) {
+        subscriptionStats[stat.subscriptionStatus.toLowerCase() as keyof typeof subscriptionStats] = stat.count;
       }
     });
 

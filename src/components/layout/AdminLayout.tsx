@@ -6,6 +6,7 @@ import { useAuthStore, useAuthStatus } from '@promptmanager/core-logic'
 import LanguageSwitcher from '../LanguageSwitcher'
 import LoginButton from '../LoginButton'
 import { useSession } from '@/lib/auth-client'
+import { user } from '@/drizzle-schema'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -13,7 +14,7 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [isClient, setIsClient] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -40,34 +41,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
       setToken(session.session.token)
       refreshUser()
     }
-  }, [isClient, isPending])
+  }, [isClient, isPending, isTokenExpired])
 
   const navigationItems = [
     {
       name: '用户仪表盘',
       href: `/${lang}/dashboard`,
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       ),
       current: pathname.startsWith(`/${lang}/dashboard`),
-      children: [
-        {
-          name: '概览',
-          href: `/${lang}/dashboard`
-        },
-        {
-          name: '提示词管理',
-          href: `/${lang}/dashboard/prompts`
-        }
-      ]
+      children: undefined as { name: string; href: string }[] | undefined
     },
     {
       name: '账户设置',
       href: `/${lang}/account`,
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
@@ -92,7 +84,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className="p-2 rounded-md text-gray-400 hover:text-gray-600 lg:hidden"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
@@ -134,26 +126,55 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
       <div className="flex flex-1 pt-16">
         {/* 左侧导航栏 Sidebar */}
         <nav className={`fixed left-0 top-16 bottom-0 bg-brand-navy transition-all duration-300 z-40 ${
-          sidebarCollapsed ? 'w-16' : 'w-64'
+          sidebarCollapsed ? 'w-16' : 'w-48'
         } lg:translate-x-0 ${sidebarCollapsed ? '' : 'lg:block hidden'}`}>
           <div className="flex flex-col h-full">
             <div className="flex-1 px-4 py-6 overflow-y-auto">
               <nav className="space-y-2">
+                {/* 切换按钮 - 根据状态显示展开或折叠按钮 */}
+                <div className={`flex ${sidebarCollapsed ? 'justify-center' : 'justify-start'} pt-4`}>
+                  <button
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    className={`${
+                      sidebarCollapsed
+                        ? 'p-2 flex items-center justify-center w-8 h-8'  // 折叠状态下确保完全居中
+                        : 'p-2'
+                    } text-gray-400 hover:text-white hover:bg-brand-navy-light rounded-lg transition-colors`}
+                    title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+                  >
+                    {sidebarCollapsed ? (
+                      // 折叠状态显示展开图标（向右箭头）- 稍微大一点以便点击
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                      </svg>
+                    ) : (
+                      // 展开状态显示折叠图标（向左箭头）
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
                 {navigationItems.map((item) => (
                   <div key={item.name}>
                     <button
-                      onClick={() => handleNavigation(item.href)}
-                      className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        item.current
-                          ? 'bg-brand-blue text-white'
-                          : 'text-gray-300 hover:bg-brand-navy-light hover:text-white'
-                      }`}
-                    >
-                      <span className={`${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`}>
+                       onClick={() => handleNavigation(item.href)}
+                      className={`w-full flex items-center text-sm font-medium rounded-lg transition-colors ${
+                         sidebarCollapsed
+                           ? 'justify-center px-2 py-2'
+                           : 'justify-start px-3 py-2 pl-4'
+                       } ${
+                         item.current
+                           ? 'bg-brand-blue text-white'
+                           : 'text-gray-300 hover:bg-brand-navy-light hover:text-white'
+                       }`}
+                       title={sidebarCollapsed ? item.name : undefined}
+                     >
+                      <span className={`flex-shrink-0 ${sidebarCollapsed ? 'mx-auto' : ''}`}>
                         {item.icon}
                       </span>
                       {!sidebarCollapsed && (
-                        <span className="truncate">{item.name}</span>
+                        <span className="truncate ml-3">{item.name}</span>
                       )}
                     </button>
                     
@@ -187,7 +208,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
         }`}>
           <div className="w-full mx-auto flex-1 p-6">
-            {children}
+              {children}
           </div>
         </main>
       </div>

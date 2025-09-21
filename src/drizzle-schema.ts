@@ -138,7 +138,35 @@ export const aiPointTransaction = sqliteTable("ai_point_transaction", {
 	relatedId: text("related_id"), // 关联ID，如提示词使用ID等
 	createdAt: integer("created_at", { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
 }, (table) => ({
-	userIdIndex: index("ai_point_transaction_user_id_idx").on(table.userId),
+ 	userIdIndex: index("ai_point_transaction_user_id_idx").on(table.userId),
+}));
+
+// ============== 系统日志表 ==============
+
+// 日志级别枚举
+export const logLevelEnum = ["INFO", "WARN", "ERROR", "DEBUG"] as const;
+
+// 日志分类枚举
+export const logCategoryEnum = ["AUTH", "API", "USER", "SYSTEM", "SECURITY", "PERFORMANCE"] as const;
+
+// 系统日志表
+export const systemLogs = sqliteTable("system_logs", {
+  id: text("id").primaryKey().notNull(),
+  level: text("level", { enum: logLevelEnum }).notNull(),
+  category: text("category", { enum: logCategoryEnum }).notNull(),
+  message: text("message").notNull(),
+  details: text("details"), // JSON字符串存储额外详情
+  userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+  userEmail: text("user_email"),
+  ip: text("ip"),
+  userAgent: text("user_agent"),
+  timestamp: integer("timestamp", { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+  statusCode: integer("status_code"),
+}, (table) => ({
+  timestampIndex: index("system_logs_timestamp_idx").on(table.timestamp),
+  levelIndex: index("system_logs_level_idx").on(table.level),
+  categoryIndex: index("system_logs_category_idx").on(table.category),
+  userIdIndex: index("system_logs_user_id_idx").on(table.userId),
 }));
 
 // ============== 类型导出 ==============
@@ -157,3 +185,5 @@ export type Prompt = typeof prompt.$inferSelect;
 export type NewPrompt = typeof prompt.$inferInsert;
 export type PromptUsage = typeof promptUsage.$inferSelect;
 export type NewPromptUsage = typeof promptUsage.$inferInsert;
+export type SystemLogs = typeof systemLogs.$inferSelect;
+export type NewSystemLogs = typeof systemLogs.$inferInsert;

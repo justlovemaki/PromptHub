@@ -343,3 +343,116 @@ export const CONSTANTS = {
   // API
   DEFAULT_TIMEOUT: 30000, // 30秒
 } as const;
+
+
+// 系统日志工具类 - 提供统一的日志记录接口
+export class SystemLogger {
+  private static instance: SystemLogger;
+
+  private constructor() {}
+
+  public static getInstance(): SystemLogger {
+    if (!SystemLogger.instance) {
+      SystemLogger.instance = new SystemLogger();
+    }
+    return SystemLogger.instance;
+  }
+
+  public log(
+    level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG',
+    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    message: string,
+    details?: any,
+    userId?: string,
+    userEmail?: string,
+    ip?: string,
+    userAgent?: string,
+    statusCode?: number
+  ) {
+    const timestamp = new Date().toISOString();
+    const logData = {
+      timestamp,
+      level,
+      category,
+      message,
+      details,
+      userId,
+      userEmail,
+      ip,
+      userAgent,
+      statusCode,
+    };
+
+    // 在控制台输出日志
+    console.log(`[${timestamp}] [${level}] [${category}] ${message}`, details || '');
+
+    // 可以在此处添加发送到外部日志服务的代码
+
+    return logData;
+  }
+
+  public info(
+    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    message: string,
+    details?: any,
+    userId?: string,
+    userEmail?: string,
+    ip?: string,
+    userAgent?: string
+  ) {
+    return this.log('INFO', category, message, details, userId, userEmail, ip, userAgent);
+  }
+
+  public warn(
+    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    message: string,
+    details?: any,
+    userId?: string,
+    userEmail?: string,
+    ip?: string,
+    userAgent?: string
+  ) {
+    return this.log('WARN', category, message, details, userId, userEmail, ip, userAgent);
+  }
+
+  public error(
+    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    message: string,
+    details?: any,
+    userId?: string,
+    userEmail?: string,
+    ip?: string,
+    userAgent?: string,
+    statusCode?: number
+  ) {
+    return this.log('ERROR', category, message, details, userId, userEmail, ip, userAgent, statusCode);
+  }
+
+  public debug(
+    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    message: string,
+    details?: any,
+    userId?: string,
+    userEmail?: string,
+    ip?: string,
+    userAgent?: string
+  ) {
+    return this.log('DEBUG', category, message, details, userId, userEmail, ip, userAgent);
+  }
+}
+
+// 导出单例实例
+export const logger = SystemLogger.getInstance();
+
+// 便捷的记录方法
+export const logInfo = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any) =>
+  logger.info(category, message, details);
+
+export const logWarn = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any) =>
+  logger.warn(category, message, details);
+
+export const logError = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any, statusCode?: number) =>
+  logger.error(category, message, details, undefined, undefined, undefined, undefined, statusCode);
+
+export const logDebug = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any) =>
+  logger.debug(category, message, details);

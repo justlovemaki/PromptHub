@@ -148,7 +148,7 @@ const ToastContainer: React.FC<{
   if (!mounted || messages.length === 0) return null
 
   return createPortal(
-    <div className="fixed top-4 right-4 z-50 w-96 max-w-[calc(100vw-2rem)]">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-96 max-w-[calc(100vw-2rem)]">
       {messages.map(message => (
         <Toast
           key={message.id}

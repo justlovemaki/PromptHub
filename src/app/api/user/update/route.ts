@@ -46,11 +46,11 @@ export async function POST(request: NextRequest) {
       .where(eq(user.id, authenticatedUser.id))
       .returning();
     
-    // delete updatedUser.role;
-    // delete updatedUser.stripeCustomerId;
-    // delete updatedUser.subscriptionId;
-    // delete updatedUser.subscriptionStatus;
-    // delete updatedUser.subscriptionEndDate;
+    delete updatedUser.role;
+    delete updatedUser.stripeCustomerId;
+    delete updatedUser.subscriptionId;
+    delete updatedUser.subscriptionStatus;
+    delete updatedUser.subscriptionEndDate;
     return NextResponse.json(
       successResponse(updatedUser, 'User updated successfully'),
       { status: HTTP_STATUS.OK }

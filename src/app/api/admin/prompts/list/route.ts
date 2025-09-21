@@ -1,0 +1,127 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdminInApiRoute } from '@/lib/auth-helpers'
+import { db } from '@/lib/database'
+import { prompt } from '@/drizzle-schema'
+import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils'
+import { desc, asc, sql } from 'drizzle-orm'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: NextRequest) {
+  try {
+    // 验证管理员身份
+    const adminUser = await verifyAdminInApiRoute(request)
+    if (!adminUser) {
+      return NextResponse.json(
+        errorResponse('Forbidden: Admin access required'),
+        { status: HTTP_STATUS.FORBIDDEN }
+      )
+    }
+
+    // 获取查询参数
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '10', 10)
+    const search = searchParams.get('search') || ''
+    const sortBy = searchParams.get('sortBy') || 'updatedAt'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
+    const spaceId = searchParams.get('spaceId') || undefined
+    const isPublic = searchParams.get('isPublic')
+
+    // 验证分页参数
+    const validatedPage = Math.max(1, page)
+    const validatedLimit = Math.min(Math.max(1, limit), 100)
+    const offset = (validatedPage - 1) * validatedLimit
+
+    // 验证排序参数
+    const validSortFields = ['title', 'createdAt', 'updatedAt', 'useCount']
+    const validSortOrders = ['asc', 'desc']
+    const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'updatedAt'
+    const finalSortOrder = validSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toLowerCase() : 'desc'
+
+    // 处理isPublic参数
+    const isPublicBool = isPublic === 'true' ? true : isPublic === 'false' ? false : undefined
+
+    // 构建where条件
+    let whereCondition
+    if (search && isPublicBool !== undefined) {
+      whereCondition = sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`
+    } else if (search) {
+      whereCondition = sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}`
+    } else if (isPublicBool !== undefined) {
+      whereCondition = sql`${prompt.isPublic} = ${isPublicBool}`
+    }
+
+    // 构建orderBy
+    let orderBy
+    switch (finalSortBy) {
+      case 'title':
+        orderBy = finalSortOrder === 'asc' ? asc(prompt.title) : desc(prompt.title)
+        break
+      case 'createdAt':
+        orderBy = finalSortOrder === 'asc' ? asc(prompt.createdAt) : desc(prompt.createdAt)
+        break
+      case 'updatedAt':
+        orderBy = finalSortOrder === 'asc' ? asc(prompt.updatedAt) : desc(prompt.updatedAt)
+        break
+      case 'useCount':
+        orderBy = finalSortOrder === 'asc' ? asc(prompt.useCount) : desc(prompt.useCount)
+        break
+      default:
+        orderBy = desc(prompt.updatedAt)
+    }
+
+    // 获取提示词列表
+    const prompts = await db.query.prompt.findMany({
+      limit: validatedLimit,
+      offset,
+      where: whereCondition,
+      orderBy,
+    })
+
+    // 获取总数
+    let totalQuery
+    if (search && isPublicBool !== undefined) {
+      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
+        .where(sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`)
+    } else if (search) {
+      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
+        .where(sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}`)
+    } else if (isPublicBool !== undefined) {
+      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
+        .where(sql`${prompt.isPublic} = ${isPublicBool}`)
+    } else {
+      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
+    }
+    const totalPrompts = await totalQuery
+    const total = totalPrompts[0].count
+
+    // 处理返回数据，解析tags等JSON字段
+    const processedPrompts = prompts.map(p => ({
+      ...p,
+      tags: p.tags ? JSON.parse(p.tags) : [],
+    }))
+
+    const totalPages = Math.ceil(total / validatedLimit)
+
+    const responseData = {
+      prompts: processedPrompts,
+      total,
+      page: validatedPage,
+      limit: validatedLimit,
+      totalPages
+    }
+
+    return NextResponse.json(
+      successResponse(responseData, 'Admin prompts retrieved successfully'),
+      { status: HTTP_STATUS.OK }
+    )
+
+  } catch (error) {
+    console.error('Admin list prompts error:', error)
+    return NextResponse.json(
+      errorResponse('Internal server error'),
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+    )
+  }
+}

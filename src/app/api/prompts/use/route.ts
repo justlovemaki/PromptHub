@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
-import { PromptService } from '@/lib/services';
+import { PromptService, LogService } from '@/lib/services';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +37,22 @@ export async function POST(request: NextRequest) {
         { status: HTTP_STATUS.NOT_FOUND }
       );
     }
+    // 记录日志
+    await LogService.writeLog({
+      level: 'INFO',
+      category: 'API',
+      message: 'Prompt used successfully',
+      details: {
+        promptId: promptId,
+        userId: user.id,
+        userEmail: user.email,
+        useCount: updatedPrompt.useCount,
+      },
+      userId: user.id,
+      userEmail: user.email,
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+      userAgent: request.headers.get('user-agent') || '',
+    });
     
     return NextResponse.json(
       successResponse({

@@ -245,6 +245,18 @@ export const AdminUpdateUserRequestSchema = z.object({
 
 export type AdminUpdateUserRequest = z.infer<typeof AdminUpdateUserRequestSchema>;
 
+// 热门提示词响应
+export const PopularPromptsSchema = z.array(z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  tags: z.string().optional(),
+  useCount: z.number(),
+  createdAt: z.date(),
+}));
+
+export type PopularPromptsResponse = z.infer<typeof PopularPromptsSchema>;
+
 // 系统统计类型
 export const AdminStatsSchema = z.object({
   totalUsers: z.number(),
@@ -252,13 +264,11 @@ export const AdminStatsSchema = z.object({
   totalSpaces: z.number(),
   activeUsers: z.number(), // 最近30天活跃用户
   newUsersThisMonth: z.number(),
-  proUsers: z.number(),
-  teamUsers: z.number(),
-  mostUsedPrompts: z.array(z.object({
-    id: z.string(),
-    title: z.string(),
-    useCount: z.number(),
-  })),
+  subscriptionStats: z.object({
+    free: z.number(),
+    pro: z.number(),
+    team: z.number(),
+  }),
   recentActivity: z.array(z.object({
     id: z.string(),
     type: z.enum(['user_created', 'prompt_created', 'prompt_used']),
@@ -355,6 +365,51 @@ export const validateUpdatePromptForm = (data: unknown): UpdatePromptRequest => 
 export const validateLoginForm = (data: unknown): LoginRequest => {
   return LoginRequestSchema.parse(data);
 };
+
+// ============== 系统日志类型 ==============
+
+// 系统日志类型
+export const SystemLogSchema = z.object({
+  id: z.string(),
+  level: z.enum(['INFO', 'WARN', 'ERROR', 'DEBUG']),
+  category: z.enum(['AUTH', 'API', 'USER', 'SYSTEM', 'SECURITY', 'PERFORMANCE']),
+  message: z.string(),
+  details: z.string().optional(), // JSON字符串存储额外详情
+  userId: z.string().nullable(),
+  userEmail: z.string().nullable(),
+  ip: z.string().nullable(),
+  userAgent: z.string().nullable(),
+  timestamp: z.date(),
+  statusCode: z.number().nullable(),
+});
+
+export type SystemLog = z.infer<typeof SystemLogSchema>;
+
+// 系统日志列表查询参数
+export const SystemLogListQuerySchema = z.object({
+  page: z.number().min(1).default(1),
+  limit: z.number().min(1).max(100).default(20),
+  sortBy: z.enum(['timestamp', 'level', 'category']).default('timestamp'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  level: z.enum(['INFO', 'WARN', 'ERROR', 'DEBUG']).optional(),
+  category: z.enum(['AUTH', 'API', 'USER', 'SYSTEM', 'SECURITY', 'PERFORMANCE']).optional(),
+  search: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+});
+
+export type SystemLogListQuery = z.infer<typeof SystemLogListQuerySchema>;
+
+// 系统日志列表响应
+export const SystemLogListResponseSchema = z.object({
+  logs: z.array(SystemLogSchema),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+});
+
+export type SystemLogListResponse = z.infer<typeof SystemLogListResponseSchema>;
 
 // ============== 导出所有类型 ==============
 

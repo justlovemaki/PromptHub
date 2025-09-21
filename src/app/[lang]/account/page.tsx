@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@promptmanager/core-logic'
 import { api } from '@promptmanager/core-logic'
+import { useToast } from '../../../components/ToastProvider'
 import AdminLayout from '../../../components/layout/AdminLayout'
 
 export default function AccountPage({ params }: { params: { lang: string } }) {
-  const { user, updateUser, purchaseAiPoints } = useAuth();
+  const { user, updateUser, purchaseAiPoints, refreshUser} = useAuth();
+  const { showSuccess } = useToast();
   const [name, setName] = useState(user?.name || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [aiPointsData, setAiPointsData] = useState<{
     totalPoints: number;
     usedPoints: number;
@@ -48,11 +49,8 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
     try {
       const success = await updateUser({ name });
       if (success) {
-        setShowSuccessMessage(true);
-        // 3秒后隐藏成功消息
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-        }, 3000);
+        refreshUser()
+        showSuccess('用户名已更新','用户信息更新成功！');
       }
     } finally {
       setIsSaving(false);
@@ -90,17 +88,6 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   return (
     <AdminLayout lang={params.lang}>
       <div className="space-y-8 max-w-4xl mx-auto">
-        {/* 成功消息提示 */}
-        {showSuccessMessage && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-green-800">用户信息更新成功！</span>
-            </div>
-          </div>
-        )}
 
         {/* 页面标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">

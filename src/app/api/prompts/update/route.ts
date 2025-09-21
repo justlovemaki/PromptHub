@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PromptService } from '@/lib/services';
+import { PromptService, LogService } from '@/lib/services';
 import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { z } from 'zod';
@@ -75,6 +75,21 @@ export async function POST(request: NextRequest) {
         { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
       );
     }
+    // 记录日志
+    await LogService.writeLog({
+      level: 'INFO',
+      category: 'API',
+      message: 'Prompt updated successfully',
+      details: {
+        promptId: id,
+        userId: user.id,
+        userEmail: user.email,
+      },
+      userId: user.id,
+      userEmail: user.email,
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+      userAgent: request.headers.get('user-agent') || '',
+    });
 
     return NextResponse.json(
       successResponse(updatedPrompt, 'Prompt updated successfully'),

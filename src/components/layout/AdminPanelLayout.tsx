@@ -13,7 +13,7 @@ interface AdminPanelLayoutProps {
 }
 
 const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [isClient, setIsClient] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -40,7 +40,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
       setToken(session.session.token)
       refreshUser()
     }
-  }, [isClient, isPending])
+  }, [isClient, isPending, isTokenExpired])
 
   const adminNavigationItems = [
     {
@@ -72,37 +72,6 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
         </svg>
       ),
       current: pathname === `/${lang}/admin/prompts`
-    },
-    {
-      name: '内容审核',
-      href: `/${lang}/admin/content`,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-        </svg>
-      ),
-      current: pathname === `/${lang}/admin/content`
-    },
-    {
-      name: '系统设置',
-      href: `/${lang}/admin/settings`,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-      current: pathname === `/${lang}/admin/settings`
-    },
-    {
-      name: '数据分析',
-      href: `/${lang}/admin/analytics`,
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      current: pathname === `/${lang}/admin/analytics`
     },
     {
       name: '系统日志',
@@ -177,33 +146,55 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
       <div className="flex flex-1 pt-16">
         {/* 管理后台专用侧边栏 */}
         <nav className={`fixed left-0 top-16 bottom-0 bg-brand-navy transition-all duration-300 z-40 ${
-          sidebarCollapsed ? 'w-16' : 'w-64'
+          sidebarCollapsed ? 'w-16' : 'w-48'
         } lg:translate-x-0 ${sidebarCollapsed ? '' : 'lg:block hidden'}`}>
           <div className="flex flex-col h-full">
             <div className="flex-1 px-4 py-6 overflow-y-auto">
-              <div className="mb-4">
-                {!sidebarCollapsed && (
-                  <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    管理功能
-                  </h2>
-                )}
-              </div>
               <nav className="space-y-2">
+                {/* 切换按钮 - 根据状态显示展开或折叠按钮 */}
+                <div className={`flex ${sidebarCollapsed ? 'justify-center' : 'justify-start'} mb-4`}>
+                  <button
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    className={`${
+                      sidebarCollapsed
+                        ? 'p-2 flex items-center justify-center w-8 h-8'  // 折叠状态下确保完全居中
+                        : 'p-2'
+                    } text-gray-400 hover:text-white hover:bg-brand-navy-light rounded-lg transition-colors`}
+                    title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+                  >
+                    {sidebarCollapsed ? (
+                      // 折叠状态显示展开图标（向右箭头）
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                      </svg>
+                    ) : (
+                      // 展开状态显示折叠图标（向左箭头）
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
                 {adminNavigationItems.map((item) => (
                   <button
-                    key={item.name}
-                    onClick={() => handleNavigation(item.href)}
-                    className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      item.current
-                        ? 'bg-brand-blue text-white'
-                        : 'text-gray-300 hover:bg-brand-navy-light hover:text-white'
-                    }`}
-                  >
-                    <span className={`${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`}>
+                     key={item.name}
+                     onClick={() => handleNavigation(item.href)}
+                    className={`w-full flex items-center text-sm font-medium rounded-lg transition-colors ${
+                      sidebarCollapsed
+                        ? 'justify-center px-2 py-2'
+                        : 'justify-start px-3 py-2 pl-4'
+                    } ${
+                       item.current
+                         ? 'bg-brand-blue text-white'
+                         : 'text-gray-300 hover:bg-brand-navy-light hover:text-white'
+                     }`}
+                     title={sidebarCollapsed ? item.name : undefined}
+                   >
+                    <span className={`flex-shrink-0 ${sidebarCollapsed ? 'mx-auto' : ''}`}>
                       {item.icon}
                     </span>
                     {!sidebarCollapsed && (
-                      <span className="truncate">{item.name}</span>
+                      <span className="truncate ml-3">{item.name}</span>
                     )}
                   </button>
                 ))}

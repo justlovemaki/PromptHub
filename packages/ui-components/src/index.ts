@@ -12,6 +12,7 @@ export * from "./components/modal";
 export * from "./components/sheet";
 export * from "./components/data-table";
 export * from "./components/loading";
+export * from "./components/search-toolbar";
 
 // TODO: 添加更多组件
 // export * from "./components/avatar";

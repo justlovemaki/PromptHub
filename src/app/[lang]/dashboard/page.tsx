@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import AdminLayout from '../../../components/layout/AdminLayout'
-import { useAuth } from '@promptmanager/core-logic'
-import { api } from '@promptmanager/core-logic'
+import { useAuth, api, type Prompt, type CreatePromptRequest, type UpdatePromptRequest, type PromptListQuery, type PromptListResponse, type PromptStats } from '@promptmanager/core-logic'
+import { useState, useEffect } from 'react'
+import { Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle, Card, DataTable, Loading } from '@promptmanager/ui-components'
+import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { PromptUseButton } from '../../../components/PromptUseButton'
-import { ToastProvider } from '../../../components/ToastProvider'
-import type { Prompt, PromptListQuery, PromptListResponse, DashboardStats } from '@promptmanager/core-logic'
+import TagSelector from '../../../components/TagSelector'
 
 // 添加样式
 const styles = `
@@ -18,104 +18,158 @@ const styles = `
   }
 `
 
-export default function DashboardPage({ params }: { params: { lang: string } }) {
+export default function PromptsManagementPage({ params }: { params: { lang: string } }) {
   const { user, isLoading, error } = useAuth()
-  const [recentPrompts, setRecentPrompts] = useState<Prompt[]>([])
-  const [promptsError, setPromptsError] = useState<string | null>(null)
-  const [hasInitialized, setHasInitialized] = useState(false) // 防重复初始化标志
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0) // 上次请求时间
-  
-  // 新增仪表盘统计状态
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
+  const [prompts, setPrompts] = useState<Prompt[]>([])
+  const [promptsLoading, setPromptsLoading] = useState(false)
+  const [stats, setStats] = useState<PromptStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(false)
-  const [statsError, setStatsError] = useState<string | null>(null)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [operationLoading, setOperationLoading] = useState(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-  // 获取仪表盘统计数据
-  const fetchDashboardStats = async (force = false) => {
-    if (!user?.personalSpaceId) return
-    
-    // 防重复调用：2秒内不允许重复请求（除非强制刷新）
-    const now = Date.now()
-    if (!force && now - lastFetchTime < 2000) {
-      console.log('请求频率过高，跳过重复调用')
-      return
+  // 最近更新的提示词状态
+  const [recentPrompts, setRecentPrompts] = useState<Prompt[]>([])
+  const [recentPromptsError, setRecentPromptsError] = useState<string | null>(null)
+  
+  // 分页状态
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 8,
+    total: 0,
+    totalPages: 0
+  })
+  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt' | 'title' | 'useCount'>('updatedAt')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  
+  // 新建/编辑表单状态
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    content: '',
+    tags: [] as string[], // Changed to array
+    visibility: 'private'
+  })
+
+  // 页面加载时获取提示词列表和统计数据
+  useEffect(() => {
+    if (user && user.personalSpaceId && !hasInitialized) {
+      setHasInitialized(true)
+      fetchPrompts()
+      fetchStats()
+      fetchRecentPrompts()
     }
-    
+  }, [user?.personalSpaceId])
+
+  // 获取统计数据
+  const fetchStats = async () => {
     try {
-      setStatsError(null)
       setStatsLoading(true)
-      setLastFetchTime(now)
-      
-      const response = await api.getDashboardStats()
-      
+
+      const response = await api.getPromptStats({
+        spaceId: user?.personalSpaceId || ''
+      })
+
       if (response.success) {
-        const data = response.data as DashboardStats
-        setDashboardStats(data)
-        // 同时更新最近提示词列表
-        setRecentPrompts(data.recentPrompts || [])
+        setStats(response.data)
       } else {
-        setStatsError((response as any).error?.message || '获取统计数据失败')
+        console.error('获取统计数据失败:', (response as any).error?.message || '未知错误')
       }
     } catch (error) {
-      console.error('获取仪表盘统计错误:', error)
-      setStatsError('网络错误，请稍后重试')
+      console.error('获取统计数据错误:', error)
     } finally {
       setStatsLoading(false)
     }
   }
-  // 手动刷新（强制请求）
-  const handleRefresh = () => {
-    console.log('手动刷新仪表盘数据')
-    fetchDashboardStats(true)
+
+  // 获取最近更新的提示词
+  const fetchRecentPrompts = async () => {
+    if (!user?.personalSpaceId) return
+
+    try {
+      setRecentPromptsError(null)
+
+      const response = await api.getPrompts({
+        spaceId: user?.personalSpaceId,
+        page: 1,
+        limit: 5,
+        sortBy: 'updatedAt',
+        sortOrder: 'desc'
+      })
+
+      if (response.success) {
+        const data = response.data as PromptListResponse
+        setRecentPrompts(data.prompts || [])
+      } else {
+        setRecentPromptsError((response as any).error?.message || '获取最近更新提示词失败')
+      }
+    } catch (error) {
+      console.error('获取最近更新提示词错误:', error)
+      setRecentPromptsError('网络错误，请稍后重试')
+    }
   }
 
-  // 当用户信息加载完成后获取统计数据（只执行一次）
+  // 获取提示词列表
+  const fetchPrompts = async () => {
+    try {
+      setPromptsLoading(true)
+      
+      const query: PromptListQuery = {
+        spaceId: user?.personalSpaceId,
+        search: searchQuery || undefined,
+        isPublic: filterStatus === 'all' ? undefined : filterStatus === 'public',
+        page: pagination.page,
+        limit: pagination.limit,
+        sortBy,
+        sortOrder
+      }
+      
+      const response = await api.getPrompts(query)
+      
+      if (response.success) {
+        const data = response.data as PromptListResponse
+        setPrompts(data.prompts || [])
+        setPagination({
+          page: data.page,
+          limit: data.limit,
+          total: data.total,
+          totalPages: data.totalPages
+        })
+      } else {
+        console.error('获取提示词列表失败:', (response as any).error?.message || '未知错误')
+      }
+    } catch (error) {
+      console.error('获取提示词列表错误:', error)
+    } finally {
+      setPromptsLoading(false)
+    }
+  }
+
+  // 搜索和筛选变化时重新获取数据，重置到第一页
   useEffect(() => {
-    if (user?.personalSpaceId && !isLoading && !hasInitialized) {
-      console.log('初始化仪表盘数据')
-      setHasInitialized(true)
-      fetchDashboardStats()
+    if (hasInitialized) {
+      const debounceTimer = setTimeout(() => {
+        if (pagination.page !== 1) {
+          setPagination(prev => ({ ...prev, page: 1 }))
+        } else {
+          fetchPrompts()
+        }
+      }, 300)
+      
+      return () => clearTimeout(debounceTimer)
     }
-  }, [user?.personalSpaceId, isLoading, hasInitialized])
+  }, [searchQuery, filterStatus, sortBy, sortOrder])
 
-  // 格式化日期
-  const formatDate = (dateString: string | Date) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })
-  }
-
-  // 获取可见性标签样式和文本
-  const getVisibilityBadge = (isPublic: boolean) => {
-    if (isPublic) {
-      return {
-        className: 'text-xs bg-green-100 text-green-800 px-2 py-1 rounded',
-        text: '公开'
-      }
-    } else {
-      return {
-        className: 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded',
-        text: '私有'
-      }
+  // 分页变化时获取数据
+  useEffect(() => {
+    if (hasInitialized && pagination.page > 0) {
+      fetchPrompts()
     }
-  }
-
-  // 加载状态
-  if (isLoading) {
-    return (
-      <AdminLayout lang={params.lang}>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue mx-auto"></div>
-            <p className="mt-4 text-gray-600">加载中...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    )
-  }
+  }, [pagination.page, pagination.limit])
 
   // 错误状态
   if (error) {
@@ -130,101 +184,314 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
       </AdminLayout>
     )
   }
+
+  // 处理创建提示词
+  const handleCreatePrompt = async () => {
+    if (!user?.personalSpaceId) {
+      console.error('缺少用户空间信息')
+      return
+    }
+
+    if (!formData.title.trim() || !formData.content.trim()) {
+      console.error('标题和内容不能为空')
+      return
+    }
+
+    try {
+      setOperationLoading(true)
+      const createData: CreatePromptRequest = {
+        title: formData.title,
+        content: formData.content,
+        description: formData.description || undefined,
+        tags: formData.tags.length > 0 ? formData.tags : undefined,
+        isPublic: formData.visibility === 'public',
+        spaceId: user.personalSpaceId
+      }
+
+      const response = await api.createPrompt(createData)
+      
+      if (response.success) {
+        console.log('Prompt created:', response.data)
+        // 创建成功后重新获取第一页数据和统计数据
+        setPagination(prev => ({ ...prev, page: 1 }))
+        fetchPrompts()
+        fetchStats()
+        fetchRecentPrompts()
+        setShowCreateModal(false)
+        resetForm()
+      } else {
+        console.error('创建提示词失败:', (response as any).error?.message || '未知错误')
+      }
+    } catch (error) {
+      console.error('创建提示词错误:', error)
+    } finally {
+      setOperationLoading(false)
+    }
+  }
+
+  // 处理编辑提示词
+  const handleEditPrompt = async () => {
+    if (!editingPrompt) return
+
+    if (!formData.title.trim() || !formData.content.trim()) {
+      console.error('标题和内容不能为空')
+      return
+    }
+    
+    try {
+      setOperationLoading(true)
+      const updateData: UpdatePromptRequest = {
+        id: editingPrompt.id,
+        title: formData.title,
+        content: formData.content,
+        description: formData.description || undefined,
+        tags: formData.tags.length > 0 ? formData.tags : undefined,
+        isPublic: formData.visibility === 'public'
+      }
+
+      const response = await api.updatePrompt(updateData)
+      
+      if (response.success) {
+        // 更新成功后重新获取当前页数据和统计数据
+        fetchPrompts()
+        fetchStats()
+        fetchRecentPrompts()
+        setShowEditModal(false)
+        resetForm()
+        setEditingPrompt(null)
+      } else {
+        console.error('更新提示词失败:', (response as any).error?.message || '未知错误')
+      }
+    } catch (error) {
+      console.error('更新提示词错误:', error)
+    } finally {
+      setOperationLoading(false)
+    }
+  }
+
+  // 处理删除提示词
+  const handleDeletePrompt = async (promptId: string) => {
+    if (!confirm('确定要删除这个提示词吗？此操作不可恢复。')) {
+      return
+    }
+    
+    try {
+      setOperationLoading(true)
+      const response = await api.deletePrompt({ id: promptId })
+      
+      if (response.success) {
+        // 删除成功后重新获取当前页数据和统计数据
+        fetchPrompts()
+        fetchStats()
+        fetchRecentPrompts()
+      } else {
+        console.error('删除提示词失败:', (response as any).error?.message || '未知错误')
+      }
+    } catch (error) {
+      console.error('删除提示词错误:', error)
+    } finally {
+      setOperationLoading(false)
+    }
+  }
+
+  // 重置表单
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      content: '',
+      tags: [],
+      visibility: 'private'
+    })
+  }
+
+  // 打开编辑模态框
+  const openEditModal = (prompt: Prompt) => {
+    setEditingPrompt(prompt)
+    // 解析tags字段（可能是JSON字符串）
+    let tagsArray: string[] = prompt.tags
+    
+    setFormData({
+      title: prompt.title || '',
+      description: prompt.description || '',
+      content: prompt.content || '',
+      tags: tagsArray,
+      visibility: prompt.isPublic ? 'public' : 'private'
+    })
+    setShowEditModal(true)
+  }
+
+  // 过滤和搜索提示词（因为API已经处理了搜索和筛选，这里主要用于客户端的快速筛选）
+  const filteredPrompts = prompts || []
+
+  // 分页功能
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }))
+  }
+
+  const handlePageSizeChange = (newLimit: number) => {
+    setPagination(prev => ({ ...prev, limit: newLimit, page: 1 }))
+  }
+
+  // 表格列定义
+  const columns = [
+    {
+      key: 'thisObj-title',
+      title: '标题',
+      width: 300,
+      sortable: true,
+      render: (prompt: string, record: Prompt) => (
+        <div>
+          <div className="font-medium text-gray-900">{record.title}</div>
+          <div className="text-sm text-gray-500">{record.description}</div>
+        </div>
+      )
+    },
+    {
+      key: 'useCount',
+      title: '使用次数',
+      width: 100,
+      sortable: true,
+      render: (prompt: number) => (
+        <div className="text-sm text-gray-900 font-medium flex items-center gap-1">
+          <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          {prompt || 0}
+        </div>
+      )
+    },
+    {
+      key: 'isPublic',
+      title: '可见性',
+      width: 80,
+      render: (prompt: boolean) => (
+        <span className={`px-2 py-1 text-xs rounded-full ${
+          prompt 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-blue-100 text-blue-800'
+        }`}>
+          {prompt ? '公开' : '私有'}
+        </span>
+      )
+    },
+    {
+      key: 'tags',
+      title: '标签',
+      width: 200,
+      render: (prompt: string[]) => {
+        // 解析tags字段
+        let tagsArray: string[] = prompt
+        
+        return (
+          <div className="flex flex-wrap gap-1">
+            {tagsArray.slice(0, 3).map((tag: string, index: number) => (
+              <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                {tag}
+              </span>
+            ))}
+            {tagsArray.length > 3 && (
+              <span className="px-2 py-1 text-xs text-gray-500">+{tagsArray.length - 3}</span>
+            )}
+          </div>
+        )
+      }
+    },
+    {
+      key: 'createdAt',
+      title: '创建时间',
+      width: 140,
+      sortable: true,
+      render: (prompt: string) => (
+        <div className="text-sm text-gray-500">
+          {prompt ? new Date(prompt).toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          }) : '-'}
+        </div>
+      )
+    },
+    {
+      key: 'updatedAt',
+      title: '更新时间',
+      width: 140,
+      sortable: true,
+      render: (prompt: string) => (
+        <div className="text-sm text-gray-500">
+          {prompt ? new Date(prompt).toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          }) : '-'}
+        </div>
+      )
+    },
+    {
+      key: 'thisObj-action',
+      title: '操作',
+      width: 180,
+      render: (prompt: Prompt) => (
+        <div className="flex space-x-2">
+          <PromptUseButton
+            prompt={prompt}
+            variant="outline"
+            size="sm"
+            onRefreshPrompts={() => {
+              fetchPrompts()
+              fetchStats()
+            }}
+          >
+            使用
+          </PromptUseButton>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openEditModal(prompt)}
+            disabled={operationLoading}
+          >
+            编辑
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-red-600 border-red-200 hover:bg-red-50"
+            onClick={() => handleDeletePrompt(prompt.id || '')}
+            disabled={operationLoading}
+          >
+            删除
+          </Button>
+        </div>
+      )
+    }
+  ]
+
   return (
-    <ToastProvider>
       <AdminLayout lang={params.lang}>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
         <div className="space-y-6">
-        {/* 欢迎信息 */}
+        {/* 页面标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">AI 提示词管理平台</h1>
-              <p className="text-gray-600 mt-1">
-                欢迎回来，{user?.name || user?.email || '用户'}！管理和使用您的 AI 提示词模板
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900">提示词管理</h1>
+              <p className="text-gray-600 mt-1">创建、编辑和管理你的 AI 提示词模板</p>
             </div>
-            <span className={`px-3 py-1 text-sm rounded-full ${
-              user?.subscriptionStatus === 'PRO' || user?.subscriptionStatus === 'TEAM'
-                ? 'bg-brand-blue text-white'
-                : 'bg-gray-100 text-gray-800'
-            }`}>
-              {user?.subscriptionStatus === 'PRO' && 'Pro 版'}
-              {user?.subscriptionStatus === 'TEAM' && 'Team 版'}
-              {user?.subscriptionStatus === 'FREE' && 'Free 版'}
-              {!user?.subscriptionStatus && '未知'}
-            </span>
+            <Button onClick={() => setShowCreateModal(true)}>
+              创建新提示词
+            </Button>
           </div>
         </div>
 
-        {/* 快速统计 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">我的提示词</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {statsLoading ? '...' : (dashboardStats?.totalPrompts ?? 0)}
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">本月创建</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {statsLoading ? '...' : (dashboardStats?.monthlyCreated ?? 0)}
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">剩余点数</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {statsLoading ? '...' : (dashboardStats?.remainingCredits?.toLocaleString() ?? '0')}
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">标签数量</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {statsLoading ? '...' : (dashboardStats?.tagsCount ?? 0)}
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 提示词列表 */}
+        {/* 最近更新的提示词 */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-center">
@@ -233,8 +500,8 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
                 <p className="text-gray-600 text-sm mt-1">查看您最近更新的5个提示词</p>
               </div>
               <div className="flex space-x-3">
-                <button 
-                  onClick={handleRefresh}
+                <button
+                  onClick={fetchRecentPrompts}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,38 +509,18 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
                   </svg>
                   <span>刷新</span>
                 </button>
-                <button 
-                  onClick={() => window.location.href = `/${params.lang}/dashboard/prompts`}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                  管理所有提示词
-                </button>
               </div>
             </div>
           </div>
 
           <div className="p-6">
-            {/* 统计数据错误状态 */}
-            {statsError && (
+            {/* 错误状态 */}
+            {recentPromptsError && (
               <div className="text-center py-12">
                 <div className="text-red-500 mb-2">加载失败</div>
-                <p className="text-gray-600 text-sm mb-4">{statsError}</p>
-                <button 
-                  onClick={handleRefresh}
-                  className="text-brand-blue hover:text-brand-blue/80 font-medium text-sm"
-                >
-                  重试
-                </button>
-              </div>
-            )}
-
-            {/* 提示词错误状态 */}
-            {promptsError && (
-              <div className="text-center py-12">
-                <div className="text-red-500 mb-2">加载失败</div>
-                <p className="text-gray-600 text-sm mb-4">{promptsError}</p>
-                <button 
-                  onClick={handleRefresh}
+                <p className="text-gray-600 text-sm mb-4">{recentPromptsError}</p>
+                <button
+                  onClick={fetchRecentPrompts}
                   className="text-brand-blue hover:text-brand-blue/80 font-medium text-sm"
                 >
                   重试
@@ -282,11 +529,18 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
             )}
 
             {/* 提示词卡片 */}
-            {!statsError && !promptsError && (
+            {!recentPromptsError && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {recentPrompts.length > 0 ? (
                   recentPrompts.map((prompt) => {
-                    const visibilityBadge = getVisibilityBadge(prompt.isPublic)
+                    // 获取可见性标签样式和文本
+                    const visibilityBadge = {
+                      className: prompt.isPublic
+                        ? 'text-xs bg-green-100 text-green-800 px-2 py-1 rounded'
+                        : 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded',
+                      text: prompt.isPublic ? '公开' : '私有'
+                    }
+
                     return (
                       <div key={prompt.id} className="bg-gray-50 rounded-lg border hover:shadow-md transition-shadow p-4">
                         <div className="flex justify-between items-start mb-3">
@@ -295,11 +549,11 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
                           </h3>
                           <span className={visibilityBadge.className}>{visibilityBadge.text}</span>
                         </div>
-                        
+
                         <p className="text-gray-600 text-sm mb-3 line-clamp-2" title={prompt.description || '暂无描述'}>
                           {prompt.description || '暂无描述'}
                         </p>
-                        
+
                         {/* 标签显示 */}
                         {prompt.tags && prompt.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-3">
@@ -313,19 +567,31 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
                             )}
                           </div>
                         )}
-                        
+
                         <div className="text-xs text-gray-500 mb-4">
-                          <div>更新时间：{prompt.updatedAt ? formatDate(prompt.updatedAt) : '未知'}</div>
+                          <div>更新时间：{prompt.updatedAt ? new Date(prompt.updatedAt).toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                          }) : '未知'}</div>
                           <div>使用次数：{prompt.useCount ?? 0}</div>
                         </div>
-                        
+
                         <div className="flex space-x-2">
                           <PromptUseButton
                             prompt={prompt}
                             variant="default"
                             size="sm"
                             className="flex-1"
-                            onRefreshPrompts={() => fetchDashboardStats(true)}
+                            onRefreshPrompts={() => {
+                              fetchPrompts()
+                              fetchStats()
+                              fetchRecentPrompts()
+                            }}
                           >
                             使用
                           </PromptUseButton>
@@ -342,8 +608,8 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
                       </svg>
                     </div>
                     <p className="text-gray-600 mb-4">您还没有创建任何提示词</p>
-                    <button 
-                      onClick={() => window.location.href = `/${params.lang}/dashboard/prompts`}
+                    <button
+                      onClick={() => setShowCreateModal(true)}
                       className="bg-brand-blue hover:bg-brand-blue/90 text-white px-4 py-2 rounded font-medium transition-colors"
                     >
                       创建第一个提示词
@@ -354,8 +620,488 @@ export default function DashboardPage({ params }: { params: { lang: string } }) 
             )}
           </div>
         </div>
+
+        {/* 统计信息 */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="p-6">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600">总提示词</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statsLoading ? '-' : (stats?.totalPrompts || 0)}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600">公开提示词</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statsLoading ? '-' : (stats?.publicPrompts || 0)}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 104 0 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600">私有提示词</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statsLoading ? '-' : (stats?.privatePrompts || 0)}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600">本月创建</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statsLoading ? '-' : (stats?.monthlyCreated || 0)}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* 搜索和筛选 */}
+        <SearchToolbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="搜索提示词标题、描述或标签..."
+          filterStatus={filterStatus}
+          onFilterChange={setFilterStatus}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+        />
+
+        {/* 提示词列表 */}
+        <Card>
+          <DataTable
+            columns={columns}
+            data={filteredPrompts}
+            rowKey="id"
+            loading={promptsLoading}
+            empty={
+              <div className="text-center py-8">
+                <div className="text-gray-500 mb-4">
+                  {searchQuery || filterStatus !== 'all' ? '没有找到匹配的提示词' : '还没有创建任何提示词'}
+                </div>
+                {!searchQuery && filterStatus === 'all' && (
+                  <Button onClick={() => setShowCreateModal(true)}>
+                    创建第一个提示词
+                  </Button>
+                )}
+              </div>
+            }
+            onSort={(key, direction) => {
+              setSortBy(key as 'createdAt' | 'updatedAt' | 'title' | 'useCount')
+              setSortOrder(direction)
+            }}
+            pagination={{
+              current: pagination.page,
+              pageSize: pagination.limit,
+              total: pagination.total,
+              onChange: (page, pageSize) => {
+                if (pageSize !== pagination.limit) {
+                  handlePageSizeChange(pageSize)
+                } else {
+                  handlePageChange(page)
+                }
+              }
+            }}
+          />
+        </Card>
+
+        {/* 创建提示词模态框 */}
+        <Modal
+          open={showCreateModal}
+          onOpenChange={(open) => {
+            setShowCreateModal(open)
+            if (!open) resetForm()
+          }}
+        >
+          <ModalContent size="2xl">
+            <ModalHeader>
+              <ModalTitle>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-gray-900">创建新提示词</div>
+                    <div className="text-sm text-gray-500 font-normal">创建一个新的 AI 提示词模板</div>
+                  </div>
+                </div>
+              </ModalTitle>
+            </ModalHeader>
+            
+            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[75vh]">
+              <div className="grid gap-6">
+                {/* 基本信息区域 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
+                    <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    基本信息
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        标题 <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        placeholder="为你的提示词起一个清晰的标题"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        描述
+                      </label>
+                      <Input
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="简短描述这个提示词的用途和场景"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 内容区域 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
+                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    提示词内容
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      内容 <span className="text-red-500">*</span>
+                    </label>
+                    <Textarea
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      placeholder="输入提示词的具体内容...\n\n提示：你可以使用变量占位符，如 {用户输入}、{主题} 等"
+                      rows={6}
+                      className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none rounded-xl px-4 py-3"
+                    />
+                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      字符数：{formData.content.length}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 设置区域 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
+                    <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    设置选项
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        可见性
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={formData.visibility}
+                          onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
+                        >
+                          <option value="private">🔒 私有 - 仅自己可见</option>
+                          <option value="public">🌐 公开 - 所有人可见</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        标签
+                      </label>
+                      <TagSelector
+                        selectedTags={formData.tags}
+                        onChange={(tags) => setFormData({ ...formData, tags })}
+                        language="cn"
+                        placeholder="点击选择标签..."
+                        className=""
+                        isEditing={!!editingPrompt}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 底部操作区域 */}
+            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-2xl">
+              <div className="text-sm text-gray-500">
+                <span className="flex items-center gap-1">
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  填写必填字段后即可创建
+                </span>
+              </div>
+              <div className="flex space-x-3">
+                <Button 
+                  onClick={handleCreatePrompt} 
+                  disabled={operationLoading || !formData.title.trim() || !formData.content.trim()}
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+                >
+                  {operationLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      创建中...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      创建提示词
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
+
+        {/* 编辑提示词模态框 */}
+        <Modal
+          open={showEditModal}
+          onOpenChange={(open) => {
+            setShowEditModal(open)
+            if (!open) {
+              resetForm()
+              setEditingPrompt(null)
+            }
+          }}
+        >
+          <ModalContent size="2xl">
+            <ModalHeader>
+              <ModalTitle>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-gray-900">编辑提示词</div>
+                    <div className="text-sm text-gray-500 font-normal">修改已有的提示词内容和设置</div>
+                  </div>
+                </div>
+              </ModalTitle>
+            </ModalHeader>
+            
+            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[75vh]">
+              <div className="grid gap-6">
+                {/* 基本信息区域 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
+                    <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    基本信息
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        标题 <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        placeholder="为你的提示词起一个清晰的标题"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        描述
+                      </label>
+                      <Input
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="简短描述这个提示词的用途和场景"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 内容区域 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
+                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    提示词内容
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      内容 <span className="text-red-500">*</span>
+                    </label>
+                    <Textarea
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      placeholder="输入提示词的具体内容...\n\n提示：你可以使用变量占位符，如 {用户输入}、{主题} 等"
+                      rows={6}
+                      className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none rounded-xl px-4 py-3"
+                    />
+                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      字符数：{formData.content.length}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 设置区域 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
+                    <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    设置选项
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        可见性
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={formData.visibility}
+                          onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
+                        >
+                          <option value="private">🔒 私有 - 仅自己可见</option>
+                          <option value="public">🌐 公开 - 所有人可见</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        标签
+                      </label>
+                      <TagSelector
+                        selectedTags={formData.tags}
+                        onChange={(tags) => setFormData({ ...formData, tags })}
+                        language="cn"
+                        placeholder="点击选择标签..."
+                        className=""
+                        isEditing={!!editingPrompt}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 底部操作区域 */}
+            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-2xl">
+              <div className="text-sm text-gray-500">
+                <span className="flex items-center gap-1">
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  修改后的内容将立即生效
+                </span>
+              </div>
+              <div className="flex space-x-3">
+                <Button 
+                  onClick={handleEditPrompt} 
+                  disabled={operationLoading || !formData.title.trim() || !formData.content.trim()}
+                  className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+                >
+                  {operationLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      保存中...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      保存更改
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
       </div>
     </AdminLayout>
-    </ToastProvider>
   )
 }

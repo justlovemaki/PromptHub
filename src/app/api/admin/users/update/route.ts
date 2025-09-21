@@ -9,12 +9,11 @@ import { eq } from 'drizzle-orm';
 
 // 更新用户验证模式
 const updateUserSchema = z.object({
-  id: z.string().min(1, 'User ID is required'),
-  data: z.object({
-    role: z.enum(['USER', 'ADMIN']).optional(),
-    subscriptionStatus: z.enum(['FREE', 'PRO', 'TEAM']).optional(),
-    name: z.string().optional(),
-  }),
+  userId: z.string().min(1, 'User ID is required'),
+  role: z.enum(['USER', 'ADMIN']).optional(),
+  subscriptionStatus: z.enum(['FREE', 'PRO', 'TEAM']).optional(),
+  subscriptionEndDate: z.date().nullable().optional(),
+  name: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -40,10 +39,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { id, data } = validation.data;
+    const { userId, role, subscriptionStatus, subscriptionEndDate, name } = validation.data;
 
     // 检查目标用户是否存在
-    const targetUser = await UserService.findUserById(id);
+    const targetUser = await UserService.findUserById(userId);
     if (!targetUser) {
       return NextResponse.json(
         errorResponse('User not found'),
@@ -54,10 +53,13 @@ export async function POST(request: NextRequest) {
     // 更新用户
     const [updatedUser] = await db.update(user)
       .set({
-        ...data,
+        ...(role !== undefined && { role }),
+        ...(subscriptionStatus !== undefined && { subscriptionStatus }),
+        ...(subscriptionEndDate !== undefined && { subscriptionEndDate }),
+        ...(name !== undefined && { name }),
         updatedAt: new Date(),
       })
-      .where(eq(user.id, id))
+      .where(eq(user.id, userId))
       .returning({
         id: user.id,
         email: user.email,

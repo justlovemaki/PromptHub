@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PromptService } from '@/lib/services';
+import { PromptService, LogService } from '@/lib/services';
 import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { z } from 'zod';
@@ -60,6 +60,22 @@ export async function POST(request: NextRequest) {
     }
 
     const newDbPrompt = await PromptService.getPromptsById(newPrompt.id)
+    // 记录日志
+    await LogService.writeLog({
+      level: 'INFO',
+      category: 'API',
+      message: 'Prompt created successfully',
+      details: {
+        promptId: newPrompt.id,
+        title: newPrompt.title,
+        userId: user.id,
+        userEmail: user.email,
+      },
+      userId: user.id,
+      userEmail: user.email,
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+      userAgent: request.headers.get('user-agent') || '',
+    });
     return NextResponse.json(
       successResponse(newDbPrompt, 'Prompt created successfully'),
       { status: HTTP_STATUS.CREATED }
