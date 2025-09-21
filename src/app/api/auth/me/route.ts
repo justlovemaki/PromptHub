@@ -95,6 +95,7 @@ export async function GET(request: NextRequest) {
       stripeCustomerId: userDetails.stripeCustomerId,
       subscriptionId: userDetails.subscriptionId,
       subscriptionEndDate: userDetails.subscriptionEndDate,
+      subscriptionAiPoints: userDetails.subscriptionAiPoints,
       personalSpaceId: personalSpace?.id || null,
     };
     

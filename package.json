@@ -39,6 +39,7 @@
     "better-sqlite3": "^12.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "decimal.js": "^10.6.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.44.4",
     "i18next": "^23.11.5",

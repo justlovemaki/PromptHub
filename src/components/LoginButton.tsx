@@ -11,7 +11,7 @@ export default function LoginButton({ lng }: { lng: string }) {
   const [isClient, setIsClient] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { data: session, isPending } = useSession()
-  const { logout} = useAuthStore()
+  const { user: authUser, logout } = useAuthStore()
   const { t } = useTranslation(lng, 'common')
   
 
@@ -60,29 +60,32 @@ export default function LoginButton({ lng }: { lng: string }) {
     )
   }
 
+  // 优先使用 authStore 中的用户信息，如果没有则使用 session 中的用户信息
+  const currentUser = authUser || session?.user;
+
   // 如果用户已登录，显示用户名和头像
-  if (session?.user) {
+  if (currentUser) {
     return (
       <div className="relative">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
         >
-          {session.user.image ? (
+          {currentUser.image ? (
             <img 
-              src={session.user.image} 
-              alt={session.user.name || 'User'} 
+              src={currentUser.image} 
+              alt={currentUser.name || 'User'} 
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-brand-blue flex items-center justify-center">
               <span className="text-white text-sm font-medium">
-                {(session.user.name || session.user.email || 'U').charAt(0).toUpperCase()}
+                {(currentUser.name || currentUser.email || 'U').charAt(0).toUpperCase()}
               </span>
             </div>
           )}
           <span className="text-gray-700 font-medium">
-            {session.user.name || session.user.email}
+            {currentUser.name || currentUser.email}
           </span>
           <svg 
             className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 

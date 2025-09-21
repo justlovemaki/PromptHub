@@ -186,7 +186,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
         <main className={`flex-1 flex flex-col transition-all duration-300 ${
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
         }`}>
-          <div className="flex-1 p-6">
+          <div className="w-full mx-auto flex-1 p-6">
             {children}
           </div>
         </main>

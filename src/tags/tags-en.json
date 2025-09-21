@@ -1,0 +1,116 @@
+{
+  "prompt_tags_classification": {
+    "scenario_tags": {
+      "title": "Scenario Tags",
+      "description": "Describes the domain or context in which the user is applying the prompt.",
+      "categories": {
+        "office_and_professional": {
+          "category_name": "Office & Professional",
+          "labels": [
+            {"name": "Email Management", "description": "Draft, reply to, polish, decline, or invite via email."},
+            {"name": "Meeting Assistant", "description": "Generate agendas, meeting minutes, and action item summaries."},
+            {"name": "Reports & Docs", "description": "Weekly reports, project reports, research documents, data analysis reports."},
+            {"name": "Presentations", "description": "Generate presentation outlines, speech drafts, and slide content."},
+            {"name": "Project Management", "description": "Create plans, break down tasks (WBS), and assess risks."},
+            {"name": "Human Resources", "description": "Write job descriptions, design interview questions, and draft performance reviews."},
+            {"name": "Legal Affairs", "description": "Draft contracts, explain clauses, and provide legal consultation."},
+            {"name": "Finance & Accounting", "description": "Financial analysis, market interpretation, and report explanation."},
+            {"name": "Customer Service", "description": "Respond to customer inquiries, handle complaints, and write FAQs."}
+          ]
+        },
+        "content_and_marketing": {
+          "category_name": "Content & Marketing",
+          "labels": [
+            {"name": "Article Writing", "description": "Blogs, press releases, in-depth analysis articles."},
+            {"name": "Social Media", "description": "Generate content for Twitter, Instagram, Facebook, etc."},
+            {"name": "Ad Copywriting", "description": "Slogans, product feature extraction, marketing copy."},
+            {"name": "SEO Optimization", "description": "Keyword research, generate SEO titles and descriptions, content optimization."},
+            {"name": "Video Scripts", "description": "Short video scripts, YouTube scripts, voice-over drafts."},
+            {"name": "Marketing Strategy", "description": "User persona analysis, campaign planning, brand positioning."},
+            {"name": "Brand Naming", "description": "Naming for products, companies, or events."}
+          ]
+        },
+        "technology_and_development": {
+          "category_name": "Technology & Development",
+          "labels": [
+            {"name": "Coding", "description": "Generate code snippets, implement functions, write algorithms."},
+            {"name": "Code Assistance", "description": "Explain, debug, optimize, or refactor code."},
+            {"name": "Technical Docs", "description": "Write API documentation, user manuals, and development logs."},
+            {"name": "System Design", "description": "Architectural design, database schema generation."}
+          ]
+        },
+        "learning_and_education": {
+          "category_name": "Learning & Education",
+          "labels": [
+            {"name": "Concept Explanation", "description": "Explain scientific theories, technical terms, complex concepts."},
+            {"name": "Homework Assistance", "description": "Problem-solving approaches, essay outlines, knowledge summaries."},
+            {"name": "Lesson Planning", "description": "Create syllabi, design class activities, generate questions."},
+            {"name": "Language Learning", "description": "Grammar practice, conversational role-play, vocabulary memorization."},
+            {"name": "Academic Research", "description": "Literature reviews, paper polishing, research idea generation."}
+          ]
+        },
+        "personal_life_and_self_improvement": {
+          "category_name": "Personal Life & Self-Improvement",
+          "labels": [
+            {"name": "Travel Planning", "description": "Create itineraries, recommend attractions and restaurants."},
+            {"name": "Health & Fitness", "description": "Customize workout plans, generate healthy recipes."},
+            {"name": "Career Planning", "description": "Resume optimization, mock interviews, career development advice."},
+            {"name": "Decision Support", "description": "Pro-con lists, providing different perspectives."},
+            {"name": "Entertainment", "description": "Role-playing, text-based games, writing poetry."}
+          ]
+        }
+      }
+    },
+    "intent_tags": {
+      "title": "Intent Tags",
+      "description": "Describes the specific action or task type the user wants the AI to perform.",
+      "categories": {
+        "generation_and_creation": {
+          "category_name": "Generation & Creation",
+          "labels": [
+            {"name": "Drafting", "description": "Generate a first draft from scratch."},
+            {"name": "Ideation", "description": "Brainstorm and generate multiple ideas or options."},
+            {"name": "Continuation", "description": "Continue writing based on existing text."},
+            {"name": "Imitation", "description": "Create content by imitating a given style, tone, or structure."}
+          ]
+        },
+        "analysis_and_extraction": {
+          "category_name": "Analysis & Extraction",
+          "labels": [
+            {"name": "Summarization", "description": "Condense a long text into key points."},
+            {"name": "Extraction", "description": "Extract key information (e.g., names, dates, data) from text."},
+            {"name": "Classification", "description": "Categorize content into predefined classes."},
+            {"name": "Sentiment Analysis", "description": "Determine the emotional tone (positive/negative/neutral) of a text."},
+            {"name": "Comparison", "description": "Identify similarities and differences between two or more texts."}
+          ]
+        },
+        "editing_and_rewriting": {
+          "category_name": "Editing & Rewriting",
+          "labels": [
+            {"name": "Polishing", "description": "Improve language to be more fluent, professional, or elegant."},
+            {"name": "Shortening", "description": "Reduce the word count while retaining the core meaning."},
+            {"name": "Expansion", "description": "Elaborate on details and add more content."},
+            {"name": "Paraphrasing", "description": "Restate something in different words."},
+            {"name": "Style Transfer", "description": "Convert text from one style (e.g., informal) to another (e.g., formal)."}
+          ]
+        },
+        "transformation_and_formatting": {
+          "category_name": "Transformation & Formatting",
+          "labels": [
+            {"name": "Translation", "description": "Convert text between different languages."},
+            {"name": "Formatting", "description": "Output content in a specific format, such as JSON, Markdown, or a table."},
+            {"name": "Code Conversion", "description": "Convert code from one programming language to another."}
+          ]
+        },
+        "interaction_and_simulation": {
+          "category_name": "Interaction & Simulation",
+          "labels": [
+            {"name": "Role-Playing", "description": "Have the AI act as a specific character for dialogue or tasks."},
+            {"name": "Simulation", "description": "Simulate a conversation or the development of an event."},
+            {"name": "Questioning", "description": "Have the AI ask questions about a given piece of content."}
+          ]
+        }
+      }
+    }
+  }
+}

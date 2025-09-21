@@ -18,6 +18,7 @@ export const UserSchema = z.object({
   stripeCustomerId: z.string().nullable(),
   subscriptionId: z.string().nullable(),
   subscriptionEndDate: z.date().nullable(),
+  subscriptionAiPoints: z.number().default(0), // 用户的AI点数
   personalSpaceId: z.string().nullable(), // 用户的个人空间ID
 });
 

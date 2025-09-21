@@ -30,14 +30,19 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 验证请求数据
-    body.data = body.data || {};
-    body.data.title = body.title.trim();
-    body.data.content = body.content.trim();
-    body.data.description = body.description.trim();
-    body.data.tags = body.tags ? body.tags.map(tag => tag.trim()) : [];
-    body.data.isPublic = body.isPublic;
-    const validation = updatePromptSchema.safeParse(body);
+    // 验证和转换请求数据
+    const requestData = {
+      id: body.id,
+      data: {
+        title: body.title?.trim(),
+        content: body.content?.trim(), 
+        description: body.description?.trim(),
+        tags: body.tags ? body.tags.map((tag: string) => tag.trim()) : undefined,
+        isPublic: body.isPublic
+      }
+    };
+    
+    const validation = updatePromptSchema.safeParse(requestData);
     if (!validation.success) {
       return NextResponse.json(
         errorResponse('Invalid input: ' + validation.error.errors.map(e => e.message).join(', ')),
@@ -49,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     // 处理标签默认值
     if (data.tags !== undefined) {
-      data.tags = data.tags && data.tags.length > 0 ? data.tags : ['未打标'];
+      data.tags = data.tags && data.tags.length > 0 ? data.tags : [];
     }
 
     // 验证提示词所有权

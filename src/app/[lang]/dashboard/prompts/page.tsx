@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle, Card, DataTable, Loading } from '@promptmanager/ui-components'
 import { PromptUseButton } from '../../../../components/PromptUseButton'
 import { ToastProvider } from '../../../../components/ToastProvider'
+import TagSelector from '../../../../components/TagSelector'
 
 export default function PromptsManagementPage({ params }: { params: { lang: string } }) {
   const { user, isLoading, error } = useAuth()
@@ -36,7 +37,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     title: '',
     description: '',
     content: '',
-    tags: '',
+    tags: [] as string[], // Changed to array
     visibility: 'private'
   })
 
@@ -160,7 +161,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         title: formData.title,
         content: formData.content,
         description: formData.description || undefined,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
+        tags: formData.tags.length > 0 ? formData.tags : undefined,
         isPublic: formData.visibility === 'public',
         spaceId: user.personalSpaceId
       }
@@ -201,7 +202,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         title: formData.title,
         content: formData.content,
         description: formData.description || undefined,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
+        tags: formData.tags.length > 0 ? formData.tags : undefined,
         isPublic: formData.visibility === 'public'
       }
 
@@ -254,7 +255,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       title: '',
       description: '',
       content: '',
-      tags: '',
+      tags: [],
       visibility: 'private'
     })
   }
@@ -269,7 +270,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       title: prompt.title || '',
       description: prompt.description || '',
       content: prompt.content || '',
-      tags: tagsArray.join(', '),
+      tags: tagsArray,
       visibility: prompt.isPublic ? 'public' : 'private'
     })
     setShowEditModal(true)
@@ -301,7 +302,20 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         </div>
       )
     },
-
+    {
+      key: 'useCount',
+      title: '使用次数',
+      width: 100,
+      sortable: true,
+      render: (prompt: number) => (
+        <div className="text-sm text-gray-900 font-medium flex items-center gap-1">
+          <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          {prompt || 0}
+        </div>
+      )
+    },
     {
       key: 'isPublic',
       title: '可见性',
@@ -354,20 +368,6 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             second: '2-digit',
             hour12: false
           }) : '-'}
-        </div>
-      )
-    },
-    {
-      key: 'useCount',
-      title: '使用次数',
-      width: 100,
-      sortable: true,
-      render: (prompt: number) => (
-        <div className="text-sm text-gray-900 font-medium flex items-center gap-1">
-          <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          {prompt || 0}
         </div>
       )
     },
@@ -447,7 +447,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         </div>
 
         {/* 统计信息 */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="p-6">
             <div className="flex items-center">
               <div className="flex-1">
@@ -601,7 +601,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             if (!open) resetForm()
           }}
         >
-          <ModalContent size="xl">
+          <ModalContent size="2xl">
             <ModalHeader>
               <ModalTitle>
                 <div className="flex items-center gap-3">
@@ -618,7 +618,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
               </ModalTitle>
             </ModalHeader>
             
-            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[65vh]">
+            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[75vh]">
               <div className="grid gap-6">
                 {/* 基本信息区域 */}
                 <div className="space-y-4">
@@ -721,13 +721,14 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         标签
                       </label>
-                      <Input
-                        value={formData.tags}
-                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                        placeholder="写作, 营销, 创意"
-                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                      <TagSelector
+                        selectedTags={formData.tags}
+                        onChange={(tags) => setFormData({ ...formData, tags })}
+                        language="cn"
+                        placeholder="点击选择标签..."
+                        className=""
+                        isEditing={!!editingPrompt}
                       />
-                      <div className="mt-1 text-xs text-gray-500">用逗号分隔多个标签</div>
                     </div>
                   </div>
                 </div>
@@ -783,7 +784,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             }
           }}
         >
-          <ModalContent size="xl">
+          <ModalContent size="2xl">
             <ModalHeader>
               <ModalTitle>
                 <div className="flex items-center gap-3">
@@ -800,7 +801,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
               </ModalTitle>
             </ModalHeader>
             
-            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[65vh]">
+            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[75vh]">
               <div className="grid gap-6">
                 {/* 基本信息区域 */}
                 <div className="space-y-4">
@@ -903,13 +904,14 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         标签
                       </label>
-                      <Input
-                        value={formData.tags}
-                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                        placeholder="写作, 营销, 创意"
-                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                      <TagSelector
+                        selectedTags={formData.tags}
+                        onChange={(tags) => setFormData({ ...formData, tags })}
+                        language="cn"
+                        placeholder="点击选择标签..."
+                        className=""
+                        isEditing={!!editingPrompt}
                       />
-                      <div className="mt-1 text-xs text-gray-500">用逗号分隔多个标签</div>
                     </div>
                   </div>
                 </div>

@@ -21,6 +21,8 @@ export const user = sqliteTable("user", {
 	stripeCustomerId: text("stripe_customer_id"),
 	subscriptionId: text("subscription_id"),
 	subscriptionEndDate: integer("subscription_end_date", { mode: 'timestamp_ms' }),
+	// AI点数相关字段
+	subscriptionAiPoints: integer("subscription_ai_points").default(0),
 }, (table) => ({
 	emailUnique: uniqueIndex("user_email_unique").on(table.email),
 	usernameUnique: uniqueIndex("user_username_unique").on(table.username),
@@ -121,6 +123,22 @@ export const promptUsage = sqliteTable("prompt_usage", {
 }, (table) => ({
 	promptIdIndex: index("prompt_usage_prompt_id_idx").on(table.promptId),
 	userIdIndex: index("prompt_usage_user_id_idx").on(table.userId),
+}));
+
+// ============== AI点数相关表 ==============
+
+// AI点数流水表
+export const aiPointTransaction = sqliteTable("ai_point_transaction", {
+	id: text("id").primaryKey().notNull(),
+	userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+	amount: integer("amount").notNull(), // 变化点数，正数表示增加，负数表示减少
+	balance: integer("balance").notNull(), // 变化后的余额
+	type: text("type", { enum: ["EARN", "USE", "ADMIN"] }).notNull(), // 点数变化类型
+	description: text("description"), // 描述
+	relatedId: text("related_id"), // 关联ID，如提示词使用ID等
+	createdAt: integer("created_at", { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+}, (table) => ({
+	userIdIndex: index("ai_point_transaction_user_id_idx").on(table.userId),
 }));
 
 // ============== 类型导出 ==============

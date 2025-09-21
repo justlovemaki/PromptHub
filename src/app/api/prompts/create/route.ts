@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const { title, content, description, tags, isPublic } = validation.data;
 
     // 处理标签默认值
-    const processedTags = tags && tags.length > 0 ? tags : ['未打标'];
+    const processedTags = tags && tags.length > 0 ? tags : [];
 
     // 创建提示词
     const newPrompt = await PromptService.createPrompt({

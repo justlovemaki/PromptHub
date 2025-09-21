@@ -1,0 +1,116 @@
+{
+  "prompt_tags_classification": {
+    "scenario_tags": {
+      "title": "场景标签",
+      "description": "描述用户在特定领域或情境下使用提示词的目的。",
+      "categories": {
+        "office_and_professional": {
+          "category_name": "职场办公",
+          "labels": [
+            {"name": "邮件处理", "description": "撰写、回复、润色、拒绝、邀约邮件。"},
+            {"name": "会议助理", "description": "生成议程、会议纪要、行动项总结。"},
+            {"name": "报告文档", "description": "周报、项目报告、调研报告、数据分析报告。"},
+            {"name": "演示文稿", "description": "生成PPT大纲、演讲稿、内容填充。"},
+            {"name": "项目管理", "description": "制定计划、分解任务（WBS）、风险评估。"},
+            {"name": "人力资源", "description": "撰写招聘JD、面试问题设计、绩效评估文案。"},
+            {"name": "法律事务", "description": "合同草拟、条款解释、法律咨询。"},
+            {"name": "金融财会", "description": "财务分析、市场解读、报表解释。"},
+            {"name": "客户服务", "description": "回复客户咨询、处理投诉、编写FAQ。"}
+          ]
+        },
+        "content_and_marketing": {
+          "category_name": "内容创作与营销",
+          "labels": [
+            {"name": "文章写作", "description": "博客、新闻稿、深度分析文章。"},
+            {"name": "社交媒体", "description": "生成推文、小红书笔记、Facebook帖子。"},
+            {"name": "广告文案", "description": "广告语（Slogan）、产品卖点提炼、营销推文。"},
+            {"name": "SEO优化", "description": "关键词研究、生成SEO标题和描述、内容优化。"},
+            {"name": "视频脚本", "description": "短视频脚本、YouTube脚本、口播稿。"},
+            {"name": "市场策略", "description": "用户画像分析、营销活动策划、品牌定位。"},
+            {"name": "品牌命名", "description": "产品、公司、活动命名。"}
+          ]
+        },
+        "technology_and_development": {
+          "category_name": "技术与开发",
+          "labels": [
+            {"name": "代码编程", "description": "生成代码片段、实现特定功能、算法编写。"},
+            {"name": "代码辅助", "description": "解释代码、代码调试（Debug）、代码优化、代码重构。"},
+            {"name": "技术文档", "description": "编写API文档、用户手册、开发日志。"},
+            {"name": "系统设计", "description": "架构设计、数据库模式生成。"}
+          ]
+        },
+        "learning_and_education": {
+          "category_name": "学习与教育",
+          "labels": [
+            {"name": "概念解释", "description": "解释科学理论、专业术语、复杂概念。"},
+            {"name": "作业辅导", "description": "解题思路、作文大纲、知识点梳理。"},
+            {"name": "课程设计", "description": "制定教学大纲、设计课堂活动、出题。"},
+            {"name": "语言学习", "description": "语法练习、口语对话模拟、单词记忆。"},
+            {"name": "学术研究", "description": "文献综述、论文润色、研究思路启发。"}
+          ]
+        },
+        "personal_life_and_self_improvement": {
+          "category_name": "个人生活与提升",
+          "labels": [
+            {"name": "旅行计划", "description": "制定行程、推荐景点和餐厅。"},
+            {"name": "健康健身", "description": "定制健身计划、生成健康食谱。"},
+            {"name": "职业规划", "description": "简历优化、模拟面试、职业发展建议。"},
+            {"name": "决策辅助", "description": "利弊分析（Pro-Con List）、提供不同视角。"},
+            {"name": "娱乐互动", "description": "角色扮演、文字游戏、写诗作对。"}
+          ]
+        }
+      }
+    },
+    "intent_tags": {
+      "title": "意图标签",
+      "description": "描述希望AI执行的具体动作或任务类型。",
+      "categories": {
+        "generation_and_creation": {
+          "category_name": "生成与创作",
+          "labels": [
+            {"name": "起草", "description": "从零开始生成初稿。"},
+            {"name": "构思", "description": "头脑风暴，产生多个想法或选项。"},
+            {"name": "续写", "description": "在已有文本基础上继续写。"},
+            {"name": "仿写", "description": "模仿给定的风格、语气或结构进行创作。"}
+          ]
+        },
+        "analysis_and_extraction": {
+          "category_name": "分析与提炼",
+          "labels": [
+            {"name": "总结", "description": "将长文缩减为要点。"},
+            {"name": "提取", "description": "从文本中抽取关键信息（如人名、日期、数据）。"},
+            {"name": "分类", "description": "将内容归入指定类别。"},
+            {"name": "情感分析", "description": "判断文本的情感倾向（正面/负面/中性）。"},
+            {"name": "对比分析", "description": "找出两段或多段文本的异同点。"}
+          ]
+        },
+        "editing_and_rewriting": {
+          "category_name": "编辑与改写",
+          "labels": [
+            {"name": "润色", "description": "改善语言表达，使其更流畅、专业或优美。"},
+            {"name": "缩写", "description": "减少字数，保留核心意思。"},
+            {"name": "扩写", "description": "丰富细节，增加内容。"},
+            {"name": "转述", "description": "用不同的话重说一遍。"},
+            {"name": "风格转换", "description": "将文本从一种风格（如口语化）转为另一种（如正式）。"}
+          ]
+        },
+        "transformation_and_formatting": {
+          "category_name": "转换与格式化",
+          "labels": [
+            {"name": "翻译", "description": "在不同语言间转换。"},
+            {"name": "格式化", "description": "按照指定格式输出，如JSON、Markdown、表格。"},
+            {"name": "代码转换", "description": "将一种编程语言的代码转换为另一种。"}
+          ]
+        },
+        "interaction_and_simulation": {
+          "category_name": "交互与模拟",
+          "labels": [
+            {"name": "角色扮演", "description": "让AI扮演特定角色进行对话或执行任务。"},
+            {"name": "模拟推演", "description": "模拟某个场景的对话或事件发展。"},
+            {"name": "提问", "description": "让AI针对某段内容提出问题。"}
+          ]
+        }
+      }
+    }
+  }
+}

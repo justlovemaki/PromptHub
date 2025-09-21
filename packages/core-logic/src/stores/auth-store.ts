@@ -22,6 +22,9 @@ export interface AuthState {
   register: (data: LoginRequest & { name: string }) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateUser: (data: { name?: string }) => Promise<boolean>;
+  purchaseAiPoints: (packageType: 'small' | 'medium' | 'large') => Promise<boolean>;
+  manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel') => Promise<boolean>;
   clearError: () => void;
 
   // 权限检查
@@ -207,6 +210,104 @@ export const useAuthStore = create<AuthState>()(  persist(
         }
       },
 
+      updateUser: async (data: { name?: string }): Promise<boolean> => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await api.updateUser(data);
+
+          if (response.success) {
+            set({
+              user: response.data,
+              isLoading: false,
+              error: null,
+            });
+            return true;
+          } else {
+            set({
+              error: (response as any).error?.message || '更新用户信息失败',
+              isLoading: false,
+            });
+            return false;
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '更新用户信息失败';
+          set({
+            error: errorMessage,
+            isLoading: false,
+          });
+          return false;
+        }
+      },
+
+      purchaseAiPoints: async (packageType: 'small' | 'medium' | 'large'): Promise<boolean> => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await api.purchaseAiPoints(packageType);
+
+          if (response.success) {
+            // 更新用户信息以反映新的AI点数余额
+            set({
+              user: {
+                ...get().user,
+                subscriptionAiPoints: response.data.newBalance,
+              },
+              isLoading: false,
+              error: null,
+            });
+            return true;
+          } else {
+            set({
+              error: (response as any).error?.message || '购买AI点数失败',
+              isLoading: false,
+            });
+            return false;
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '购买AI点数失败';
+          set({
+            error: errorMessage,
+            isLoading: false,
+          });
+          return false;
+        }
+      },
+
+      manageSubscription: async (action: 'upgrade' | 'downgrade' | 'cancel'): Promise<boolean> => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await api.manageSubscription(action);
+
+          if (response.success) {
+            // 更新用户信息以反映新的订阅状态
+            set({
+              user: {
+                ...get().user,
+                subscriptionStatus: response.data.subscriptionStatus as 'FREE' | 'PRO' | 'TEAM',
+              },
+              isLoading: false,
+              error: null,
+            });
+            return true;
+          } else {
+            set({
+              error: (response as any).error?.message || '管理订阅失败',
+              isLoading: false,
+            });
+            return false;
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '管理订阅失败';
+          set({
+            error: errorMessage,
+            isLoading: false,
+          });
+          return false;
+        }
+      },
+
       clearError: (): void => {
         set({ error: null });
       },
@@ -355,6 +456,9 @@ export const useAuth = () => {
     register: store.register,
     logout: store.logout,
     refreshUser: store.refreshUser,
+    updateUser: store.updateUser,
+    purchaseAiPoints: store.purchaseAiPoints,
+    manageSubscription: store.manageSubscription,
     clearError: store.clearError,
     checkTokenExpiration: store.checkTokenExpiration,
   };
@@ -368,6 +472,9 @@ export const useAuthActions = () => {
     register: store.register,
     logout: store.logout,
     refreshUser: store.refreshUser,
+    updateUser: store.updateUser,
+    purchaseAiPoints: store.purchaseAiPoints,
+    manageSubscription: store.manageSubscription,
     clearError: store.clearError,
   };
 };

@@ -153,6 +153,10 @@ export class ApiClient {
     return this.get<User>('/api/auth/me');
   }
 
+  async updateUser(data: { name?: string }): Promise<ApiResponse<User>> {
+    return this.post<User>('/api/user/update', data);
+  }
+
   // ============== 提示词相关 API ==============
 
   async getPrompts(query?: PromptListQuery): Promise<ApiResponse<PromptListResponse>> {
@@ -215,6 +219,42 @@ export class ApiClient {
 
   async incrementPromptUseCount(promptId: string): Promise<ApiResponse<{ id: string; useCount: number }>> {
     return this.post<{ id: string; useCount: number }>('/api/prompts/use', { promptId });
+  }
+
+  async getAiPointsUsage(): Promise<ApiResponse<{
+    totalPoints: number;
+    usedPoints: number;
+    remainingPoints: number;
+    usageRecords: any[]
+  }>> {
+    return this.get<{
+      totalPoints: number;
+      usedPoints: number;
+      remainingPoints: number;
+      usageRecords: any[]
+    }>('/api/user/ai-points');
+  }
+
+  async purchaseAiPoints(packageType: 'small' | 'medium' | 'large'): Promise<ApiResponse<{
+    userId: string;
+    newBalance: number;
+    purchasedPoints: number
+  }>> {
+    return this.post<{
+      userId: string;
+      newBalance: number;
+      purchasedPoints: number
+    }>('/api/user/purchase-ai-points', { packageType });
+  }
+
+  async manageSubscription(action: 'upgrade' | 'downgrade' | 'cancel'): Promise<ApiResponse<{
+    userId: string;
+    subscriptionStatus: string;
+  }>> {
+    return this.post<{
+      userId: string;
+      subscriptionStatus: string;
+    }>('/api/user/subscription', { action });
   }
 
   // ============== 管理员相关 API ==============
@@ -325,6 +365,7 @@ export const api = {
   register: (data: LoginRequest & { name: string }) => getApiClient().register(data),
   logout: () => getApiClient().logout(),
   getCurrentUser: () => getApiClient().getCurrentUser(),
+  updateUser: (data: { name?: string }) => getApiClient().updateUser(data),
   
   // 提示词
   getPrompts: (query?: PromptListQuery) => getApiClient().getPrompts(query),
@@ -335,6 +376,9 @@ export const api = {
   getPromptStats: (query?: PromptStatsQuery) => getApiClient().getPromptStats(query),
   getDashboardStats: () => getApiClient().getDashboardStats(),
   incrementPromptUseCount: (promptId: string) => getApiClient().incrementPromptUseCount(promptId),
+  getAiPointsUsage: () => getApiClient().getAiPointsUsage(),
+  purchaseAiPoints: (packageType: 'small' | 'medium' | 'large') => getApiClient().purchaseAiPoints(packageType),
+  manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel') => getApiClient().manageSubscription(action),
   
   // 管理员
   getAdminStats: () => getApiClient().getAdminStats(),
