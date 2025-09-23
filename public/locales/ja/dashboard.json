@@ -84,5 +84,12 @@
     "updatedAt": "更新日時",
     "actions": "操作",
     "usageCount": "使用回数"
+  },
+  "deleteConfirmModal": {
+    "title": "削除の確認",
+    "description": "この操作は取り消すことができません。慎重に操作してください",
+    "message": "プロンプト \"{{title}}\" を削除してもよろしいですか？この操作は取り消すことができません。",
+    "cancel": "キャンセル",
+    "confirm": "削除を確認"
   }
 }

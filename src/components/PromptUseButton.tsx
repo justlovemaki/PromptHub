@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback, useMemo, memo } from 'react'
 import { PromptUseDialog } from './PromptUseDialog'
 import { Button } from '@promptmanager/ui-components'
 import type { Prompt } from '@promptmanager/core-logic'
@@ -21,34 +21,47 @@ export const usePromptDialog = (
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null)
   const [open, setOpen] = useState(false)
 
-  const openDialog = (prompt: Prompt) => {
+  const openDialog = useCallback((prompt: Prompt) => {
     setSelectedPrompt(prompt)
     setOpen(true)
-  }
+  }, [])
 
-  const closeDialog = () => {
+  const closeDialog = useCallback(() => {
     setOpen(false)
     // 延迟清理，等待动画完成
     setTimeout(() => {
       setSelectedPrompt(null)
     }, 300)
-  }
+  }, [])
 
-  const handleCopySuccess = (content: string) => {
+  const handleCopySuccess = useCallback((content: string) => {
     onCopySuccess?.(content)
     // 不在这里调用 toast，由 PromptUseDialog 内部处理
-  }
+  }, [onCopySuccess])
 
-  const PromptDialog = () => (
-    <PromptUseDialog
-      prompt={selectedPrompt}
-      open={open}
-      onOpenChange={setOpen}
-      onCopySuccess={handleCopySuccess}
-      onRefreshPrompts={onRefreshPrompts}
-      lang={lang}
-    />
-  )
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    setOpen(newOpen)
+    if (!newOpen) {
+      // 延迟清理，等待动画完成
+      setTimeout(() => {
+        setSelectedPrompt(null)
+      }, 300)
+    }
+  }, [])
+
+  // 使用 memo 包装对话框组件，避免不必要的重新渲染
+  const PromptDialog = useMemo(() => {
+    return memo(() => (
+      <PromptUseDialog
+        prompt={selectedPrompt}
+        open={open}
+        onOpenChange={handleOpenChange}
+        onCopySuccess={handleCopySuccess}
+        onRefreshPrompts={onRefreshPrompts}
+        lang={lang}
+      />
+    ))
+  }, [selectedPrompt, open, handleOpenChange, handleCopySuccess, onRefreshPrompts, lang])
 
   return {
     openDialog,
@@ -70,7 +83,7 @@ export interface PromptUseButtonProps {
   lang?: string
 }
 
-export const PromptUseButton: React.FC<PromptUseButtonProps> = ({
+export const PromptUseButton: React.FC<PromptUseButtonProps> = memo(({
   prompt,
   onCopySuccess,
   onRefreshPrompts,
@@ -80,11 +93,27 @@ export const PromptUseButton: React.FC<PromptUseButtonProps> = ({
   children = '',
   lang
 }) => {
-  const { openDialog, PromptDialog } = usePromptDialog(onCopySuccess, onRefreshPrompts, lang)
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null)
+  const [open, setOpen] = useState(false)
 
-  const handleClick = () => {
-    openDialog(prompt)
-  }
+  const handleClick = useCallback(() => {
+    setSelectedPrompt(prompt)
+    setOpen(true)
+  }, [prompt])
+
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    setOpen(newOpen)
+    if (!newOpen) {
+      // 延迟清理，等待动画完成
+      setTimeout(() => {
+        setSelectedPrompt(null)
+      }, 300)
+    }
+  }, [])
+
+  const handleCopySuccess = useCallback((content: string) => {
+    onCopySuccess?.(content)
+  }, [onCopySuccess])
 
   return (
     <>
@@ -96,9 +125,19 @@ export const PromptUseButton: React.FC<PromptUseButtonProps> = ({
       >
         {children}
       </Button>
-      <PromptDialog />
+      <PromptUseDialog
+        prompt={selectedPrompt}
+        open={open}
+        onOpenChange={handleOpenChange}
+        onCopySuccess={handleCopySuccess}
+        onRefreshPrompts={onRefreshPrompts}
+        lang={lang}
+      />
     </>
   )
-}
+})
+
+// 添加显示名称，便于调试
+PromptUseButton.displayName = 'PromptUseButton'
 
 export default PromptUseButton

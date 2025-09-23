@@ -282,9 +282,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       </section>
 
       {/* 价格区 */}
-      <section id="pricing" className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-gray-900 to-black">
-        <PricingSection params={params} />
-      </section>
+      <PricingSection params={params} />
 
       {/* 底部信息区 */}
       <footer id="footer" className="bg-gray-900 border-t border-gray-800 py-12">

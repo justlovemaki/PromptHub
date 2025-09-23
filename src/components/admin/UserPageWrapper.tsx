@@ -25,19 +25,24 @@ export default function UserPageWrapper({
   title,
   description
 }: UserPageWrapperProps) {
-  const { isAuthenticated, isLoading, user } = useAuth()
+  const { isAuthenticated, isLoading, user, setLanguage } = useAuth()
   const { data: session, isPending } = useSession()
   const [isInitialized, setIsInitialized] = useState(false)
 
   // 获取session信息
   useEffect(() => {
     setIsInitialized(true)
-    console.log('UserPageWrapper: Session状态', {
-      hasSession: !!session,
-      sessionUser: session?.user?.id,
-      sessionStatus: session?.user ? '已登录' : '未登录'
-    })
+    // console.log('UserPageWrapper: Session状态', {
+    //   hasSession: !!session,
+    //   sessionUser: session?.user?.id,
+    //   sessionStatus: session?.user ? '已登录' : '未登录'
+    // })
   }, [session])
+
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(lang)
+  }, [lang, setLanguage])
 
   // 监听用户状态变化
   useEffect(() => {

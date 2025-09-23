@@ -1,0 +1,125 @@
+{
+  "hero": {
+    "title": "管理、优化、一键触发",
+    "subtitle": "释放您AI提示词的全部潜能",
+    "cta": "免费开始使用"
+  },
+  "nav": {
+    "features": "功能",
+    "pricing": "价格"
+  },
+  "problem": {
+    "title": "还在为杂乱的",
+    "highlight": "提示词",
+    "title2": "烦恼吗？",
+    "description": "从散落的文档和表格中解放出来。告别重复劳动，停止在寻找最佳Prompt上浪费时间。"
+  },
+  "management": {
+    "title": "集中化、标签化、",
+    "highlight": "秒速搜索",
+    "description": "为您所有的AI模型（GPT, Midjourney, Claude等）建立一个统一的提示词库。通过文件夹和标签进行分类，瞬间找到你需要的任何内容。",
+    "features": {
+      "smartCategory": "智能分类",
+      "multiTag": "多维标签", 
+      "instantSearch": "即时搜索"
+    },
+    "demo": {
+      "folder": "工作项目",
+      "folderContent": "产品描述生成器 v2.0",
+      "tags": "#营销 #文案",
+      "tagsContent": "社交媒体爆款文案模板",
+      "search": "搜索：代码优化",
+      "searchResult": "找到 15 个相关提示词..."
+    }
+  },
+  "optimization": {
+    "title": "一键优化，",
+    "highlight": "随时调用",
+    "description": "内置AI优化建议，让您的提示词更精准、更高效。通过悬浮窗或快捷键，在任何地方都能快速调用您的提示词库。",
+    "features": {
+      "aiOptimize": "AI优化",
+      "quickAccess": "快捷调用",
+      "globalAccess": "全局访问"
+    },
+    "demo": {
+      "title": "提示词优化器",
+      "optimizeBtn": "AI 优化",
+      "before": "原始提示词：",
+      "beforeExample": "写一篇文章关于人工智能",
+      "after": "优化后的提示词：",
+      "role": "角色：",
+      "roleText": "你是一位资深科技记者",
+      "task": "任务：",
+      "taskText": "撰写一篇2000字的深度分析文章",
+      "topic": "主题：",
+      "topicText": "人工智能在医疗领域的应用与挑战",
+      "requirements": "要求：",
+      "requirementsText": "包含案例分析、数据支撑、未来展望"
+    }
+  },
+  "cards": {
+    "gpt": "GPT-4 代码生成",
+    "midjourney": "Midjourney 艺术创作",
+    "claude": "Claude 文案优化",
+    "dalle": "DALL-E 图像描述",
+    "sd": "Stable Diffusion 场景"
+  },
+  "pricing": {
+    "title": "选择适合您的",
+    "highlight": "计划",
+    "subtitle": "简单透明的定价，随时可以升级或取消",
+    "mostPopular": "最受欢迎",
+    "free": {
+      "name": "免费版",
+      "price": "¥0",
+      "period": "/永久",
+      "button": "免费开始",
+      "features": {
+        "storage": "100条提示词存储",
+        "basicCategory": "基础分类管理",
+        "simpleSearch": "简单搜索功能",
+        "browserExt": "浏览器扩展"
+      },
+      "notIncluded": {
+        "aiOptimize": "AI优化建议",
+        "teamCollab": "团队协作",
+        "cloudSync": "云端同步"
+      }
+    },
+    "pro": {
+      "name": "专业版",
+      "price": "¥49",
+      "period": "/月",
+      "button": "立即升级",
+      "features": {
+        "unlimited": "无限提示词存储",
+        "advancedTags": "高级分类与标签",
+        "aiOptimize": "AI智能优化",
+        "globalHotkey": "全局快捷键",
+        "cloudSync": "云端自动同步",
+        "prioritySupport": "优先技术支持"
+      }
+    },
+    "team": {
+      "name": "团队版",
+      "price": "¥299",
+      "period": "/月",
+      "button": "联系销售",
+      "features": {
+        "allPro": "包含专业版所有功能",
+        "teamLib": "团队共享库",
+        "permission": "权限管理",
+        "analytics": "使用分析报告",
+        "apiAccess": "API访问",
+        "accountManager": "专属客户经理"
+      }
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Prompt Manager. 保留所有权利。",
+    "pricing": "价格",
+    "privacy": "隐私协议",
+    "terms": "服务条款",
+    "contact": "联系我们"
+  }
+}

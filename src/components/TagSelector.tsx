@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useTags } from '../hooks/useTags'
 import { Input, Button } from '@promptmanager/ui-components'
 
 interface TagSelectorProps {
-  selectedTags: string[]
-  onChange: (tags: string[]) => void
-  language?: 'cn' | 'en' | 'ja'
+  selectedKeys: string[]
+  onChange: (keys: string[]) => void
+  language: string
   placeholder?: string
   className?: string
   maxTags?: number
@@ -16,9 +16,9 @@ interface TagSelectorProps {
 }
 
 export const TagSelector: React.FC<TagSelectorProps> = ({
-  selectedTags,
+  selectedKeys,
   onChange,
-  language = 'cn',
+  language,
   placeholder = '点击选择标签...',
   className = '',
   maxTags = 10,
@@ -28,7 +28,21 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   const [searchQuery, setSearchQuery] = useState('')
   const [mounted, setMounted] = useState(false)
   
-  const { tagsByCategory, searchTags, isLoaded } = useTags(language)
+  const { tagsByCategory, searchTags, isLoaded, allTags } = useTags(language)
+
+  // Create lookup maps for performance
+  const keyToNameMap = useMemo(() => new Map(allTags.map(t => [t.key, t.name])), [allTags])
+  
+  // Create a list of selected tag objects { key, name } for stable rendering
+  const selectedTagObjects = useMemo(
+    () => selectedKeys
+      .map(key => ({
+        key,
+        name: keyToNameMap.get(key)
+      }))
+      .filter((tag): tag is { key: string; name: string } => !!tag.name),
+    [selectedKeys, keyToNameMap]
+  )
 
   // Handle mounting for portal
   useEffect(() => {
@@ -57,20 +71,20 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
     }
   }, [isOpen])
 
-  const handleTagToggle = (tagName: string) => {
-    if (selectedTags.includes(tagName)) {
+  const handleTagToggle = (tagKey: string) => {
+    if (selectedKeys.includes(tagKey)) {
       // Remove tag
-      onChange(selectedTags.filter(tag => tag !== tagName))
+      onChange(selectedKeys.filter(key => key !== tagKey))
     } else {
       // Add tag (if under limit)
-      if (selectedTags.length < maxTags) {
-        onChange([...selectedTags, tagName])
+      if (selectedKeys.length < maxTags) {
+        onChange([...selectedKeys, tagKey])
       }
     }
   }
 
-  const handleRemoveTag = (tagName: string) => {
-    onChange(selectedTags.filter(tag => tag !== tagName))
+  const handleRemoveTag = (keyToRemove: string) => {
+    onChange(selectedKeys.filter(key => key !== keyToRemove))
   }
 
   const handleOpenModal = () => {
@@ -134,7 +148,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           <div>
             <h3 className="text-lg font-semibold text-gray-900">选择标签</h3>
             <p className="text-sm text-gray-500 mt-1">
-              已选择 {selectedTags.length}/{maxTags} 个标签
+              已选择 {selectedKeys.length}/{maxTags} 个标签
             </p>
           </div>
           <button
@@ -160,14 +174,14 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         {/* Selected tags display */}
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex flex-wrap gap-2 min-h-[40px]">
-            {selectedTags.map((tagName) => (
+            {selectedTagObjects.map((tag) => (
               <span
-                key={tagName}
+                key={tag.key}
                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-800 text-sm rounded-full"
               >
-                {tagName}
+                {tag.name}
                 <button
-                  onClick={() => handleRemoveTag(tagName)}
+                  onClick={() => handleRemoveTag(tag.key)}
                   className="ml-1 text-blue-600 hover:text-blue-800 transition-colors"
                   type="button"
                 >
@@ -177,7 +191,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                 </button>
               </span>
             ))}
-            {selectedTags.length === 0 && (
+            {selectedKeys.length === 0 && (
               <span className="text-gray-400 text-sm py-2">暂无选择的标签</span>
             )}
           </div>
@@ -205,19 +219,19 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                   
                   {/* Tags in this category */}
                   <div className="flex flex-wrap gap-2">
-                    {category.tags.map((tag) => {
-                      const isSelected = selectedTags.includes(tag.name)
-                      const isDisabled = !isSelected && selectedTags.length >= maxTags
+                    {category.tags.map((tag, index) => {
+                      const isSelected = selectedKeys.includes(tag.key)
+                      const isDisabled = !isSelected && selectedKeys.length >= maxTags
                       
                       return (
                         <button
-                          key={tag.name}
-                          onClick={() => !isDisabled && handleTagToggle(tag.name)}
+                          key={`${tag.key}-${index}`}
+                          onClick={() => !isDisabled && handleTagToggle(tag.key)}
                           disabled={isDisabled}
                           className={`
                             px-4 py-2 text-sm rounded-lg border transition-all duration-200
-                            ${isSelected 
-                              ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
+                            ${isSelected
+                              ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
                               : isDisabled
                                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                                 : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
@@ -255,14 +269,14 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
       {/* Selected tags display */}
       <div className="mb-2">
         <div className="flex flex-wrap gap-2 min-h-[32px]">
-          {selectedTags.map((tagName) => (
+          {selectedTagObjects.map((tag) => (
             <span
-              key={tagName}
+              key={tag.key}
               className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
             >
-              {tagName}
+              {tag.name}
               <button
-                onClick={() => handleRemoveTag(tagName)}
+                onClick={() => handleRemoveTag(tag.key)}
                 className="ml-1 text-blue-600 hover:text-blue-800 transition-colors"
                 type="button"
               >
@@ -272,7 +286,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               </button>
             </span>
           ))}
-          {selectedTags.length === 0 && (
+          {selectedKeys.length === 0 && (
             <span className="text-gray-400 text-sm py-1">暂无选择的标签</span>
           )}
         </div>

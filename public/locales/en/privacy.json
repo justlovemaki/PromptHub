@@ -1,16 +1,44 @@
 {
   "title": "Privacy Policy",
-  "welcomeMessage": "We respect your privacy and are committed to protecting your personal information.",
+  "welcomeMessage": "Prompt Manager respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, store, and share your information.",
   "section1": {
     "title": "1. Information We Collect",
-    "content": "We may collect information you provide directly to us, such as when you create an account or contact us."
+    "content": "We may collect information you directly provide to us (e.g., when you create an account, subscribe to services, or contact us), including your name, email address, payment information, etc. Additionally, when you use our services, we automatically collect certain information such as IP address, device information, browser type, access times, and data on how you use our services."
   },
   "section2": {
     "title": "2. How We Use Your Information",
-    "content": "We use your information to provide, maintain, and improve our services."
+    "content": "We use the information collected to provide, maintain, and improve our services; process your transactions; send service-related notifications (e.g., security updates, billing information); personalize your user experience; analyze service usage for optimization; and comply with legal obligations."
   },
   "section3": {
-    "title": "3. Information Sharing",
-    "content": "We do not share your personal information with third parties except as described in this policy."
+    "title": "3. Information Sharing and Disclosure",
+    "content": "We do not sell, rent, or trade your personally identifiable information to third parties. We may share information with third parties in the following circumstances: with third-party service providers who perform services on our behalf (e.g., payment processors, data analytics services); to comply with legal requirements, court orders, or government requests; to enforce our Terms of Service; to protect our rights, property, or safety, and the rights, property, or safety of our users or the public; and in connection with a merger, acquisition, or sale of assets."
+  },
+  "section4": {
+    "title": "4. Data Security",
+    "content": "We implement reasonable physical, technical, and administrative measures to protect your information from unauthorized access, use, or disclosure. However, data transmission over the internet is not 100% secure, and we cannot guarantee the absolute security of your information during transmission."
+  },
+  "section5": {
+    "title": "5. Your Rights",
+    "content": "You have the right to access, correct, or delete your personal information held by us. You can also withdraw consent (where applicable), object to, or restrict our processing of your data. To exercise these rights, please contact us using the contact information provided at the end of this policy."
+  },
+  "section6": {
+    "title": "6. Cookies and Tracking Technologies",
+    "content": "We use Cookies and similar tracking technologies to track activity on our service and store certain information. Cookies are small data files sent to your browser used to collect and track information, and to improve and analyze our service. You can instruct your browser to refuse all Cookies or to indicate when a Cookie is being sent. However, if you do not accept Cookies, you may not be able to use some portions of our service."
+  },
+  "section7": {
+    "title": "7. Third-Party Links",
+    "content": "Our service may contain links to other websites not operated by us. If you click on a third-party link, you will be directed to that third party's site. We strongly advise you to review the Privacy Policy of every site you visit. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services."
+  },
+  "section8": {
+    "title": "8. Children's Privacy",
+    "content": "Our service does not address anyone under the age of 13 ('Children'). We do not knowingly collect personally identifiable information from anyone under the age of 13. If you are a parent or guardian and you are aware that your Child has provided us with Personal Data, please contact us. If we become aware that we have collected Personal Data from children without verification of parental consent, we take steps to remove that information from our servers."
+  },
+  "section9": {
+    "title": "9. Changes to This Privacy Policy",
+    "content": "We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page."
+  },
+  "section10": {
+    "title": "10. Contact Us",
+    "content": "If you have any questions about this Privacy Policy, please contact us at [Your contact email/method]."
   }
 }

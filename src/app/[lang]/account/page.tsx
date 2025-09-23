@@ -9,7 +9,7 @@ import { useTranslation } from '@/i18n/client'
 
 export default function AccountPage({ params }: { params: { lang: string } }) {
   const { t } = useTranslation(params.lang, 'account')
-  const { user, updateUser, purchaseAiPoints, refreshUser} = useAuth();
+  const { user, updateUser, purchaseAiPoints, refreshUser, setLanguage } = useAuth();
   const { showSuccess } = useToast();
   const [name, setName] = useState(user?.name || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -20,6 +20,11 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
     remainingPoints: number;
   } | null>({ totalPoints: 0, usedPoints: 0, remainingPoints: 0 });
   
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(params.lang);
+  }, [params.lang, setLanguage]);
+
   // 获取AI点数信息
   useEffect(() => {
     // 如果用户信息未加载，不执行任何操作

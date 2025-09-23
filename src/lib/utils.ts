@@ -81,3 +81,35 @@ export function getLanguageFromNextRequest(request: NextRequest): string {
 }
 
 
+import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
+import path from 'path';
+
+/**
+ * 从请求头和参数中获取真实的路径
+ */
+export async function getTruePathFromHeaders(headersList: ReadonlyHeaders, langParam: string, isRoot: boolean = false): Promise<string> {
+  const pathname = headersList.get('x-next-pathname') || '';
+  // console.log('Current pathname (from server):', pathname);
+  // console.log('langParam:', langParam);
+  if (pathname === '' || !languages.includes(pathname)) {
+    if (isRoot) {
+      return '/';
+    }
+    return '';
+  }
+  return pathname !== langParam ? "/" : "/"+langParam;
+}
+
+/**
+ * 根据 pathname 和初始语言获取正确的语言路径
+ */
+export function getTruePathFromPathname(pathname: string, initialLang: string): string {
+  const rootPathname = pathname.split('/')[1];
+  // console.log('rootPathname:', rootPathname);
+  // 处理根路径
+  if (pathname === '/' || !languages.includes(rootPathname)) {
+    return '';
+  }
+  // 处理其他路径
+  return pathname === '/' ? '/' : '/'+initialLang;
+}

@@ -53,6 +53,6 @@
   },
   "variables": {
     "placeholder": "Please enter a value for {{variable}}",
-    "helperText": "Variable format: {{{{variable}}}}"
+    "helperText": "Variable format: {{variable}}"
   }
 }

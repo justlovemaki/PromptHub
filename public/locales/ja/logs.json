@@ -1,7 +1,7 @@
 {
   "title": "システムログ管理",
   "description": "システム操作ログを表示・管理します",
-  "totalLogs": "合計 {count} 件のログ",
+  "totalLogs": "合計 {{count}} 件のログ",
   "searchPlaceholder": "ログ内容を検索...",
   "filterOptions": {
     "allLevels": "すべてのレベル",
@@ -32,7 +32,7 @@
   },
   "retry": "再試行",
   "pagination": {
-    "pageInfo": "{current} ページ / 合計 {total} ページ",
+    "pageInfo": "{{current}} ページ / 合計 {{total}} ページ",
     "previous": "前のページ",
     "next": "次のページ"
   },

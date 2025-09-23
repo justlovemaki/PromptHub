@@ -1,16 +1,52 @@
 {
   "title": "Terms of Service",
-  "welcomeMessage": "Welcome to our podcast template. By accessing or using our service, you agree to be bound by these terms.",
+  "welcomeMessage": "Welcome to Prompt Manager. By accessing or using our services, you agree to be bound by these terms. Please read the following carefully.",
   "section1": {
-    "title": "1. Use of Service",
-    "content": "You agree to use our service only for lawful purposes and in accordance with these terms."
+    "title": "1. Acceptance of Terms",
+    "content": "By accessing and using Prompt Manager services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services."
   },
   "section2": {
-    "title": "2. Intellectual Property",
-    "content": "All content and materials provided through our service are the property of our company or our licensors."
+    "title": "2. Service Description",
+    "content": "Prompt Manager provides a platform that allows users to manage, create, and share AI prompts. We are committed to providing a stable, secure, and efficient service, but we make no guarantees regarding the continuous availability, accuracy, or completeness of the service."
   },
   "section3": {
-    "title": "3. Limitation of Liability",
-    "content": "We shall not be liable for any indirect, incidental, special, consequential or punitive damages."
+    "title": "3. User Account",
+    "content": "To use certain service features, you may need to register an account. You agree to provide accurate, complete, and up-to-date information and are solely responsible for all activities that occur under your account. Please keep your account credentials secure and report any unauthorized use to us immediately."
+  },
+  "section4": {
+    "title": "4. User Conduct Guidelines",
+    "content": "You agree to abide by all applicable laws and regulations when using our services. You shall not post, transmit, or share any content that is unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, invasive of another's privacy, or infringing upon intellectual property rights. We reserve the right to remove any content that violates these terms."
+  },
+  "section5": {
+    "title": "5. Intellectual Property",
+    "content": "All content on the Prompt Manager platform, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, is the property of Prompt Manager or its content suppliers and is protected by international copyright laws. The copyright for user-submitted prompt content belongs to the user, but you grant Prompt Manager a free, perpetual, irrevocable right to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, and display such content worldwide."
+  },
+  "section6": {
+    "title": "6. Privacy Policy",
+    "content": "Your privacy is very important to us. Please refer to our Privacy Policy to understand how we collect, use, and disclose your information. Your use of the service constitutes your agreement to our Privacy Policy."
+  },
+  "section7": {
+    "title": "7. Termination",
+    "content": "We reserve the right to suspend or terminate your access to our services at any time, for any reason, including but not limited to violations of these terms, without prior notice. Upon termination, all your rights to use the service will immediately cease."
+  },
+  "section8": {
+    "title": "8. Disclaimer of Warranties",
+    "content": "Our services are provided on an 'as is' and 'as available' basis, without any warranties of any kind, either express or implied, including but not limited to merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the service will be uninterrupted, timely, secure, or error-free."
+  },
+  "section9": {
+    "title": "9. Limitation of Liability",
+    "content": "To the maximum extent permitted by applicable law, Prompt Manager shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of or in connection with your use or inability to use our services, even if we have been advised of the possibility of such damages."
+  },
+  "section10": {
+    "title": "10. Governing Law",
+    "content": "These Terms of Service shall be governed by and construed in accordance with the laws of the People's Republic of China, without regard to its conflict of law principles. Any disputes arising out of or relating to these terms shall be submitted to the courts with jurisdiction for resolution."
+  },
+  "section11": {
+    "title": "11. Changes to Terms",
+    "content": "We reserve the right to modify or replace these terms at any time. If we make material changes, we will make reasonable efforts to provide you with advance notice. Your continued use of our services after any such changes become effective constitutes your acceptance of the revised terms."
+  },
+  "section12": {
+    "title": "12. Contact Us",
+    "content": "If you have any questions about these Terms of Service, please contact us at [Your contact email/method]."
   }
 }

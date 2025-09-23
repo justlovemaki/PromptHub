@@ -6,6 +6,8 @@ import { useAuthStore, useAuthStatus } from '@promptmanager/core-logic'
 import LanguageSwitcher from '../LanguageSwitcher'
 import LoginButton from '../LoginButton'
 import { useSession } from '@/lib/auth-client'
+import { useTranslation } from '../../i18n/client'
+import { getTruePathFromPathname } from '../../lib/utils'; 
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -18,8 +20,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
   const pathname = usePathname()
   const router = useRouter()
   const { isAdmin, isTokenExpired } = useAuthStatus()
-  const { setToken, refreshUser } = useAuthStore()
+  const { setToken, refreshUser, setLanguage } = useAuthStore()
+  const { t } = useTranslation(lang, 'user')
   const { data: session, isPending } = useSession()
+  const truePath = getTruePathFromPathname(pathname, lang);
+  
 
   // 客户端 hydration 检查
   useEffect(() => {
@@ -42,27 +47,32 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
     }
   }, [isClient, isPending, isTokenExpired])
 
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(lang)
+  }, [lang, setLanguage])
+
   const navigationItems = [
     {
-      name: '用户仪表盘',
-      href: `/${lang}/dashboard`,
+      name: t('navigation.dashboard'),
+      href: `${truePath}/dashboard`,
       icon: (
         <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       ),
-      current: pathname.startsWith(`/${lang}/dashboard`),
+      current: pathname.startsWith(`${truePath}/dashboard`),
       children: undefined as { name: string; href: string }[] | undefined
     },
     {
-      name: '账户设置',
-      href: `/${lang}/account`,
+      name: t('navigation.accountSettings'),
+      href: `${truePath}/account`,
       icon: (
         <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
-      current: pathname === `/${lang}/account`,
+      current: pathname === `${truePath}/account`,
       children: undefined as { name: string; href: string }[] | undefined
     }
   ]
@@ -88,7 +98,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
                 </svg>
               </button>
               <button 
-                onClick={() => handleNavigation(`/${lang}`)}
+                onClick={() => handleNavigation(`${truePath}`)}
                 className="flex items-center ml-4 lg:ml-0 hover:opacity-80 transition-opacity"
               >
                 <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center">
@@ -98,15 +108,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
               </button>
             </div>
 
-            {/* 右侧 - 价格、管理后台、语言切换、登录 */}
+            {/* 右侧 - 价格、{t('common.adminPanel')}、语言切换、登录 */}
             <div className="flex items-center space-x-4">
-              {/* 管理后台 - 仅对ADMIN用户显示，且只在客户端渲染后显示 */}
+              {/* {t('common.adminPanel')} - 仅对ADMIN用户显示，且只在客户端渲染后显示 */}
               {isClient && isAdmin && (
                 <button
-                  onClick={() => handleNavigation(`/${lang}/admin`)}
+                  onClick={() => handleNavigation(`${truePath}/admin`)}
                   className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-blue transition-colors"
                 >
-                  管理后台
+                  {t('common.adminPanel')}
                 </button>
               )}
 
@@ -219,26 +229,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
         <div className="px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <div className="text-sm text-gray-500">
-              © 2025 Prompt Manager. All Rights Reserved.
+              {t('common.copyright')}
             </div>
             <div className="flex space-x-6 mt-2 sm:mt-0">
               <button
-                onClick={() => handleNavigation(`/${lang}/privacy`)}
+                onClick={() => handleNavigation(`${truePath}/privacy`)}
                 className="text-sm text-gray-500 hover:text-brand-blue transition-colors"
               >
-                隐私协议
+                {t('common.privacy')}
               </button>
               <button
-                onClick={() => handleNavigation(`/${lang}/terms`)}
+                onClick={() => handleNavigation(`${truePath}/terms`)}
                 className="text-sm text-gray-500 hover:text-brand-blue transition-colors"
               >
-                服务条款
+                {t('common.terms')}
               </button>
               <button
-                onClick={() => handleNavigation(`/${lang}/contact`)}
+                onClick={() => handleNavigation(`${truePath}/contact`)}
                 className="text-sm text-gray-500 hover:text-brand-blue transition-colors"
               >
-                联系我们
+                {t('common.contact')}
               </button>
             </div>
           </div>

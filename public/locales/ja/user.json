@@ -55,5 +55,16 @@
   },
   "sse": {
     "connected": "サーバー送信イベントに接続されました"
+  },
+  "navigation": {
+    "dashboard": "ユーザーダッシュボード",
+    "accountSettings": "アカウント設定"
+  },
+  "common": {
+    "adminPanel": "管理パネル",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
   }
 }

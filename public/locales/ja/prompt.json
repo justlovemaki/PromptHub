@@ -53,6 +53,6 @@
   },
   "variables": {
     "placeholder": "{{variable}} の値を入力してください",
-    "helperText": "変数形式：{{{{variable}}}}"
+    "helperText": "変数形式：{{variable}}"
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import AdminPageWrapper from '../../../components/admin/AdminPageWrapper'
 import { useAuth, api, AdminUserListResponse, PopularPromptsResponse } from '@promptmanager/core-logic'
 import { useTranslation } from '@/i18n/client'
@@ -39,10 +40,11 @@ interface PopularPrompt {
 }
 
 export default function AdminPage({ params }: { params: { lang: string } }) {
+  const router = useRouter()
   const { t: tAdmin } = useTranslation(params.lang, 'admin')
   const { t: tCommon } = useTranslation(params.lang, 'common')
   const { t: tUser } = useTranslation(params.lang, 'user')
-  const { user, isLoading, isAdmin } = useAuth()
+  const { user, isLoading, isAdmin, setLanguage } = useAuth()
 
   // API数据状态
   const [stats, setStats] = useState<AdminStats | null>(null)
@@ -50,6 +52,20 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
   const [popularPrompts, setPopularPrompts] = useState<PopularPrompt[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [dataError, setDataError] = useState<string | null>(null)
+
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(params.lang);
+  }, [params.lang, setLanguage]);
+
+  // 导航处理函数
+  const handleViewAllUsers = () => {
+    router.push(`/${params.lang}/admin/users`)
+  }
+
+  const handleViewAllPrompts = () => {
+    router.push(`/${params.lang}/admin/prompts`)
+  }
 
   // 获取管理后台数据
   useEffect(() => {
@@ -94,10 +110,10 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
     }
 
     // 只有在有管理员权限且不是初始加载状态时才获取数据
-    if (isAdmin && !isLoading) {
+    if (!isLoading) {
       fetchAdminData()
     }
-  }, [isAdmin, isLoading])
+  }, [isLoading])
 
   return (
     <AdminPageWrapper lang={params.lang} error={dataError}>
@@ -188,7 +204,10 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
             <div className="p-6 border-b">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-900">{tAdmin('sections.userManagement')}</h2>
-                <button className="text-brand-blue hover:text-brand-blue/80 text-sm font-medium">
+                <button
+                  onClick={handleViewAllUsers}
+                  className="text-brand-blue hover:text-brand-blue/80 text-sm font-medium cursor-pointer"
+                >
                   {tAdmin('common.viewAll')}
                 </button>
               </div>
@@ -232,7 +251,10 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
             <div className="p-6 border-b">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-900">{tAdmin('sections.popularPrompts')}</h2>
-                <button className="text-brand-blue hover:text-brand-blue/80 text-sm font-medium">
+                <button
+                  onClick={handleViewAllPrompts}
+                  className="text-brand-blue hover:text-brand-blue/80 text-sm font-medium cursor-pointer"
+                >
                   {tAdmin('common.viewAll')}
                 </button>
               </div>

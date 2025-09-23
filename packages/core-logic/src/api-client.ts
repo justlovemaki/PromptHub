@@ -22,6 +22,7 @@ import type {
    SystemLogListQuery,
    SystemLogListResponse,
  } from './types';
+import { useAuthStore } from './stores/auth-store';
 
 // ============== 辅助函数 ==============
 
@@ -172,24 +173,24 @@ export class ApiClient {
 
   // ============== 认证相关 API ==============
 
-  async login(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    return this.post<LoginResponse>('/api/auth/login', data, false);
+  async login(data: LoginRequest, lang?: string): Promise<ApiResponse<LoginResponse>> {
+    return this.post<LoginResponse>('/api/auth/login', data, false, lang);
   }
 
-  async register(data: LoginRequest & { name: string }): Promise<ApiResponse<LoginResponse>> {
-    return this.post<LoginResponse>('/api/auth/register', data, false);
+  async register(data: LoginRequest & { name: string }, lang?: string): Promise<ApiResponse<LoginResponse>> {
+    return this.post<LoginResponse>('/api/auth/register', data, false, lang);
   }
 
   async logout(): Promise<ApiResponse<void>> {
     return this.post<void>('/api/auth/logout');
   }
 
-  async getCurrentUser(): Promise<ApiResponse<User>> {
-    return this.get<User>('/api/auth/me');
+  async getCurrentUser(lang?: string): Promise<ApiResponse<User>> {
+    return this.get<User>('/api/auth/me', true, lang);
   }
 
-  async updateUser(data: { name?: string }): Promise<ApiResponse<User>> {
-    return this.post<User>('/api/user/update', data);
+  async updateUser(data: { name?: string }, lang?: string): Promise<ApiResponse<User>> {
+    return this.post<User>('/api/user/update', data, true, lang);
   }
 
   // ============== 提示词相关 API ==============
@@ -450,6 +451,41 @@ export const createApiClient = (config: ApiClientConfig): ApiClient => {
 
 export const getApiClient = (): ApiClient => {
   if (!defaultApiClient) {
+    // 如果在客户端环境且尚未初始化，则自动初始化
+    if (typeof window !== 'undefined') {
+      console.log('API客户端未初始化，自动初始化...');
+      const baseURL = process.env.NEXT_PUBLIC_APP_URL ||
+                     process.env.BETTER_AUTH_URL?.replace(/\/$/, '') ||
+                     window.location.origin || 'http://localhost:3000';
+      
+      return createApiClient({
+        baseURL,
+        getToken: () => {
+          // 从auth store获取token
+          try {
+            return useAuthStore.getState().token;
+          } catch (error) {
+            console.warn('获取token时出错:', error);
+            return null;
+          }
+        },
+        onUnauthorized: () => {
+          // 当收到401错误时，清理认证状态
+          try {
+            const { setUser, setToken } = useAuthStore.getState();
+            setUser(null);
+            setToken(null);
+            console.log('API客户端: 认证失败，已清理用户状态');
+          } catch (error) {
+            console.warn('清理认证状态时出错:', error);
+          }
+        },
+        onError: (error) => {
+          console.error('API客户端错误:', error);
+        },
+      });
+    }
+    // 在服务端或无法自动初始化时抛出错误
     throw new Error('API客户端未初始化，请先调用 createApiClient()');
   }
   return defaultApiClient;
@@ -463,11 +499,11 @@ export const api = {
   },
   
   // 认证
-  login: (data: LoginRequest) => getApiClient().login(data),
-  register: (data: LoginRequest & { name: string }) => getApiClient().register(data),
+  login: (data: LoginRequest, lang?: string) => getApiClient().login(data, lang),
+  register: (data: LoginRequest & { name: string }, lang?: string) => getApiClient().register(data, lang),
   logout: () => getApiClient().logout(),
-  getCurrentUser: () => getApiClient().getCurrentUser(),
-  updateUser: (data: { name?: string }) => getApiClient().updateUser(data),
+  getCurrentUser: (lang?: string) => getApiClient().getCurrentUser(lang),
+  updateUser: (data: { name?: string }, lang?: string) => getApiClient().updateUser(data, lang),
   
   // 提示词
   getPrompts: (query?: PromptListQuery, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/prompts/list', query), true, lang),

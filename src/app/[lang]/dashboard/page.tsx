@@ -2,12 +2,13 @@
 
 import UserPageWrapper from '../../../components/admin/UserPageWrapper'
 import { useAuth, api, type Prompt, type CreatePromptRequest, type UpdatePromptRequest, type PromptListQuery, type PromptListResponse, type PromptStats } from '@promptmanager/core-logic'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle, Card, DataTable, Loading } from '@promptmanager/ui-components'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { PromptUseButton } from '../../../components/PromptUseButton'
 import TagSelector from '../../../components/TagSelector'
 import { useTranslation } from '@/i18n/client'
+import { useTags } from '../../../hooks/useTags'
 
 // 添加样式
 const styles = `
@@ -21,7 +22,7 @@ const styles = `
 
 export default function PromptsManagementPage({ params }: { params: { lang: string } }) {
   const { t: tDashboard } = useTranslation(params.lang, 'dashboard')
-  const { user, isLoading, error } = useAuth()
+  const { user, isLoading, error, setLanguage } = useAuth()
   const [prompts, setPrompts] = useState<Prompt[]>([])
   const [promptsLoading, setPromptsLoading] = useState(false)
   const [stats, setStats] = useState<PromptStats | null>(null)
@@ -29,10 +30,19 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null)
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false)
+  const [deletingPrompt, setDeletingPrompt] = useState<Prompt | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [operationLoading, setOperationLoading] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
+  const lang = params.lang
+  const { getTagNameByKey, allTags } = useTags(lang)
+
+  // Create a lookup map for faster name retrieval
+  const keyToNameMap = useMemo(() => new Map(allTags.map(t => [t.key, t.name])), [allTags])
+  const getName = (key: string) => keyToNameMap.get(key) || key
+
 
   // 最近更新的提示词状态
   const [recentPrompts, setRecentPrompts] = useState<Prompt[]>([])
@@ -56,6 +66,11 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     tags: [] as string[], // Changed to array
     visibility: 'private'
   })
+
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(params.lang);
+  }, [params.lang, setLanguage]);
 
   // 页面加载时获取提示词列表和统计数据
   useEffect(() => {
@@ -191,7 +206,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         title: formData.title,
         content: formData.content,
         description: formData.description || undefined,
-        tags: formData.tags.length > 0 ? formData.tags : undefined,
+        tags: formData.tags, // 传递实际的标签数组，包括空数组
         isPublic: formData.visibility === 'public',
         spaceId: user.personalSpaceId
       }
@@ -233,7 +248,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         title: formData.title,
         content: formData.content,
         description: formData.description || undefined,
-        tags: formData.tags.length > 0 ? formData.tags : undefined,
+        tags: formData.tags, // 传递实际的标签数组，包括空数组
         isPublic: formData.visibility === 'public'
       }
 
@@ -259,10 +274,6 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
 
   // 处理删除提示词
   const handleDeletePrompt = async (promptId: string) => {
-    if (!confirm(tDashboard('deleteConfirm'))) {
-      return
-    }
-    
     try {
       setOperationLoading(true)
       const response = await api.deletePrompt({ id: promptId }, params.lang)
@@ -280,6 +291,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     } finally {
       setOperationLoading(false)
     }
+  }
+
+  // 打开删除确认模态框
+  const openDeleteConfirmModal = (prompt: Prompt) => {
+    setDeletingPrompt(prompt)
+    setShowDeleteConfirmModal(true)
   }
 
   // 重置表单
@@ -367,19 +384,19 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       key: 'tags',
       title: tDashboard('table.tags'),
       width: 200,
-      render: (prompt: string[]) => {
-        // 解析tags字段
-        let tagsArray: string[] = prompt
-        
+      render: (tagKeys: string[]) => {
+        const tagsToDisplay = (tagKeys || []).map(getName).slice(0, 3)
+        const remainingCount = (tagKeys?.length || 0) - 3
+
         return (
           <div className="flex flex-wrap gap-1">
-            {tagsArray.slice(0, 3).map((tag: string, index: number) => (
+            {tagsToDisplay.map((tagName, index) => (
               <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                {tag}
+                {tagName}
               </span>
             ))}
-            {tagsArray.length > 3 && (
-              <span className="px-2 py-1 text-xs text-gray-500">+{tagsArray.length - 3}</span>
+            {remainingCount > 0 && (
+              <span className="px-2 py-1 text-xs text-gray-500">+{remainingCount}</span>
             )}
           </div>
         )
@@ -453,7 +470,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             size="sm"
             variant="outline"
             className="text-red-600 border-red-200 hover:bg-red-50"
-            onClick={() => handleDeletePrompt(prompt.id || '')}
+            onClick={() => openDeleteConfirmModal(prompt)}
             disabled={operationLoading}
           >
             {tDashboard('delete')}
@@ -531,24 +548,24 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     }
 
                     return (
-                      <div key={prompt.id} className="bg-gray-50 rounded-lg border hover:shadow-md transition-shadow p-4">
-                        <div className="flex justify-between items-start mb-3">
+                      <div key={prompt.id} className="bg-gray-50 rounded-lg border hover:shadow-md transition-shadow p-4 flex flex-col h-68">
+                        <div className="flex justify-between items-start mb-2 flex-shrink-0">
                           <h3 className="text-lg font-semibold text-gray-900 truncate" title={prompt.title}>
                             {prompt.title}
                           </h3>
-                          <span className={visibilityBadge.className}>{visibilityBadge.text}</span>
+                          <span className={`${visibilityBadge.className} ml-2 flex-shrink-0`}>{visibilityBadge.text}</span>
                         </div>
 
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2" title={prompt.description || tDashboard('noDescription')}>
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow" title={prompt.description || tDashboard('noDescription')}>
                           {prompt.description || tDashboard('noDescription')}
                         </p>
 
                         {/* 标签显示 */}
                         {prompt.tags && prompt.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {prompt.tags.slice(0, 3).map((tag, index) => (
+                          <div className="flex flex-wrap gap-1 mb-3 flex-shrink-0">
+                            {prompt.tags.slice(0, 3).map((key, index) => (
                               <span key={index} className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
-                                {tag}
+                                {getName(key)}
                               </span>
                             ))}
                             {prompt.tags.length > 3 && (
@@ -557,8 +574,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                           </div>
                         )}
 
-                        <div className="text-xs text-gray-500 mb-4">
-                          <div>{tDashboard('table.updatedAt')}：{prompt.updatedAt ? new Date(prompt.updatedAt).toLocaleString(params.lang, {
+                        <div className="text-xs text-gray-500 mb-3 flex-shrink-0">
+                          <div className="truncate">{tDashboard('table.updatedAt')}：{prompt.updatedAt ? new Date(prompt.updatedAt).toLocaleString(params.lang, {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
@@ -570,7 +587,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                           <div>{tDashboard('table.usageCount')}：{prompt.useCount ?? 0}</div>
                         </div>
 
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-2 mt-auto flex-shrink-0">
                           <PromptUseButton
                             prompt={prompt}
                             variant="default"
@@ -860,9 +877,9 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                         {tDashboard('tags')}
                       </label>
                       <TagSelector
-                        selectedTags={formData.tags}
-                        onChange={(tags) => setFormData({ ...formData, tags })}
-                        language={params.lang === 'zh-CN' ? 'cn' : params.lang === 'en' ? 'en' : 'ja'}
+                        selectedKeys={formData.tags}
+                        onChange={(keys) => setFormData({ ...formData, tags: keys })}
+                        language={lang}
                         placeholder={tDashboard('tagSelectorPlaceholder')}
                         className=""
                         isEditing={!!editingPrompt}
@@ -1043,9 +1060,9 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                         {tDashboard('tags')}
                       </label>
                       <TagSelector
-                        selectedTags={formData.tags}
-                        onChange={(tags) => setFormData({ ...formData, tags })}
-                        language={params.lang === 'zh-CN' ? 'cn' : params.lang === 'en' ? 'en' : 'ja'}
+                        selectedKeys={formData.tags}
+                        onChange={(keys) => setFormData({ ...formData, tags: keys })}
+                        language={lang}
                         placeholder={tDashboard('tagSelectorPlaceholder')}
                         className=""
                         isEditing={!!editingPrompt}
@@ -1090,6 +1107,64 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                   )}
                 </Button>
               </div>
+            </div>
+          </ModalContent>
+        </Modal>
+        
+        {/* 删除确认模态框 */}
+        <Modal
+          open={showDeleteConfirmModal}
+          onOpenChange={(open) => {
+            setShowDeleteConfirmModal(open)
+            if (!open) setDeletingPrompt(null)
+          }}
+        >
+          <ModalContent size="sm">
+            <ModalHeader>
+              <ModalTitle>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-gray-900">{tDashboard('deleteConfirmModal.title')}</div>
+                    <div className="text-sm text-gray-500 font-normal">{tDashboard('deleteConfirmModal.description')}</div>
+                  </div>
+                </div>
+              </ModalTitle>
+            </ModalHeader>
+            
+            <div className="px-8 py-6 space-y-6">
+              <div className="text-gray-700">
+                {tDashboard('deleteConfirmModal.message', { title: deletingPrompt?.title || '' })}
+              </div>
+            </div>
+            
+            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end items-center rounded-b-2xl space-x-3">
+              <Button
+                onClick={() => {
+                  setShowDeleteConfirmModal(false)
+                  setDeletingPrompt(null)
+                }}
+                variant="outline"
+                className="px-6 py-2"
+              >
+                {tDashboard('deleteConfirmModal.cancel')}
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (deletingPrompt?.id) {
+                    await handleDeletePrompt(deletingPrompt.id)
+                    setShowDeleteConfirmModal(false)
+                    setDeletingPrompt(null)
+                  }
+                }}
+                className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg text-white rounded-xl"
+              >
+                {tDashboard('deleteConfirmModal.confirm')}
+              </Button>
             </div>
           </ModalContent>
         </Modal>

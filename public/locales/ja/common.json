@@ -19,6 +19,8 @@
   "orContinueWith": "または続行",
   "pricingTitle": "適切なプランを選択してください",
   "pricingSubtitle": "個人ユーザーでもチームでも、適切なプランがあります",
+  "pricingPageTitle": "価格設定 - ポッドキャストテンプレート",
+  "pricingPageDescription": "価格プランをご確認ください。無料版からプロ版、チーム版まで、ニーズに合ったプランをお選びいただけます。",
   "freePlan": "無料プラン",
   "freePlanDescription": "個人ユーザーと初心者に最適",
   "proPlan": "プロプラン",
@@ -63,6 +65,15 @@
   "update": "更新",
   "updating": "更新中...",
   "noDescription": "説明なし",
+  "auth": {
+    "loginFailed": "ログインに失敗しました",
+    "registerFailed": "登録に失敗しました",
+    "tokenExpired": "トークンの有効期限が切れました。もう一度ログインしてください",
+    "getUserInfoFailed": "ユーザー情報の取得に失敗しました",
+    "updateUserFailed": "ユーザー情報の更新に失敗しました",
+    "purchaseAiPointsFailed": "AIポイントの購入に失敗しました",
+    "manageSubscriptionFailed": "サブスクリプションの管理に失敗しました"
+  },
   "dataTable": {
     "loading": "読み込み中...",
     "noData": "データなし",

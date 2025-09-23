@@ -84,5 +84,12 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "usageCount": "Usage Count"
+  },
+  "deleteConfirmModal": {
+    "title": "Confirm Delete",
+    "description": "This action cannot be undone, please proceed with caution",
+    "message": "Are you sure you want to delete the prompt \"{{title}}\"? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Confirm Delete"
   }
 }

@@ -19,6 +19,8 @@
   "orContinueWith": "Or continue with",
   "pricingTitle": "Choose the plan that's right for you",
   "pricingSubtitle": "Whether you're an individual or a team, we have a plan that's right for you",
+  "pricingPageTitle": "Pricing - Podcast Template",
+  "pricingPageDescription": "Check out our pricing plans. Choose the plan that fits your needs, from free to pro and team plans.",
   "freePlan": "Free Plan",
   "freePlanDescription": "Perfect for individuals and beginners",
   "proPlan": "Pro Plan",
@@ -63,6 +65,15 @@
   "update": "Update",
   "updating": "Updating...",
   "noDescription": "No description",
+  "auth": {
+    "loginFailed": "Login failed",
+    "registerFailed": "Registration failed",
+    "tokenExpired": "Token has expired, please log in again",
+    "getUserInfoFailed": "Failed to get user information",
+    "updateUserFailed": "Failed to update user information",
+    "purchaseAiPointsFailed": "Failed to purchase AI points",
+    "manageSubscriptionFailed": "Failed to manage subscription"
+  },
   "dataTable": {
     "loading": "Loading...",
     "noData": "No data",

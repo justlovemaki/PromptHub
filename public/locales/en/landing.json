@@ -1,0 +1,125 @@
+{
+  "hero": {
+    "title": "Manage, Optimize, Trigger",
+    "subtitle": "Unleash the Full Potential of Your AI Prompts",
+    "cta": "Start Free"
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing"
+  },
+  "problem": {
+    "title": "Still Struggling with Messy",
+    "highlight": "Prompts",
+    "title2": "?",
+    "description": "Break free from scattered documents and spreadsheets. Say goodbye to repetitive work and stop wasting time searching for the best prompts."
+  },
+  "management": {
+    "title": "Centralized, Tagged,",
+    "highlight": "Lightning-Fast Search",
+    "description": "Build a unified prompt library for all your AI models (GPT, Midjourney, Claude, and more). Organize with folders and tags, instantly find anything you need.",
+    "features": {
+      "smartCategory": "Smart Categories",
+      "multiTag": "Multi-dimensional Tags", 
+      "instantSearch": "Instant Search"
+    },
+    "demo": {
+      "folder": "Work Projects",
+      "folderContent": "Product Description Generator v2.0",
+      "tags": "#marketing #copywriting",
+      "tagsContent": "Viral Social Media Copy Templates",
+      "search": "Search: code optimization",
+      "searchResult": "Found 15 related prompts..."
+    }
+  },
+  "optimization": {
+    "title": "One-Click Optimization,",
+    "highlight": "Access Anywhere",
+    "description": "Built-in AI optimization suggestions make your prompts more precise and efficient. Access your prompt library instantly via floating widgets or hotkeys from anywhere.",
+    "features": {
+      "aiOptimize": "AI Optimization",
+      "quickAccess": "Quick Access",
+      "globalAccess": "Global Access"
+    },
+    "demo": {
+      "title": "Prompt Optimizer",
+      "optimizeBtn": "AI Optimize",
+      "before": "Original Prompt:",
+      "beforeExample": "Write an article about artificial intelligence",
+      "after": "Optimized Prompt:",
+      "role": "Role:",
+      "roleText": "You are a senior technology journalist",
+      "task": "Task:",
+      "taskText": "Write a 2000-word in-depth analysis article",
+      "topic": "Topic:",
+      "topicText": "AI applications and challenges in healthcare",
+      "requirements": "Requirements:",
+      "requirementsText": "Include case studies, data support, and future outlook"
+    }
+  },
+  "cards": {
+    "gpt": "GPT-4 Code Generation",
+    "midjourney": "Midjourney Art Creation",
+    "claude": "Claude Copy Optimization",
+    "dalle": "DALL-E Image Description",
+    "sd": "Stable Diffusion Scenes"
+  },
+  "pricing": {
+    "title": "Choose Your",
+    "highlight": "Plan",
+    "subtitle": "Simple and transparent pricing, upgrade or cancel anytime",
+    "mostPopular": "Most Popular",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "/forever",
+      "button": "Start Free",
+      "features": {
+        "storage": "100 prompts storage",
+        "basicCategory": "Basic categorization",
+        "simpleSearch": "Simple search",
+        "browserExt": "Browser extension"
+      },
+      "notIncluded": {
+        "aiOptimize": "AI optimization suggestions",
+        "teamCollab": "Team collaboration",
+        "cloudSync": "Cloud sync"
+      }
+    },
+    "pro": {
+      "name": "Professional",
+      "price": "$7",
+      "period": "/month",
+      "button": "Upgrade Now",
+      "features": {
+        "unlimited": "Unlimited prompt storage",
+        "advancedTags": "Advanced categories & tags",
+        "aiOptimize": "AI smart optimization",
+        "globalHotkey": "Global hotkeys",
+        "cloudSync": "Automatic cloud sync",
+        "prioritySupport": "Priority support"
+      }
+    },
+    "team": {
+      "name": "Team",
+      "price": "$39",
+      "period": "/month",
+      "button": "Contact Sales",
+      "features": {
+        "allPro": "All Professional features",
+        "teamLib": "Team shared library",
+        "permission": "Permission management",
+        "analytics": "Usage analytics",
+        "apiAccess": "API access",
+        "accountManager": "Dedicated account manager"
+      }
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Prompt Manager. All Rights Reserved.",
+    "pricing": "Pricing",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us"
+  }
+}

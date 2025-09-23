@@ -12,7 +12,19 @@
   },
   "common": {
     "adminRole": "管理者",
-    "viewAll": "すべて表示"
+    "viewAll": "すべて表示",
+    "returnToDashboard": "ダッシュボードに戻る",
+    "adminPanel": "管理パネル",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
+  },
+  "navigation": {
+    "overview": "概要ダッシュボード",
+    "users": "ユーザー管理",
+    "prompts": "プロンプト管理",
+    "logs": "システムログ"
   },
   "errors": {
     "dataLoadFailed": "データの読み込みに失敗しました。ページを更新してもう一度お試しください",
@@ -47,7 +59,7 @@
   "users": {
     "title": "ユーザー管理",
     "description": "システムユーザーアカウント、権限、サブスクリプションステータスを管理します",
-    "totalUsers": "合計 {count} ユーザー",
+    "totalUsers": "合計 {{count}} ユーザー",
     "searchPlaceholder": "ユーザーメール、名前を検索...",
     "filterOptions": {
       "allRoles": "すべての役割",
@@ -167,5 +179,21 @@
     "previous": "前へ",
     "next": "次へ",
     "current": "{{current}} / {{total}} ページ"
+  },
+  "error": {
+    "forbidden": "アクセスが拒否されました。この操作を実行する権限がありません",
+    "notFound": "指定されたリソースが見つかりません",
+    "internalServer": "サーバー内部エラーです。しばらくしてからもう一度お試しください"
+  },
+  "validation": {
+    "invalidPageOrLimit": "ページネーションパラメータが無効です。ページ番号と表示件数を確認してください"
+  },
+  "success": {
+    "noLogsFound": "条件に一致するログエントリが見つかりません",
+    "logsRetrieved": "ログエントリの取得に成功しました",
+    "promptsRetrieved": "プロンプトデータの取得に成功しました",
+    "statsRetrieved": "統計データの取得に成功しました",
+    "usersRetrieved": "ユーザーデータの取得に成功しました",
+    "operationCompleted": "操作が正常に完了しました"
   }
 }

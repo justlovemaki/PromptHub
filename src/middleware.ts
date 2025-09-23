@@ -4,6 +4,7 @@ import { fallbackLng, languages } from './i18n/settings';
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const requestHeaders = new Headers(request.headers);
 
   // API 路由保护
   if (pathname.startsWith('/api/')) {
@@ -16,12 +17,28 @@ export async function middleware(request: NextRequest) {
   );
 
   if (pathnameIsMissingLocale) {
-    const url = request.nextUrl.clone();
-    url.pathname = `/${fallbackLng}${pathname === '/' ? '' : pathname}`;
-    return NextResponse.redirect(url);
+    // e.g. incoming request is /products
+    // The new URL is now /en-US/products
+
+    requestHeaders.set('x-next-pathname', "");
+    return NextResponse.rewrite(
+      new URL(`/${fallbackLng}${pathname}`, request.url),
+      {
+        request: {
+          headers: requestHeaders,
+        },
+      }
+    );
   }
 
-  return NextResponse.next();
+  requestHeaders.set('x-next-pathname', pathname.split('/')[1]);
+  return NextResponse.next(
+    {
+      request: {
+        headers: requestHeaders,
+      },
+    }
+  );
 }
 
 async function handleApiRoutes(request: NextRequest) {
@@ -68,5 +85,5 @@ async function handleApiRoutes(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|favicon.webp|robots.txt|sitemap.xml).*)'],
 };

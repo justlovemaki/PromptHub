@@ -1,5 +1,17 @@
 {
   "title": "Contact Us",
-  "description": "For support or inquiries, please contact us at:",
-  "email": "support@podcasttemplate.com"
+  "description": "We are very happy to hear from you! Whether you have any questions, feedback, or need support, please feel free to contact us through the following methods. We will get back to you as soon as possible.",
+  "emailLabel": "Email:",
+  "email": "support@promptmanager.com",
+  "phoneLabel": "Phone:",
+  "phone": "+86 123 4567 8901",
+  "addressLabel": "Address:",
+  "address": "Zhongguancun Street No.1, Haidian District, Beijing, China",
+  "businessHoursTitle": "Business Hours:",
+  "businessHours": "Monday to Friday, 9:00 AM - 5:00 PM (Beijing Time)",
+  "socialMediaTitle": "Social Media:",
+  "socialMediaDescription": "You can also find us on these platforms:",
+  "twitter": "Twitter",
+  "linkedin": "LinkedIn",
+  "facebook": "Facebook"
 }

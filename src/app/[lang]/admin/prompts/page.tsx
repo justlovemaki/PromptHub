@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import AdminPageWrapper from '@/components/admin/AdminPageWrapper'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { DataTable, Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle } from '@promptmanager/ui-components'
@@ -8,6 +8,7 @@ import TagSelector from '@/components/TagSelector'
 import { api, useAuth } from '@promptmanager/core-logic'
 import type { Prompt } from '@promptmanager/core-logic'
 import { useTranslation } from '@/i18n/client'
+import { useTags } from '@/hooks/useTags'
 
 interface AdminPromptsPageProps {
   params: {
@@ -20,7 +21,7 @@ interface PromptFormData {
   content: string
   description: string
   tags: string[]
-  isPublic: boolean
+  visibility: 'public' | 'private'
 }
 
 export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
@@ -32,9 +33,17 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   const [filterStatus, setFilterStatus] = useState('all')
   const [sortBy, setSortBy] = useState('updatedAt')
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
-  
+
   // PromptManagement 组件的状态
-  const { isLoading } = useAuth()
+  const { isLoading, setLanguage } = useAuth()
+
+  // 标签相关
+  const lang = params.lang
+  const { getTagNameByKey, allTags } = useTags(lang)
+
+  // 创建标签键到名称的映射，用于快速查找
+  const keyToNameMap = useMemo(() => new Map(allTags.map(t => [t.key, t.name])), [allTags])
+  const getName = (key: string) => keyToNameMap.get(key) || key
   const [prompts, setPrompts] = useState<Prompt[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -48,14 +57,21 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
     content: '',
     description: '',
     tags: [],
-    isPublic: false
+    visibility: 'private'
   })
   const [operationLoading, setOperationLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(params.lang);
+  }, [params.lang, setLanguage]);
 
   // 获取提示词列表
   const fetchPrompts = async (page = currentPage, search = searchQuery, sort = sortBy, order = sortOrder) => {
     try {
       setLoading(true)
+      setError(null)
 
       const response = await api.getAdminPrompts({
         page,
@@ -71,10 +87,16 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         setTotalPages(response.data.totalPages || 1)
         setTotalPrompts(response.data.total || 0)
       } else {
-        console.error(tAdminPrompt('fetchFailed'))
+        const errorMessage = (response as any).error?.message || tAdminPrompt('fetchFailed')
+        setError(errorMessage)
+        setTimeout(() => setError(null), 5000)
+        console.error(errorMessage)
       }
     } catch (error) {
       console.error(tAdminPrompt('fetchError'), error)
+      const errorMessage = tAdminPrompt('promptsManagement.fetchError') || '网络错误，请稍后重试'
+      setError(errorMessage)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setLoading(false)
     }
@@ -96,11 +118,11 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   }, [searchQuery, filterStatus, sortBy, sortOrder])
 
   // 页码变化时获取数据
-  useEffect(() => {
-    if (!isLoading && currentPage > 0) {
-      fetchPrompts()
-    }
-  }, [isLoading, currentPage])
+  // useEffect(() => {
+  //   if (!isLoading && currentPage > 0) {
+  //     fetchPrompts()
+  //   }
+  // }, [isLoading, currentPage])
 
   // 处理搜索变化
   const handleSearchChange = (value: string) => {
@@ -130,7 +152,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       content: prompt.content || '',
       description: prompt.description || '',
       tags: prompt.tags || [],
-      isPublic: prompt.isPublic || false
+      visibility: prompt.isPublic ? 'public' : 'private'
     })
     setIsEditModalOpen(true)
   }
@@ -141,15 +163,21 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
 
     try {
       setOperationLoading(true)
+      setError(null)
+
       const response = await api.deletePrompt({ id: promptId }, params.lang)
       if (response.success) {
         await fetchPrompts()
       } else {
-        alert(tAdminPrompt('deleteFailed'))
+        const errorMessage = (response as any).error?.message || tAdminPrompt('deleteFailed')
+        setError(errorMessage)
+        setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
       console.error(tAdminPrompt('deleteError'), error)
-      alert(tAdminPrompt('deleteFailed'))
+      const errorMessage = tAdminPrompt('messages.deleteError') || '网络错误，请稍后重试'
+      setError(errorMessage)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setOperationLoading(false)
     }
@@ -158,18 +186,22 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   // 创建提示词
   const handleCreate = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert(tAdminPrompt('requiredFields'))
+      const { t: tDashboard } = useTranslation(params.lang, 'dashboard')
+      setError(tDashboard('titleAndContentRequired') || '标题和内容为必填项')
+      setTimeout(() => setError(null), 3000)
       return
     }
 
     try {
       setOperationLoading(true)
+      setError(null)
+
       const response = await api.createPrompt({
         title: formData.title,
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
-        isPublic: formData.isPublic,
+        isPublic: formData.visibility === 'public',
         spaceId: 'admin'
       }, params.lang)
 
@@ -178,11 +210,15 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         resetForm()
         await fetchPrompts()
       } else {
-        alert(tAdminPrompt('createFailed'))
+        const errorMessage = (response as any).error?.message || tAdminPrompt('createFailed')
+        setError(errorMessage)
+        setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
       console.error(tAdminPrompt('createError'), error)
-      alert(tAdminPrompt('createFailed'))
+      const errorMessage = tAdminPrompt('messages.createError') || '网络错误，请稍后重试'
+      setError(errorMessage)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setOperationLoading(false)
     }
@@ -195,7 +231,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       content: '',
       description: '',
       tags: [],
-      isPublic: false
+      visibility: 'private'
     })
   }
 
@@ -204,19 +240,23 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
     if (!editingPrompt) return
 
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert(tAdminPrompt('requiredFields'))
+      const { t: tDashboard } = useTranslation(params.lang, 'dashboard')
+      setError(tDashboard('titleAndContentRequired') || '标题和内容为必填项')
+      setTimeout(() => setError(null), 3000)
       return
     }
 
     try {
       setOperationLoading(true)
+      setError(null)
+
       const response = await api.updatePrompt({
         id: editingPrompt.id,
         title: formData.title,
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
-        isPublic: formData.isPublic
+        isPublic: formData.visibility === 'public'
       }, params.lang)
 
       if (response.success) {
@@ -225,11 +265,15 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         resetForm()
         await fetchPrompts()
       } else {
-        alert(tAdminPrompt('updateFailed'))
+        const errorMessage = (response as any).error?.message || tAdminPrompt('updateFailed')
+        setError(errorMessage)
+        setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
       console.error(tAdminPrompt('updateError'), error)
-      alert(tAdminPrompt('updateFailed'))
+      const errorMessage = tAdminPrompt('messages.updateError') || '网络错误，请稍后重试'
+      setError(errorMessage)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setOperationLoading(false)
     }
@@ -238,6 +282,32 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   return (
     <AdminPageWrapper lang={params.lang}>
       <div className="space-y-6">
+        {/* 错误消息显示 */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setError(null)}
+                  className="text-red-400 hover:text-red-600"
+                >
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 页面标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
@@ -275,6 +345,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
           ]}
           sortOrder={sortOrder}
           onSortOrderChange={handleSortOrderChange}
+          t={tAdminPrompt}
         />
 
         {/* 提示词列表 */}
@@ -318,27 +389,32 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                     key: 'tags',
                     title: tAdminPrompt('table.tags'),
                     width: '20%',
-                    render: (value: string[], record: Prompt) => (
-                      <div className="flex flex-wrap gap-1">
-                        {value && value.length > 0 ? (
-                          value.slice(0, 3).map((tag, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded"
-                            >
-                              {tag}
+                    render: (value: string[], record: Prompt) => {
+                      const tagsToDisplay = (value || []).map(getName).slice(0, 3)
+                      const remainingCount = (value?.length || 0) - 3
+
+                      return (
+                        <div className="flex flex-wrap gap-1">
+                          {tagsToDisplay.length > 0 ? (
+                            tagsToDisplay.map((tagName, index) => (
+                              <span
+                                key={index}
+                                className="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded"
+                              >
+                                {tagName}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-gray-400 text-sm">{tAdminPrompt('table.noTags')}</span>
+                          )}
+                          {remainingCount > 0 && (
+                            <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded">
+                              +{remainingCount}
                             </span>
-                          ))
-                        ) : (
-                          <span className="text-gray-400 text-sm">{tAdminPrompt('noTags')}</span>
-                        )}
-                        {value && value.length > 3 && (
-                          <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded">
-                            +{value.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )
+                          )}
+                        </div>
+                      )
+                    }
                   },
                   {
                     key: 'useCount',
@@ -377,7 +453,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                             </div>
                           </>
                         ) : (
-                          <span className="text-gray-400">{tAdminPrompt('notUpdated')}</span>
+                          <span className="text-gray-400">{tAdminPrompt('table.notUpdated')}</span>
                         )}
                       </div>
                     )
@@ -416,34 +492,19 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                     )
                   }
                 ]}
-                empty={tAdminPrompt('noPrompts')}
+                empty={tAdminPrompt('promptManagement.noPrompts')}
+                pagination={{
+                  current: currentPage,
+                  pageSize: 8,
+                  total: totalPrompts,
+                  onChange: (page) => setCurrentPage(page)
+                }}
+                t={tCommon}
               />
             )}
           </div>
         </div>
 
-        {/* 分页 */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {tAdminPrompt('pagination.previous')}
-            </button>
-            <span className="text-sm text-gray-600">
-              {tAdminPrompt('pagination.current', { current: currentPage, total: totalPages })}
-            </span>
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {tAdminPrompt('pagination.next')}
-            </button>
-          </div>
-        )}
 
         {/* 创建提示词模态框 */}
         <Modal
@@ -554,8 +615,8 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                       </label>
                       <div className="relative">
                         <select
-                          value={formData.isPublic ? 'public' : 'private'}
-                          onChange={(e) => setFormData({ ...formData, isPublic: e.target.value === 'public' })}
+                          value={formData.visibility}
+                          onChange={(e) => setFormData({ ...formData, visibility: e.target.value as 'public' | 'private' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
                         >
                           <option value="private">{tAdminPrompt('visibility.private')}</option>
@@ -574,9 +635,9 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                         {tAdminPrompt('labels.tags')}
                       </label>
                       <TagSelector
-                        selectedTags={formData.tags}
-                        onChange={(tags) => setFormData({ ...formData, tags })}
-                        language="cn"
+                        selectedKeys={formData.tags}
+                        onChange={(keys) => setFormData({ ...formData, tags: keys })}
+                        language={lang}
                         placeholder={tAdminPrompt('placeholders.tags')}
                         className=""
                         isEditing={!!editingPrompt}
@@ -737,12 +798,12 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                       </label>
                       <div className="relative">
                         <select
-                          value={formData.isPublic ? 'public' : 'private'}
-                          onChange={(e) => setFormData({ ...formData, isPublic: e.target.value === 'public' })}
+                          value={formData.visibility}
+                          onChange={(e) => setFormData({ ...formData, visibility: e.target.value as 'public' | 'private' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
                         >
-                          <option value="private">{tAdminPrompt('visibility.privateOption')}</option>
-                          <option value="public">{tAdminPrompt('visibility.publicOption')}</option>
+                          <option value="private">{tAdminPrompt('visibility.private')}</option>
+                          <option value="public">{tAdminPrompt('visibility.public')}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -757,9 +818,9 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                         {tAdminPrompt('labels.tags')}
                       </label>
                       <TagSelector
-                        selectedTags={formData.tags}
-                        onChange={(tags) => setFormData({ ...formData, tags })}
-                        language="cn"
+                        selectedKeys={formData.tags}
+                        onChange={(keys) => setFormData({ ...formData, tags: keys })}
+                        language={lang}
                         placeholder={tAdminPrompt('placeholders.tags')}
                         className=""
                         isEditing={!!editingPrompt}

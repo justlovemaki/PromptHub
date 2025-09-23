@@ -24,12 +24,17 @@ export default function AdminPageWrapper({
   description
 }: AdminPageWrapperProps) {
   const [isClient, setIsClient] = useState(false)
-  const { user, isLoading, isAdmin } = useAuth()
+  const { user, isLoading, isAdmin, setLanguage } = useAuth()
 
   // 客户端 hydration 检查
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(lang)
+  }, [lang, setLanguage])
 
   // 在服务端渲染期间显示加载状态
   if (!isClient) {

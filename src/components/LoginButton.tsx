@@ -11,13 +11,18 @@ export default function LoginButton({ lng }: { lng: string }) {
   const [isClient, setIsClient] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { data: session, isPending } = useSession()
-  const { user: authUser, logout } = useAuthStore()
+  const { user: authUser, logout, setLanguage } = useAuthStore()
   const { t } = useTranslation(lng, 'common')
   
 
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(lng)
+  }, [lng, setLanguage])
 
   const handleLogin = () => {
     // 打开登录模态框
@@ -78,7 +83,7 @@ export default function LoginButton({ lng }: { lng: string }) {
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-brand-blue flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {(currentUser.name || currentUser.email || 'U').charAt(0).toUpperCase()}
               </span>
@@ -147,7 +152,7 @@ export default function LoginButton({ lng }: { lng: string }) {
     <>
       <button
         onClick={handleLogin}
-        className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90 transition-colors font-medium"
+        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md hover:from-purple-700 hover:to-blue-700 transition-colors font-medium"
       >
         {t('login')}
       </button>

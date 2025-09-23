@@ -16,6 +16,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  language: string | null;
 
   // 认证操作
   login: (data: LoginRequest) => Promise<boolean>;
@@ -39,6 +40,7 @@ export interface AuthState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   checkTokenExpiration: () => void;
+  setLanguage: (language: string | null) => void;
 }
 
 // ============== 创建认证Store ==============
@@ -52,6 +54,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      language: null,
 
       // ============== 认证操作 ==============
 
@@ -59,7 +62,8 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await api.login(data);
+          const { language } = get();
+          const response = await api.login(data, language || undefined);
 
           if (response.success) {
             const { user, token } = response.data;
@@ -76,13 +80,13 @@ export const useAuthStore = create<AuthState>()(  persist(
             return true;
           } else {
             set({
-              error: (response as any).error?.message || '登录失败',
+              error: (response as any).error?.message || 'auth.loginFailed',
               isLoading: false,
             });
             return false;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '登录失败';
+          const errorMessage = error instanceof Error ? error.message : 'auth.loginFailed';
           set({
             error: errorMessage,
             isLoading: false,
@@ -95,7 +99,8 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await api.register(data);
+          const { language } = get();
+          const response = await api.register(data, language || undefined);
 
           if (response.success) {
             const { user, token } = response.data;
@@ -112,13 +117,13 @@ export const useAuthStore = create<AuthState>()(  persist(
             return true;
           } else {
             set({
-              error: (response as any).error?.message || '注册失败',
+              error: (response as any).error?.message || 'auth.registerFailed',
               isLoading: false,
             });
             return false;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '注册失败';
+          const errorMessage = error instanceof Error ? error.message : 'auth.registerFailed';
           set({
             error: errorMessage,
             isLoading: false,
@@ -148,7 +153,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       },
 
       refreshUser: async (): Promise<void> => {
-        const { token, isAuthenticated, isTokenExpired } = get();
+        const { token, isAuthenticated, isTokenExpired, language } = get();
         
         // 检查token是否过期
         if (isTokenExpired()) {
@@ -159,7 +164,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             userDataExpireTime: null,
             isAuthenticated: false,
             isLoading: false,
-            error: 'Token已过期，请重新登录',
+            error: 'auth.tokenExpired',
           });
           return;
         }
@@ -170,12 +175,12 @@ export const useAuthStore = create<AuthState>()(  persist(
           return;
         }
 
-        console.log('refreshUser: 开始获取用户信息', { hasToken: !!token, isAuthenticated })
+        // console.log('refreshUser: 开始获取用户信息', { hasToken: !!token, isAuthenticated })
         set({ isLoading: true, error: null });
 
         try {
-          const response = await api.getCurrentUser();
-          console.log('refreshUser: API响应', response)
+          const response = await api.getCurrentUser(language || undefined);
+          // console.log('refreshUser: API响应', response)
 
           if (response.success) {
             console.log('refreshUser: 成功获取用户信息', response.data)
@@ -193,12 +198,12 @@ export const useAuthStore = create<AuthState>()(  persist(
               userDataExpireTime: null,
               isAuthenticated: false,
               isLoading: false,
-              error: (response as any).error?.message || '获取用户信息失败',
+              error: (response as any).error?.message || 'auth.getUserInfoFailed',
             });
           }
         } catch (error) {
           console.error('refreshUser: 请求异常', error)
-          const errorMessage = error instanceof Error ? error.message : '获取用户信息失败';
+          const errorMessage = error instanceof Error ? error.message : 'auth.getUserInfoFailed';
           set({
             user: null,
             token: null,
@@ -214,7 +219,8 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await api.updateUser(data);
+          const { language } = get();
+          const response = await api.updateUser(data, language || undefined);
 
           if (response.success) {
             set({
@@ -225,13 +231,13 @@ export const useAuthStore = create<AuthState>()(  persist(
             return true;
           } else {
             set({
-              error: (response as any).error?.message || '更新用户信息失败',
+              error: (response as any).error?.message || 'auth.updateUserFailed',
               isLoading: false,
             });
             return false;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '更新用户信息失败';
+          const errorMessage = error instanceof Error ? error.message : 'auth.updateUserFailed';
           set({
             error: errorMessage,
             isLoading: false,
@@ -244,7 +250,8 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await api.purchaseAiPoints(packageType);
+          const { language } = get();
+          const response = await api.purchaseAiPoints(packageType, language || undefined);
 
           if (response.success) {
             // 更新用户信息以反映新的AI点数余额
@@ -259,13 +266,13 @@ export const useAuthStore = create<AuthState>()(  persist(
             return true;
           } else {
             set({
-              error: (response as any).error?.message || '购买AI点数失败',
+              error: (response as any).error?.message || 'auth.purchaseAiPointsFailed',
               isLoading: false,
             });
             return false;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '购买AI点数失败';
+          const errorMessage = error instanceof Error ? error.message : 'auth.purchaseAiPointsFailed';
           set({
             error: errorMessage,
             isLoading: false,
@@ -278,7 +285,8 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await api.manageSubscription(action);
+          const { language } = get();
+          const response = await api.manageSubscription(action, language || undefined);
 
           if (response.success) {
             // 更新用户信息以反映新的订阅状态
@@ -293,13 +301,13 @@ export const useAuthStore = create<AuthState>()(  persist(
             return true;
           } else {
             set({
-              error: (response as any).error?.message || '管理订阅失败',
+              error: (response as any).error?.message || 'auth.manageSubscriptionFailed',
               isLoading: false,
             });
             return false;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '管理订阅失败';
+          const errorMessage = error instanceof Error ? error.message : 'auth.manageSubscriptionFailed';
           set({
             error: errorMessage,
             isLoading: false,
@@ -370,7 +378,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             token: null,
             userDataExpireTime: null,
             isAuthenticated: false,
-            error: 'Token已过期，请重新登录',
+            error: 'auth.tokenExpired',
           });
         }
       },
@@ -381,6 +389,10 @@ export const useAuthStore = create<AuthState>()(  persist(
 
       setError: (error: string | null): void => {
         set({ error });
+      },
+      
+      setLanguage: (language: string | null): void => {
+        set({ language });
       },
     }),
     {
@@ -403,6 +415,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         token: state.token,
         userDataExpireTime: state.userDataExpireTime,
         isAuthenticated: state.isAuthenticated,
+        language: state.language,
       }),
       onRehydrateStorage: () => (state) => {
         // 重新加载后，检查token是否过期
@@ -444,6 +457,7 @@ export const useAuth = () => {
     isLoading: store.isLoading,
     error: store.error,
     userDataExpireTime: store.userDataExpireTime,
+    language: store.language,
     
     // 权限
     isAdmin: store.isAdmin(),
@@ -461,6 +475,7 @@ export const useAuth = () => {
     manageSubscription: store.manageSubscription,
     clearError: store.clearError,
     checkTokenExpiration: store.checkTokenExpiration,
+    setLanguage: store.setLanguage,
   };
 };
 
@@ -476,6 +491,7 @@ export const useAuthActions = () => {
     purchaseAiPoints: store.purchaseAiPoints,
     manageSubscription: store.manageSubscription,
     clearError: store.clearError,
+    setLanguage: store.setLanguage,
   };
 };
 
@@ -488,6 +504,7 @@ export const useAuthStatus = () => {
     isLoading: store.isLoading,
     error: store.error,
     userDataExpireTime: store.userDataExpireTime,
+    language: store.language,
     isAdmin: store.isAdmin(),
     isPro: store.isPro(),
     hasValidSubscription: store.hasValidSubscription(),

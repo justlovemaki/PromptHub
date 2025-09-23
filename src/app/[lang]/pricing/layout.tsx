@@ -1,0 +1,31 @@
+import type { Metadata } from 'next'
+import { headers } from 'next/headers'
+import { getTranslation } from '@/i18n'
+import { getTruePathFromHeaders } from '@/lib/utils'
+
+export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
+  const { t } = await getTranslation(params.lang, 'common')
+  const truePath = await getTruePathFromHeaders(await headers(), params.lang)
+  
+  // 使用 BETTER_AUTH_URL 作为基础URL，如果未设置则使用默认值
+  const baseUrl = process.env.BETTER_AUTH_URL?.replace(/\/$/, '') || 'http://localhost:3000'
+  const canonicalUrl = `${baseUrl}${truePath}/pricing`
+  
+  return {
+    title: t('pricingPageTitle'),
+    description: t('pricingPageDescription'),
+    alternates: {
+      canonical: canonicalUrl
+    }
+  }
+}
+
+export default function PricingLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: { lang: string }
+}) {
+  return <>{children}</>
+}

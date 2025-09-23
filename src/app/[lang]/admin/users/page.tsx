@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import AdminPageWrapper from '../../../../components/admin/AdminPageWrapper'
 import { useAuth, api } from '@promptmanager/core-logic'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
+import { DataTable } from '@promptmanager/ui-components/src/components/data-table'
 import { useTranslation } from '@/i18n/client'
 
 import type { User } from '@promptmanager/core-logic'
@@ -12,7 +13,7 @@ import type { User } from '@promptmanager/core-logic'
 export default function AdminUsersPage({ params }: { params: { lang: string } }) {
   const { t: tAdmin } = useTranslation(params.lang, 'admin')
   const { t: tCommon } = useTranslation(params.lang, 'common')
-  const { isLoading } = useAuth()
+  const { isLoading, setLanguage } = useAuth()
 
   // 用户数据状态
   const [users, setUsers] = useState<User[]>([])
@@ -36,6 +37,104 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
 
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(params.lang);
+  }, [params.lang, setLanguage]);
+
+  // DataTable 列配置
+  const columns = [
+    {
+      key: 'userInfo' as const,
+      title: tAdmin('users.tableHeaders.userInfo'),
+      render: (value: any, user: User) => (
+        <div className="flex items-center space-x-3">
+          <div className="h-10 w-10 bg-brand-blue rounded-full flex items-center justify-center">
+            <span className="text-white font-medium text-sm">
+              {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">
+              {user.name || tAdmin('users.unnamedUser')}
+            </p>
+            <p className="text-gray-500 text-xs truncate max-w-xs">
+              {user.email}
+            </p>
+          </div>
+        </div>
+      ),
+      width: 300,
+      align: 'left' as const,
+    },
+    {
+      key: 'role' as const,
+      title: tAdmin('users.tableHeaders.role'),
+      render: (value: any, user: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
+          user.role === 'ADMIN'
+            ? 'bg-red-100 text-red-800'
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {user.role === 'ADMIN' ? tAdmin('users.roleAdmin') : tAdmin('users.roleUser')}
+        </span>
+      ),
+      width: 120,
+      align: 'center' as const,
+      sortable: true,
+    },
+    {
+      key: 'subscriptionStatus' as const,
+      title: tAdmin('users.tableHeaders.subscriptionStatus'),
+      render: (value: any, user: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
+          user.subscriptionStatus === 'PRO'
+            ? 'bg-green-100 text-green-800'
+            : user.subscriptionStatus === 'TEAM'
+            ? 'bg-blue-100 text-blue-800'
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {user.subscriptionStatus === 'PRO' ? tAdmin('users.subscriptionPro') :
+           user.subscriptionStatus === 'TEAM' ? tAdmin('users.subscriptionTeam') : tAdmin('users.subscriptionFree')}
+        </span>
+      ),
+      width: 150,
+      align: 'center' as const,
+      sortable: true,
+    },
+    {
+      key: 'createdAt' as const,
+      title: tAdmin('users.tableHeaders.createdAt'),
+      render: (value: any, user: User) => (
+        <span className="text-gray-500 text-xs">
+          {new Date(user.createdAt).toLocaleDateString(params.lang)}
+        </span>
+      ),
+      width: 120,
+      align: 'center' as const,
+      sortable: true,
+    },
+    {
+      key: 'actions' as const,
+      title: tAdmin('users.tableHeaders.actions'),
+      render: (value: any, user: User) => (
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setEditingUser(user)
+            }}
+            className="text-brand-blue hover:text-brand-blue/80 text-sm"
+          >
+            {tAdmin('buttons.edit')}
+          </button>
+        </div>
+      ),
+      width: 100,
+      align: 'center' as const,
+    }
+  ]
+
   // 搜索、筛选、排序变化时重新获取数据（防抖处理）
   useEffect(() => {
     if (!isLoading) {
@@ -52,11 +151,11 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
   }, [searchTerm, filterRole, filterSubscription, sortField, sortOrder])
 
   // 页码变化时获取数据
-  useEffect(() => {
-    if (!isLoading && currentPage > 0) {
-      fetchUsers(currentPage, searchTerm, sortField, sortOrder);
-    }
-  }, [isLoading, currentPage])
+  // useEffect(() => {
+  //   if (!isLoading && currentPage > 0) {
+  //     fetchUsers(currentPage, searchTerm, sortField, sortOrder);
+  //   }
+  // }, [isLoading, currentPage])
 
   // 加载用户数据
   const fetchUsers = async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
@@ -192,6 +291,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
             setSortOrder(value as string)
             setCurrentPage(1)
           }}
+          t={tAdmin}
         />
 
         {/* 用户列表 */}
@@ -200,192 +300,32 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
             <h2 className="text-lg font-semibold text-gray-900">{tAdmin('users.listTitle')}</h2>
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
-            </div>
-          ) : error ? (
-            <div className="p-6 text-center">
-              <div className="text-red-500 mb-4">{error}</div>
-              <button
-                onClick={() => fetchUsers(currentPage, searchTerm, sortField, sortOrder)}
-                className="px-4 py-2 bg-brand-blue text-white rounded hover:bg-brand-blue/90"
-              >
-                {tCommon('retry')}
-              </button>
-            </div>
-          ) : users.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              {searchTerm ? tAdmin('users.empty.noMatch') : tAdmin('users.empty.noData')}
-            </div>
-          ) : (
-            <>
-              {/* 表头 */}
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-900">
-                  <div className="col-span-3">
-                    <button
-                      onClick={() => handleSort('name')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {tAdmin('users.tableHeaders.userInfo')}
-                      {sortField === 'name' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-2">
-                    <button
-                      onClick={() => handleSort('role')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {tAdmin('users.tableHeaders.role')}
-                      {sortField === 'role' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-2">
-                    <button
-                      onClick={() => handleSort('subscriptionStatus')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {tAdmin('users.tableHeaders.subscriptionStatus')}
-                      {sortField === 'subscriptionStatus' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-2">
-                    <button
-                      onClick={() => handleSort('createdAt')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {tAdmin('users.tableHeaders.createdAt')}
-                      {sortField === 'createdAt' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-3">{tAdmin('users.tableHeaders.actions')}</div>
-                </div>
-              </div>
-
-              {/* 表格内容 */}
-              <div className="divide-y divide-gray-200">
-                {users.map((user) => (
-                  <div key={user.id} className="px-6 py-4">
-                    <div className="grid grid-cols-12 gap-4 items-center text-sm">
-                      <div className="col-span-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-10 w-10 bg-brand-blue rounded-full flex items-center justify-center">
-                            <span className="text-white font-medium text-sm">
-                              {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {user.name || tAdmin('users.unnamedUser')}
-                            </p>
-                            <p className="text-gray-500 text-xs truncate max-w-xs">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-2">
-                        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                          user.role === 'ADMIN'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {user.role === 'ADMIN' ? tAdmin('users.roleAdmin') : tAdmin('users.roleUser')}
-                        </span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                          user.subscriptionStatus === 'PRO'
-                            ? 'bg-green-100 text-green-800'
-                            : user.subscriptionStatus === 'TEAM'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {user.subscriptionStatus === 'PRO' ? tAdmin('users.subscriptionPro') :
-                           user.subscriptionStatus === 'TEAM' ? tAdmin('users.subscriptionTeam') : tAdmin('users.subscriptionFree')}
-                        </span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-gray-500 text-xs">
-                          {new Date(user.createdAt).toLocaleDateString(params.lang)}
-                        </span>
-                      </div>
-                      <div className="col-span-3">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => setEditingUser(user)}
-                            className="text-brand-blue hover:text-brand-blue/80 text-sm"
-                          >
-                            {tCommon('edit')}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* 分页 */}
-              {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
-                      {tAdmin('pagination.pageInfo', { current: currentPage, total: totalPages })}
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {tAdmin('pagination.previous')}
-                      </button>
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`px-3 py-1 text-sm border rounded ${
-                              pageNum === currentPage
-                                ? 'bg-brand-blue text-white border-brand-blue'
-                                : 'border-gray-300 hover:bg-gray-50'
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        )
-                      })}
-                      <button
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {tAdmin('pagination.next')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+          <DataTable
+            columns={columns}
+            data={users}
+            loading={loading}
+            empty={searchTerm ? tAdmin('users.empty.noMatch') : tAdmin('users.empty.noData')}
+            onSort={(key, direction) => {
+              const sortMap: Record<string, string> = {
+                'userInfo': 'name',
+                'role': 'role',
+                'subscriptionStatus': 'subscriptionStatus',
+                'createdAt': 'createdAt'
+              }
+              const actualSortField = sortMap[key] || key
+              setSortField(actualSortField)
+              setSortOrder(direction)
+              setCurrentPage(1)
+            }}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalUsers,
+              onChange: (page) => setCurrentPage(page)
+            }}
+            t={tAdmin}
+          />
         </div>
       </div>
 

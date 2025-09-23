@@ -12,7 +12,19 @@
   },
   "common": {
     "adminRole": "Admin",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "returnToDashboard": "Return to Dashboard",
+    "adminPanel": "Admin Panel",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us",
+    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
+  },
+  "navigation": {
+    "overview": "Overview Dashboard",
+    "users": "User Management",
+    "prompts": "Prompt Management",
+    "logs": "System Logs"
   },
   "errors": {
     "dataLoadFailed": "Failed to load data, please refresh the page and try again",
@@ -47,7 +59,7 @@
   "users": {
     "title": "User Management",
     "description": "Manage system user accounts, permissions, and subscription statuses",
-    "totalUsers": "Total {count} users",
+    "totalUsers": "Total {{count}} users",
     "searchPlaceholder": "Search user email, name...",
     "filterOptions": {
       "allRoles": "All Roles",
@@ -167,5 +179,21 @@
     "previous": "Previous",
     "next": "Next",
     "current": "Page {{current}} / {{total}}"
+  },
+  "error": {
+    "forbidden": "Access denied, you do not have permission to perform this operation",
+    "notFound": "The specified resource was not found",
+    "internalServer": "Internal server error, please try again later"
+  },
+  "validation": {
+    "invalidPageOrLimit": "Invalid pagination parameters, please check page number and limit"
+  },
+  "success": {
+    "noLogsFound": "No log entries found matching the criteria",
+    "logsRetrieved": "Log entries retrieved successfully",
+    "promptsRetrieved": "Prompt data retrieved successfully",
+    "statsRetrieved": "Statistics data retrieved successfully",
+    "usersRetrieved": "User data retrieved successfully",
+    "operationCompleted": "Operation completed successfully"
   }
 }

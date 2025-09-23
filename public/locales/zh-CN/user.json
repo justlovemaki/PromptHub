@@ -55,5 +55,16 @@
   },
   "sse": {
     "connected": "已连接到服务器发送事件"
+  },
+  "navigation": {
+    "dashboard": "用户仪表盘",
+    "accountSettings": "账户设置"
+  },
+  "common": {
+    "adminPanel": "管理后台",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "contact": "联系我们",
+    "copyright": "© 2025 提示词管理后台. All Rights Reserved."
   }
 }

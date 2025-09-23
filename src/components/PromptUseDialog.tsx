@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { 
-  Modal, 
-  ModalContent, 
-  ModalHeader, 
-  ModalTitle, 
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
   ModalDescription,
   ModalFooter,
-  ModalClose 
+  ModalClose
 } from '@promptmanager/ui-components'
 import { Button } from '@promptmanager/ui-components'
 import { Input } from '@promptmanager/ui-components'
@@ -43,10 +43,16 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
   const [isProcessing, setIsProcessing] = useState(false)
   const [finalContent, setFinalContent] = useState('')
   const toast = useToast() // 在组件内部使用 toast
-  const { t: tPrompt } = useTranslation(lang || 'zh-CN', 'prompt')
-  const { t: tCommon } = useTranslation(lang || 'zh-CN', 'common')
+  const { t: tPrompt } = useTranslation(lang, 'prompt')
+  const { t: tCommon } = useTranslation(lang, 'common')
 
-  // 当提示词改变时，解析变量
+  // 使用 useMemo 缓存解析的变量，避免重复计算
+  const parsedVariables = useMemo(() => {
+    if (!prompt?.content) return []
+    return parsePromptVariables(prompt.content)
+  }, [prompt?.content])
+
+  // 当提示词或解析的变量改变时，重置状态
   useEffect(() => {
     if (!prompt?.content) {
       setVariables([])
@@ -55,7 +61,6 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
       return
     }
 
-    const parsedVariables = parsePromptVariables(prompt.content)
     setVariables(parsedVariables)
     
     // 重置变量值
@@ -67,28 +72,32 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
     
     // 设置初始内容
     setFinalContent(prompt.content)
-  }, [prompt?.content])
+  }, [prompt?.content, parsedVariables])
 
-  // 当变量值改变时，实时更新最终内容
-  useEffect(() => {
-    if (!prompt?.content) return
+  // 使用 useMemo 计算最终内容，避免不必要的重新计算
+  const computedFinalContent = useMemo(() => {
+    if (!prompt?.content) return ''
     
-    if (variables.length === 0) {
-      setFinalContent(prompt.content)
+    if (parsedVariables.length === 0) {
+      return prompt.content
     } else {
       // 使用预览版本的替换函数，只替换非空值
-      const replacedContent = replacePromptVariablesForPreview(prompt.content, variableValues)
-      setFinalContent(replacedContent)
+      return replacePromptVariablesForPreview(prompt.content, variableValues)
     }
-  }, [prompt?.content, variables, variableValues])
+  }, [prompt?.content, parsedVariables, variableValues])
 
-  // 处理变量值变化
-  const handleVariableChange = (variable: string, value: string) => {
+  // 同步更新 finalContent
+  useEffect(() => {
+    setFinalContent(computedFinalContent)
+  }, [computedFinalContent])
+
+  // 使用 useCallback 优化处理函数
+  const handleVariableChange = useCallback((variable: string, value: string) => {
     setVariableValues(prev => ({
       ...prev,
       [variable]: value
     }))
-  }
+  }, [])
 
   // 复制到剪贴板
   const copyToClipboard = async (text: string): Promise<boolean> => {
@@ -179,8 +188,10 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
     setIsProcessing(false)
   }
 
-  // 检查是否可以使用提示词
-  const canUsePrompt = variables.length === 0 || variables.every(variable => variableValues[variable]?.trim())
+  // 使用 useMemo 优化计算
+  const canUsePrompt = useMemo(() => {
+    return parsedVariables.length === 0 || parsedVariables.every(variable => variableValues[variable]?.trim())
+  }, [parsedVariables, variableValues])
 
   if (!prompt) return null
 
@@ -216,11 +227,11 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
           </div>
 
           {/* 变量输入区域 */}
-          {variables.length > 0 && (
+          {parsedVariables.length > 0 && (
             <div className="mb-6">
               <h4 className="text-md font-medium text-gray-900 mb-4">{tPrompt('sections.variables')}</h4>
               <div className="space-y-4">
-                {variables.map((variable, index) => (
+                {parsedVariables.map((variable) => (
                   <Input
                     key={variable}
                     label={`${variable}`}

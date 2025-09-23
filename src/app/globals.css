@@ -8,6 +8,16 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+/* 隐藏滚动条的类 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -16,4 +26,19 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+/* 针对 WebKit 浏览器 (Chrome, Safari) 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* 针对 Firefox 隐藏滚动条 */
+html {
+    scrollbar-width: none;
+}
+
+/* 针对 IE 和 Edge 隐藏滚动条 */
+body {
+    -ms-overflow-style: none;
 }

@@ -1,0 +1,125 @@
+{
+  "hero": {
+    "title": "管理、最適化、ワンクリック",
+    "subtitle": "AIプロンプトの可能性を最大限に引き出す",
+    "cta": "無料で始める"
+  },
+  "nav": {
+    "features": "機能",
+    "pricing": "料金"
+  },
+  "problem": {
+    "title": "まだ散らばった",
+    "highlight": "プロンプト",
+    "title2": "に悩んでいますか？",
+    "description": "散在するドキュメントやスプレッドシートから解放されましょう。繰り返し作業にさよならして、最適なプロンプト探しに時間を無駄にするのをやめましょう。"
+  },
+  "management": {
+    "title": "一元化、タグ付け、",
+    "highlight": "瞬間検索",
+    "description": "すべてのAIモデル（GPT、Midjourney、Claudeなど）のための統一プロンプトライブラリを構築。フォルダとタグで整理し、必要なものを瞬時に見つけられます。",
+    "features": {
+      "smartCategory": "スマート分類",
+      "multiTag": "多次元タグ", 
+      "instantSearch": "即座に検索"
+    },
+    "demo": {
+      "folder": "作業プロジェクト",
+      "folderContent": "製品説明ジェネレーター v2.0",
+      "tags": "#マーケティング #コピーライティング",
+      "tagsContent": "ソーシャルメディアバイラルコピーテンプレート",
+      "search": "検索：コード最適化",
+      "searchResult": "15個の関連プロンプトが見つかりました..."
+    }
+  },
+  "optimization": {
+    "title": "ワンクリック最適化、",
+    "highlight": "どこでもアクセス",
+    "description": "内蔵のAI最適化提案で、プロンプトをより正確で効率的に。フローティングウィジェットやホットキーで、どこからでもプロンプトライブラリに瞬時にアクセス。",
+    "features": {
+      "aiOptimize": "AI最適化",
+      "quickAccess": "クイックアクセス",
+      "globalAccess": "グローバルアクセス"
+    },
+    "demo": {
+      "title": "プロンプト最適化ツール",
+      "optimizeBtn": "AI最適化",
+      "before": "元のプロンプト：",
+      "beforeExample": "人工知能について記事を書く",
+      "after": "最適化されたプロンプト：",
+      "role": "役割：",
+      "roleText": "あなたはベテランのテクノロジージャーナリストです",
+      "task": "タスク：",
+      "taskText": "2000文字の詳細な分析記事を執筆",
+      "topic": "トピック：",
+      "topicText": "医療分野でのAIの応用と課題",
+      "requirements": "要件：",
+      "requirementsText": "ケーススタディ、データサポート、将来の展望を含む"
+    }
+  },
+  "cards": {
+    "gpt": "GPT-4 コード生成",
+    "midjourney": "Midjourney アート創作",
+    "claude": "Claude コピー最適化",
+    "dalle": "DALL-E 画像説明",
+    "sd": "Stable Diffusion シーン"
+  },
+  "pricing": {
+    "title": "あなたに合った",
+    "highlight": "プラン",
+    "subtitle": "シンプルで透明な価格設定、いつでもアップグレードまたはキャンセル可能",
+    "mostPopular": "最も人気",
+    "free": {
+      "name": "無料版",
+      "price": "¥0",
+      "period": "/永久",
+      "button": "無料で始める",
+      "features": {
+        "storage": "100個のプロンプト保存",
+        "basicCategory": "基本的な分類管理",
+        "simpleSearch": "シンプルな検索機能",
+        "browserExt": "ブラウザ拡張機能"
+      },
+      "notIncluded": {
+        "aiOptimize": "AI最適化提案",
+        "teamCollab": "チーム協働",
+        "cloudSync": "クラウド同期"
+      }
+    },
+    "pro": {
+      "name": "プロ版",
+      "price": "¥1,000",
+      "period": "/月",
+      "button": "今すぐアップグレード",
+      "features": {
+        "unlimited": "無制限のプロンプト保存",
+        "advancedTags": "高度な分類とタグ",
+        "aiOptimize": "AIスマート最適化",
+        "globalHotkey": "グローバルホットキー",
+        "cloudSync": "自動クラウド同期",
+        "prioritySupport": "優先サポート"
+      }
+    },
+    "team": {
+      "name": "チーム版",
+      "price": "¥5,000",
+      "period": "/月",
+      "button": "営業に連絡",
+      "features": {
+        "allPro": "プロ版のすべての機能",
+        "teamLib": "チーム共有ライブラリ",
+        "permission": "権限管理",
+        "analytics": "使用状況分析",
+        "apiAccess": "APIアクセス",
+        "accountManager": "専任アカウントマネージャー"
+      }
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Prompt Manager. All Rights Reserved.",
+    "pricing": "料金",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ"
+  }
+}

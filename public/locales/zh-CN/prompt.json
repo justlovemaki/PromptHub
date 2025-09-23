@@ -53,6 +53,6 @@
   },
   "variables": {
     "placeholder": "请输入 {{variable}} 的值",
-    "helperText": "变量格式：{{{{variable}}}}"
+    "helperText": "变量格式：{{variable}}"
   }
 }

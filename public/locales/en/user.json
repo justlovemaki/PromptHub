@@ -55,5 +55,16 @@
   },
   "sse": {
     "connected": "Connected to server-sent events"
+  },
+  "navigation": {
+    "dashboard": "User Dashboard",
+    "accountSettings": "Account Settings"
+  },
+  "common": {
+    "adminPanel": "Admin Panel",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us",
+    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
   }
 }

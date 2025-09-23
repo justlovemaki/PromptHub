@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   // 创建一个 URL 对象，指向要重定向到的根目录
   const url = new URL(baseUrl, request.url);
-  url.pathname = '/dashboard';
+  url.pathname = baseUrl+'/dashboard';
   // 返回重定向响应
   return NextResponse.redirect(url);
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth, api } from '@promptmanager/core-logic'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
+import { DataTable } from '@promptmanager/ui-components/src/components/data-table'
 import type { SystemLog } from '@promptmanager/core-logic'
 import AdminPageWrapper from '../../../../components/admin/AdminPageWrapper'
 import { useTranslation } from '@/i18n/client'
@@ -16,41 +17,8 @@ interface LogsPageProps {
 export default function LogsPage({ params }: LogsPageProps) {
   const { t } = useTranslation(params.lang, 'logs')
   const { lang } = params
-  const { isLoading } = useAuth()
+  const { isLoading, setLanguage } = useAuth()
 
-  // 日志级别标签组件
-  const LogLevelBadge: React.FC<{ level: string }> = ({ level }) => {
-    const colors = {
-      INFO: 'bg-blue-100 text-blue-800',
-      WARN: 'bg-yellow-100 text-yellow-800',
-      ERROR: 'bg-red-100 text-red-800',
-      DEBUG: 'bg-gray-100 text-gray-800'
-    }
-
-    return (
-      <span className={`px-2 py-1 text-xs rounded-full ${colors[level as keyof typeof colors] || colors.INFO}`}>
-        {t(`levelLabels.${level}`) || level}
-      </span>
-    )
-  }
-
-  // 分类标签组件
-  const CategoryBadge: React.FC<{ category: string }> = ({ category }) => {
-    const colors = {
-      AUTH: 'bg-purple-100 text-purple-800',
-      API: 'bg-green-100 text-green-800',
-      USER: 'bg-blue-100 text-blue-800',
-      SYSTEM: 'bg-gray-100 text-gray-800',
-      SECURITY: 'bg-red-100 text-red-800',
-      PERFORMANCE: 'bg-orange-100 text-orange-800'
-    }
-
-    return (
-      <span className={`px-2 py-1 text-xs rounded-full ${colors[category as keyof typeof colors] || colors.SYSTEM}`}>
-        {t(`categoryLabels.${category}`) || category}
-      </span>
-    )
-  }
 
   // 日志数据状态
   const [logs, setLogs] = useState<SystemLog[]>([])
@@ -70,6 +38,11 @@ export default function LogsPage({ params }: LogsPageProps) {
   const [filterLevel, setFilterLevel] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
 
+  // 设置语言属性
+  useEffect(() => {
+    setLanguage(params.lang);
+  }, [params.lang, setLanguage]);
+
   // 搜索、筛选、排序变化时重新获取数据（防抖处理）
   useEffect(() => {
     if (!isLoading) {
@@ -86,11 +59,11 @@ export default function LogsPage({ params }: LogsPageProps) {
   }, [searchTerm, filterLevel, filterCategory, sortField, sortOrder])
 
   // 页码变化时获取数据
-  useEffect(() => {
-    if (!isLoading && currentPage > 0) {
-      fetchLogs(currentPage, searchTerm, sortField, sortOrder);
-    }
-  }, [isLoading, currentPage])
+  // useEffect(() => {
+  //   if (!isLoading && currentPage > 0) {
+  //     fetchLogs(currentPage, searchTerm, sortField, sortOrder);
+  //   }
+  // }, [isLoading, currentPage])
 
   // 加载日志数据
   const fetchLogs = async (page = 1, search = '', sort = 'timestamp', order = 'desc') => {
@@ -196,6 +169,7 @@ export default function LogsPage({ params }: LogsPageProps) {
             setSortOrder(value as string)
             setCurrentPage(1)
           }}
+          t={t}
         />
 
         {/* 日志列表 */}
@@ -204,172 +178,119 @@ export default function LogsPage({ params }: LogsPageProps) {
             <h2 className="text-lg font-semibold text-gray-900">{t('tableHeaders.listTitle')}</h2>
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
-            </div>
-          ) : error ? (
-            <div className="p-6 text-center">
-              <div className="text-red-500 mb-4">{error}</div>
-              <button
-                onClick={() => fetchLogs(currentPage, searchTerm, sortField, sortOrder)}
-                className="px-4 py-2 bg-brand-blue text-white rounded hover:bg-brand-blue/90"
-              >
-                {t('retry')}
-              </button>
-            </div>
-          ) : logs.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              {searchTerm ? t('empty.noMatch') : t('empty.noData')}
-            </div>
-          ) : (
-            <>
-              {/* 表头 */}
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-900">
-                  <div className="col-span-2">
-                    <button
-                      onClick={() => handleSort('timestamp')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {t('tableHeaders.time')}
-                      {sortField === 'timestamp' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-2">
-                    <button
-                      onClick={() => handleSort('level')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {t('tableHeaders.level')}
-                      {sortField === 'level' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-2">
-                    <button
-                      onClick={() => handleSort('category')}
-                      className="flex items-center hover:text-gray-700"
-                    >
-                      {t('tableHeaders.category')}
-                      {sortField === 'category' && (
-                        <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <div className="col-span-6">{t('tableHeaders.message')}</div>
-                </div>
-              </div>
-
-              {/* 表格内容 */}
-              <div className="divide-y divide-gray-200">
-                {logs.map((log) => (
-                  <div key={log.id} className="px-6 py-4">
-                    <div className="grid grid-cols-12 gap-4 items-center text-sm">
-                      <div className="col-span-2">
-                        <span className="text-gray-500 text-xs">
-                          {new Date(log.timestamp).toLocaleString(params.lang)}
+          <DataTable
+            data={logs}
+            columns={[
+              {
+                key: 'timestamp',
+                title: t('tableHeaders.time'),
+                width: '16.67%',
+                sortable: true,
+                render: (value: string) => (
+                  <span className="text-gray-500 text-xs">
+                    {new Date(value).toLocaleString(params.lang)}
+                  </span>
+                )
+              },
+              {
+                key: 'level',
+                title: t('tableHeaders.level'),
+                width: '16.67%',
+                sortable: true,
+                render: (value: string) => {
+                  const colors = {
+                    INFO: 'bg-blue-100 text-blue-800',
+                    WARN: 'bg-yellow-100 text-yellow-800',
+                    ERROR: 'bg-red-100 text-red-800',
+                    DEBUG: 'bg-gray-100 text-gray-800'
+                  }
+                  return (
+                    <span className={`px-2 py-1 text-xs rounded-full ${colors[value as keyof typeof colors] || colors.INFO}`}>
+                      {t(`levelLabels.${value}`) || value}
+                    </span>
+                  )
+                }
+              },
+              {
+                key: 'category',
+                title: t('tableHeaders.category'),
+                width: '16.67%',
+                sortable: true,
+                render: (value: string) => {
+                  const colors = {
+                    AUTH: 'bg-purple-100 text-purple-800',
+                    API: 'bg-green-100 text-green-800',
+                    USER: 'bg-blue-100 text-blue-800',
+                    SYSTEM: 'bg-gray-100 text-gray-800',
+                    SECURITY: 'bg-red-100 text-red-800',
+                    PERFORMANCE: 'bg-orange-100 text-orange-800'
+                  }
+                  return (
+                    <span className={`px-2 py-1 text-xs rounded-full ${colors[value as keyof typeof colors] || colors.SYSTEM}`}>
+                      {t(`categoryLabels.${value}`) || value}
+                    </span>
+                  )
+                }
+              },
+              {
+                key: 'message',
+                title: t('tableHeaders.message'),
+                width: '50%',
+                render: (value: string, record: SystemLog) => (
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-2">
+                      <p className="text-gray-800 font-medium break-words flex-1">
+                        {value}
+                      </p>
+                      {record.statusCode && (
+                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded whitespace-nowrap">
+                          {record.statusCode}
                         </span>
-                      </div>
-                      <div className="col-span-2">
-                        <LogLevelBadge level={log.level} />
-                      </div>
-                      <div className="col-span-2">
-                        <CategoryBadge category={log.category} />
-                      </div>
-                      <div className="col-span-6">
-                        <div className="flex items-start space-x-2">
-                          <p className="text-gray-800 font-medium break-words flex-1">
-                            {log.message}
-                          </p>
-                          {log.statusCode && (
-                            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded whitespace-nowrap">
-                              {log.statusCode}
-                            </span>
-                          )}
+                      )}
+                    </div>
+                    {record.details && (
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-xs text-blue-600 hover:text-blue-800">
+                          {t('details.showDetails')}
+                        </summary>
+                        <div className="mt-1 p-2 bg-gray-50 rounded text-xs break-words">
+                          <pre className="whitespace-pre-wrap">{record.details}</pre>
                         </div>
-                        {log.details && (
-                          <details className="mt-2">
-                            <summary className="cursor-pointer text-xs text-blue-600 hover:text-blue-800">
-                              {t('details.showDetails')}
-                            </summary>
-                            <div className="mt-1 p-2 bg-gray-50 rounded text-xs break-words">
-                              <pre className="whitespace-pre-wrap">{log.details}</pre>
-                            </div>
-                          </details>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
-                          {log.ip && (
-                            <span title={`${t('details.ip')}: ${log.ip}`}>{t('details.ip')}: {log.ip}</span>
-                          )}
-                          {log.userEmail && (
-                            <span title={`${t('details.user')}: ${log.userEmail}`}>{t('details.user')}: {log.userEmail}</span>
-                          )}
-                          {log.userAgent && (
-                            <span className="truncate max-w-xs" title={log.userAgent}>
-                              {t('details.userAgent')}: {log.userAgent}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                      </details>
+                    )}
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      {record.ip && (
+                        <span title={`${t('details.ip')}: ${record.ip}`}>{t('details.ip')}: {record.ip}</span>
+                      )}
+                      {record.userEmail && (
+                        <span title={`${t('details.user')}: ${record.userEmail}`}>{t('details.user')}: {record.userEmail}</span>
+                      )}
+                      {record.userAgent && (
+                        <span className="truncate max-w-xs" title={record.userAgent}>
+                          {t('details.userAgent')}: {record.userAgent}
+                        </span>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* 分页 */}
-              {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
-                      {t('pagination.pageInfo', { current: currentPage, total: totalPages })}
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {t('pagination.previous')}
-                      </button>
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`px-3 py-1 text-sm border rounded ${
-                              pageNum === currentPage
-                                ? 'bg-brand-blue text-white border-brand-blue'
-                                : 'border-gray-300 hover:bg-gray-50'
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        )
-                      })}
-                      <button
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {t('pagination.next')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+                )
+              }
+            ]}
+            loading={loading}
+            empty={searchTerm ? t('empty.noMatch') : t('empty.noData')}
+            onSort={(key, direction) => {
+              setSortField(key)
+              setSortOrder(direction)
+              setCurrentPage(1)
+            }}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalLogs,
+              onChange: (page) => setCurrentPage(page)
+            }}
+            t={t}
+          />
         </div>
       </div>
     </AdminPageWrapper>

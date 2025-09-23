@@ -84,5 +84,12 @@
     "updatedAt": "更新时间",
     "actions": "操作",
     "usageCount": "使用次数"
+  },
+  "deleteConfirmModal": {
+    "title": "确认删除",
+    "description": "此操作不可恢复，请谨慎操作",
+    "message": "您确定要删除提示词 \"{{title}}\" 吗？此操作不可恢复。",
+    "cancel": "取消",
+    "confirm": "确认删除"
   }
 }
