@@ -1,0 +1,59 @@
+{
+  "error": {
+    "unauthorized": "未授权访问",
+    "unauthorizedLoginRequired": "请先登录",
+    "forbidden": "权限不足",
+    "notFound": "未找到",
+    "internalServer": "服务器内部错误",
+    "userNotFound": "用户不存在",
+    "promptNotFound": "提示词不存在",
+    "promptNotFoundOrAccessDenied": "提示词不存在或无访问权限",
+    "personalSpaceNotFound": "个人空间不存在",
+    "failedToCreatePrompt": "创建提示词失败",
+    "failedToUpdatePrompt": "更新提示词失败",
+    "tooManyRequests": "请求过于频繁，请稍后再试"
+  },
+  "validation": {
+    "nameRequired": "姓名为必填项",
+    "invalidInput": "输入数据无效",
+    "promptIdRequired": "提示词ID为必填项",
+    "titleRequired": "标题为必填项",
+    "contentRequired": "内容为必填项",
+    "priceIdRequired": "价格ID为必填项",
+    "validSuccessUrlRequired": "请输入有效的成功跳转URL",
+    "validCancelUrlRequired": "请输入有效的取消跳转URL",
+    "invalidActionType": "无效的操作类型",
+    "invalidPackageType": "无效的套餐类型",
+    "missingSpaceId": "缺少空间ID",
+    "invalidPageOrLimit": "页码或数量参数无效"
+  },
+  "success": {
+    "userUpdated": "用户信息更新成功",
+    "subscriptionUpdated": "订阅信息更新成功",
+    "aiPointsPurchased": "AI点数购买成功",
+    "aiPointsRetrieved": "AI点数使用记录获取成功",
+    "useCountUpdated": "使用次数更新成功",
+    "promptStatsRetrieved": "提示词统计数据获取成功",
+    "promptsRetrieved": "提示词列表获取成功",
+    "promptDeletedSuccessfully": "提示词删除成功",
+    "promptUpdatedSuccessfully": "提示词更新成功",
+    "promptCreatedSuccessfully": "提示词创建成功",
+    "dashboardStatsRetrieved": "仪表板统计数据获取成功",
+    "checkoutSessionCreated": "支付会话创建成功",
+    "userInfoRetrieved": "用户信息获取成功",
+    "userInfoRetrievedFromCache": "用户信息从缓存中获取成功",
+    "noLogsFound": "未找到日志记录",
+    "logsRetrieved": "日志记录获取成功",
+    "usersRetrieved": "用户列表获取成功",
+    "statsRetrieved": "统计信息获取成功",
+    "operationCompleted": "操作完成"
+  },
+  "log": {
+    "promptCreatedSuccessfully": "提示词创建成功",
+    "promptUpdatedSuccessfully": "提示词更新成功",
+    "promptDeletedSuccessfully": "提示词删除成功"
+  },
+  "sse": {
+    "connected": "已连接到服务器发送事件"
+  }
+}

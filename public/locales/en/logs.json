@@ -1,0 +1,73 @@
+{
+  "title": "System Logs Management",
+  "description": "View and manage system operation logs",
+  "totalLogs": "Total {count} logs",
+  "searchPlaceholder": "Search log content...",
+  "filterOptions": {
+    "allLevels": "All Levels",
+    "info": "INFO",
+    "warn": "WARN",
+    "error": "ERROR",
+    "debug": "DEBUG"
+  },
+  "sortOptions": {
+    "time": "Time",
+    "level": "Level",
+    "category": "Category"
+  },
+  "tableHeaders": {
+    "time": "Time",
+    "level": "Level",
+    "category": "Category",
+    "message": "Message",
+    "listTitle": "Log List"
+  },
+  "loading": {
+    "loading": "Loading",
+    "getFailed": "Failed to get system logs"
+  },
+  "empty": {
+    "noData": "No log data available",
+    "noMatch": "No matching logs found"
+  },
+  "retry": "Retry",
+  "pagination": {
+    "pageInfo": "Page {current} / Total {total} pages",
+    "previous": "Previous Page",
+    "next": "Next Page"
+  },
+  "details": {
+    "showDetails": "View Details",
+    "ip": "IP",
+    "user": "User",
+    "userAgent": "User Agent"
+  },
+  "levels": {
+    "info": "INFO",
+    "warn": "WARN",
+    "error": "ERROR",
+    "debug": "DEBUG"
+  },
+  "levelLabels": {
+    "INFO": "INFO",
+    "WARN": "WARN",
+    "ERROR": "ERROR",
+    "DEBUG": "DEBUG"
+  },
+  "categoryLabels": {
+    "AUTH": "AUTH",
+    "API": "API",
+    "USER": "USER",
+    "SYSTEM": "SYSTEM",
+    "SECURITY": "SECURITY",
+    "PERFORMANCE": "PERFORMANCE"
+  },
+  "categories": {
+    "auth": "AUTH",
+    "api": "API",
+    "user": "USER",
+    "system": "SYSTEM",
+    "security": "SECURITY",
+    "performance": "PERFORMANCE"
+  }
+}

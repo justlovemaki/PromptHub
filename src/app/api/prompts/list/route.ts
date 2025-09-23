@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PromptService } from '@/lib/services';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
+import { getTranslation } from '@/i18n';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
   try {
     // 使用认证助手验证用户
     const user = await verifyUserInApiRoute(request);
     
     if (!user) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        errorResponse(t('error.unauthorized')),
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
@@ -66,14 +70,14 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(
-      successResponse(responseData, 'Prompts retrieved successfully'),
+      successResponse(responseData, t('success.promptsRetrieved')),
       { status: HTTP_STATUS.OK }
     );
     
   } catch (error) {
     console.error('List prompts error:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

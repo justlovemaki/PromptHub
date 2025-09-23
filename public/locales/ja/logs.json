@@ -1,0 +1,73 @@
+{
+  "title": "システムログ管理",
+  "description": "システム操作ログを表示・管理します",
+  "totalLogs": "合計 {count} 件のログ",
+  "searchPlaceholder": "ログ内容を検索...",
+  "filterOptions": {
+    "allLevels": "すべてのレベル",
+    "info": "INFO",
+    "warn": "WARN",
+    "error": "ERROR",
+    "debug": "DEBUG"
+  },
+  "sortOptions": {
+    "time": "時間",
+    "level": "レベル",
+    "category": "カテゴリ"
+  },
+  "tableHeaders": {
+    "time": "時間",
+    "level": "レベル",
+    "category": "分類",
+    "message": "メッセージ",
+    "listTitle": "ログリスト"
+  },
+  "loading": {
+    "loading": "読み込み中",
+    "getFailed": "システムログの取得に失敗しました"
+  },
+  "empty": {
+    "noData": "ログデータがありません",
+    "noMatch": "一致するログが見つかりません"
+  },
+  "retry": "再試行",
+  "pagination": {
+    "pageInfo": "{current} ページ / 合計 {total} ページ",
+    "previous": "前のページ",
+    "next": "次のページ"
+  },
+  "details": {
+    "showDetails": "詳細を表示",
+    "ip": "IP",
+    "user": "ユーザー",
+    "userAgent": "ユーザーエージェント"
+  },
+  "levels": {
+    "info": "INFO",
+    "warn": "WARN",
+    "error": "ERROR",
+    "debug": "DEBUG"
+  },
+  "levelLabels": {
+    "INFO": "INFO",
+    "WARN": "WARN",
+    "ERROR": "ERROR",
+    "DEBUG": "DEBUG"
+  },
+  "categoryLabels": {
+    "AUTH": "認証",
+    "API": "API",
+    "USER": "ユーザー",
+    "SYSTEM": "システム",
+    "SECURITY": "セキュリティ",
+    "PERFORMANCE": "パフォーマンス"
+  },
+  "categories": {
+    "auth": "認証",
+    "api": "API",
+    "user": "ユーザー",
+    "system": "システム",
+    "security": "セキュリティ",
+    "performance": "パフォーマンス"
+  }
+}

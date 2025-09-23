@@ -55,5 +55,45 @@
   "faq2Question": "如果我取消订阅会怎样？",
   "faq2Answer": "如果您取消订阅，您将降级到免费套餐。您仍然可以访问您的内容，但会受到免费套餐的限制。",
   "yes": "支持",
-  "no": "不支持"
+  "no": "不支持",
+  "accountSettings": "账户设置",
+  "login": "登录",
+  "viewAll": "查看全部",
+  "characterCount": "字符数",
+  "retry": "重试",
+  "update": "更新",
+  "updating": "更新中...",
+  "noDescription": "暂无描述",
+  "dataTable": {
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "pagination": {
+      "show": "显示",
+      "to": "到",
+      "of": "共",
+      "items": "条",
+      "previous": "上一页",
+      "next": "下一页",
+      "page": "第",
+      "totalPages": "共 {{totalPages}} 页"
+    }
+  },
+  "search": {
+    "placeholder": "搜索...",
+    "filter": {
+      "all": "全部",
+      "public": "公开",
+      "private": "私有"
+    },
+    "sortBy": {
+      "updatedAt": "更新时间",
+      "createdAt": "创建时间",
+      "title": "标题",
+      "useCount": "使用次数"
+    },
+    "sortOrder": {
+      "desc": "降序",
+      "asc": "升序"
+    }
+  }
 }

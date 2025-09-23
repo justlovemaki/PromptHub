@@ -1,17 +1,22 @@
 import { NextRequest } from 'next/server';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { addConnection, removeConnection } from '@/lib/sse-manager';
+import { getLanguageFromNextRequest } from '@/lib/utils';
+import { getTranslation } from '@/i18n';
 
 // 告诉 Next.js 这是一个动态路由
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
   try {
     // 使用认证助手验证用户
     const user = await verifyUserInApiRoute(request);
     
     if (!user) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response(t('error.unauthorized'), { status: 401 });
     }
     
     // 创建SSE流
@@ -32,7 +37,7 @@ export async function GET(request: NextRequest) {
           type: 'connected',
           data: {
             connectionId,
-            message: 'Successfully connected to real-time updates'
+            message: t('sse.connected')
           }
         };
         
@@ -69,7 +74,7 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('SSE connection error:', error);
-    return new Response('Internal server error', { status: 500 });
+    return new Response(t('error.internalServer'), { status: 500 });
   }
 }
 

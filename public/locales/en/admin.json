@@ -1,0 +1,171 @@
+{
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "description": "Manage your application here"
+  },
+  "stats": {
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "totalPrompts": "Total Prompts",
+    "proUsers": "Pro Users"
+  },
+  "common": {
+    "adminRole": "Admin",
+    "viewAll": "View All"
+  },
+  "errors": {
+    "dataLoadFailed": "Failed to load data, please refresh the page and try again",
+    "fetchStatsFailed": "Failed to fetch statistics data",
+    "fetchUsersFailed": "Failed to fetch user data",
+    "fetchPromptsFailed": "Failed to fetch prompt data"
+  },
+  "userManagement": {
+    "noUsers": "No user data"
+  },
+  "promptManagement": {
+    "unnamedPrompt": "Unnamed Prompt",
+    "useCountPrefix": "Use count: ",
+    "popularTag": "Popular",
+    "recommendedTag": "Recommended",
+    "noPrompts": "No prompt data"
+  },
+  "sections": {
+    "basicInfo": "Basic Information",
+    "content": "Prompt Content",
+    "settings": "Settings",
+    "userManagement": "User Management",
+    "popularPrompts": "Popular Prompts"
+  },
+  "promptsManagement": {
+    "title": "Prompt Management",
+    "description": "Manage all prompts in the system, create, edit, delete and more",
+    "totalCount": "Total {{count}} prompts",
+    "fetchFailed": "Failed to fetch prompts",
+    "fetchError": "Error fetching prompts:"
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage system user accounts, permissions, and subscription statuses",
+    "totalUsers": "Total {count} users",
+    "searchPlaceholder": "Search user email, name...",
+    "filterOptions": {
+      "allRoles": "All Roles",
+      "admin": "Admin",
+      "user": "User"
+    },
+    "sortOptions": {
+      "createdAt": "Created At",
+      "name": "Name",
+      "email": "Email"
+    },
+    "listTitle": "User List",
+    "empty": {
+      "noMatch": "No matching users found",
+      "noData": "No user data available"
+    },
+    "tableHeaders": {
+      "userInfo": "User Info",
+      "role": "Role",
+      "subscriptionStatus": "Subscription Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "unnamedUser": "Unnamed User",
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "editUserTitle": "Edit User",
+    "emailLabel": "Email",
+    "nameLabel": "Name",
+    "namePlaceholder": "Enter user name",
+    "roleLabel": "Role",
+    "subscriptionStatusLabel": "Subscription Status",
+    "subscriptionFree": "Free",
+    "subscriptionPro": "Pro",
+    "subscriptionTeam": "Team",
+    "fetchFailed": "Failed to fetch user data",
+    "updateFailed": "Failed to update user"
+  },
+  "search": {
+    "placeholder": "Search prompts..."
+  },
+  "filter": {
+    "all": "All",
+    "public": "Public",
+    "private": "Private"
+  },
+  "sort": {
+    "updatedAt": "Updated At",
+    "createdAt": "Created At",
+    "title": "Title",
+    "useCount": "Use Count"
+  },
+  "table": {
+    "title": "Title",
+    "tags": "Tags",
+    "useCount": "Use Count",
+    "times": "times",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "notUpdated": "Not updated",
+    "noTags": "No tags"
+  },
+  "visibility": {
+    "public": "Public",
+    "private": "Private",
+    "publicOption": "🌐 Public - Visible to everyone",
+    "privateOption": "🔒 Private - Visible only to yourself"
+  },
+  "buttons": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create Prompt",
+    "creating": "Creating...",
+    "save": "Save Changes",
+    "saving": "Saving..."
+  },
+  "labels": {
+    "title": "Title",
+    "description": "Description",
+    "content": "Content",
+    "visibility": "Visibility",
+    "tags": "Tags"
+  },
+  "placeholders": {
+    "title": "Give your prompt a clear title",
+    "description": "Briefly describe the purpose and usage of this prompt",
+    "content": "Enter the specific content of the prompt...",
+    "tags": "Click to select tags..."
+  },
+  "createModal": {
+    "title": "Create New Prompt",
+    "description": "Create a new AI prompt template"
+  },
+  "editModal": {
+    "title": "Edit Prompt",
+    "description": "Modify existing prompt content and settings"
+  },
+  "form": {
+    "footer": {
+      "note": "Fill in required fields to create",
+      "editNote": "Changes will take effect immediately after modification"
+    }
+  },
+  "messages": {
+    "requiredFields": "Title and content cannot be empty",
+    "deleteConfirm": "Are you sure you want to delete this prompt? This action cannot be undone.",
+    "deleteFailed": "Delete failed",
+    "deleteError": "Error deleting prompt:",
+    "createFailed": "Create failed",
+    "createError": "Error creating prompt:",
+    "updateFailed": "Update failed",
+    "updateError": "Error updating prompt:",
+    "noPrompts": "No prompts found"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "current": "Page {{current}} / {{total}}"
+  }
+}

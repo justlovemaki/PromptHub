@@ -1,18 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/lib/services';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { z } from 'zod';
 import { db } from '@/lib/database';
 import { user } from '@/drizzle-schema';
 import { eq } from 'drizzle-orm';
-
-// 更新用户验证模式
-const updateUserSchema = z.object({
-  name: z.string().min(1, 'Name is required').optional(),
-});
+import { getTranslation } from '@/i18n';
 
 export async function POST(request: NextRequest) {
+  // 获取语言设置
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
+  // 更新用户验证模式
+  const updateUserSchema = z.object({
+    name: z.string().min(1, t('validation.nameRequired')).optional(),
+  });
+
   try {
     const body = await request.json();
     
@@ -21,7 +26,7 @@ export async function POST(request: NextRequest) {
     
     if (!authenticatedUser) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        errorResponse(t('error.unauthorized')),
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
@@ -30,7 +35,7 @@ export async function POST(request: NextRequest) {
     const validation = updateUserSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        errorResponse('Invalid input: ' + validation.error.errors.map(e => e.message).join(', ')),
+        errorResponse(t('validation.invalidInput') + ': ' + validation.error.errors.map(e => e.message).join(', ')),
         { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
@@ -52,14 +57,14 @@ export async function POST(request: NextRequest) {
     delete updatedUser.subscriptionStatus;
     delete updatedUser.subscriptionEndDate;
     return NextResponse.json(
-      successResponse(updatedUser, 'User updated successfully'),
+      successResponse(updatedUser, t('success.userUpdated')),
       { status: HTTP_STATUS.OK }
     );
     
   } catch (error) {
     console.error('User update error:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

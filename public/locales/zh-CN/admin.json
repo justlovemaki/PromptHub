@@ -1,0 +1,171 @@
+{
+  "dashboard": {
+    "title": "管理后台",
+    "welcome": "欢迎您，{{name}}",
+    "description": "在这里管理您的应用程序"
+  },
+  "stats": {
+    "totalUsers": "总用户",
+    "activeUsers": "活跃用户",
+    "totalPrompts": "总提示词",
+    "proUsers": "专业版用户"
+  },
+  "common": {
+    "adminRole": "管理员",
+    "viewAll": "查看全部"
+  },
+  "errors": {
+    "dataLoadFailed": "数据加载失败，请刷新页面重试",
+    "fetchStatsFailed": "获取统计数据失败",
+    "fetchUsersFailed": "获取用户数据失败",
+    "fetchPromptsFailed": "获取提示词数据失败"
+  },
+  "userManagement": {
+    "noUsers": "暂无用户数据"
+  },
+  "promptManagement": {
+    "unnamedPrompt": "未命名提示词",
+    "useCountPrefix": "使用次数：",
+    "popularTag": "热门",
+    "recommendedTag": "推荐",
+    "noPrompts": "暂无提示词数据"
+  },
+  "sections": {
+    "basicInfo": "基本信息",
+    "content": "提示词内容",
+    "settings": "设置选项",
+    "userManagement": "用户管理",
+    "popularPrompts": "热门提示词"
+  },
+  "promptsManagement": {
+    "title": "提示词管理",
+    "description": "管理系统中的所有提示词，进行创建、编辑、删除等操作",
+    "totalCount": "共 {{count}} 条提示词",
+    "fetchFailed": "获取提示词失败",
+    "fetchError": "获取提示词错误:"
+  },
+  "users": {
+    "title": "用户管理",
+    "description": "管理系统用户账户、权限和订阅状态",
+    "totalUsers": "共 {count} 个用户",
+    "searchPlaceholder": "搜索用户邮箱、姓名...",
+    "filterOptions": {
+      "allRoles": "所有角色",
+      "admin": "管理员",
+      "user": "普通用户"
+    },
+    "sortOptions": {
+      "createdAt": "创建时间",
+      "name": "姓名",
+      "email": "邮箱"
+    },
+    "listTitle": "用户列表",
+    "empty": {
+      "noMatch": "未找到匹配的用户",
+      "noData": "暂无用户数据"
+    },
+    "tableHeaders": {
+      "userInfo": "用户信息",
+      "role": "角色",
+      "subscriptionStatus": "订阅状态",
+      "createdAt": "创建时间",
+      "actions": "操作"
+    },
+    "unnamedUser": "未设置姓名",
+    "roleAdmin": "管理员",
+    "roleUser": "普通用户",
+    "editUserTitle": "编辑用户",
+    "emailLabel": "邮箱",
+    "nameLabel": "姓名",
+    "namePlaceholder": "请输入用户姓名",
+    "roleLabel": "角色",
+    "subscriptionStatusLabel": "订阅状态",
+    "subscriptionFree": "Free",
+    "subscriptionPro": "Pro",
+    "subscriptionTeam": "Team",
+    "fetchFailed": "获取用户数据失败",
+    "updateFailed": "更新用户失败"
+  },
+  "search": {
+    "placeholder": "搜索提示词..."
+  },
+  "filter": {
+    "all": "全部",
+    "public": "公开",
+    "private": "私有"
+  },
+  "sort": {
+    "updatedAt": "更新时间",
+    "createdAt": "创建时间",
+    "title": "标题",
+    "useCount": "使用次数"
+  },
+  "table": {
+    "title": "标题",
+    "tags": "标签",
+    "useCount": "使用次数",
+    "times": "次",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作",
+    "notUpdated": "未更新",
+    "noTags": "暂无标签"
+  },
+  "visibility": {
+    "public": "公开",
+    "private": "私有",
+    "publicOption": "🌐 公开 - 所有人可见",
+    "privateOption": "🔒 私有 - 仅自己可见"
+  },
+  "buttons": {
+    "edit": "编辑",
+    "delete": "删除",
+    "create": "创建提示词",
+    "creating": "创建中...",
+    "save": "保存更改",
+    "saving": "保存中..."
+  },
+  "labels": {
+    "title": "标题",
+    "description": "描述",
+    "content": "内容",
+    "visibility": "可见性",
+    "tags": "标签"
+  },
+  "placeholders": {
+    "title": "为你的提示词起一个清晰的标题",
+    "description": "简短描述这个提示词的用途和场景",
+    "content": "输入提示词的具体内容...",
+    "tags": "点击选择标签..."
+  },
+  "createModal": {
+    "title": "创建新提示词",
+    "description": "创建一个新的 AI 提示词模板"
+  },
+  "editModal": {
+    "title": "编辑提示词",
+    "description": "修改已有的提示词内容和设置"
+  },
+  "form": {
+    "footer": {
+      "note": "填写必填字段后即可创建",
+      "editNote": "修改后的内容将立即生效"
+    }
+  },
+  "messages": {
+    "requiredFields": "标题和内容不能为空",
+    "deleteConfirm": "确定要删除这个提示词吗？此操作不可恢复。",
+    "deleteFailed": "删除失败",
+    "deleteError": "删除提示词错误:",
+    "createFailed": "创建失败",
+    "createError": "创建提示词错误:",
+    "updateFailed": "更新失败",
+    "updateError": "更新提示词错误:",
+    "noPrompts": "暂无提示词"
+  },
+  "pagination": {
+    "previous": "上一页",
+    "next": "下一页",
+    "current": "第 {{current}} 页 / 共 {{total}} 页"
+  }
+}

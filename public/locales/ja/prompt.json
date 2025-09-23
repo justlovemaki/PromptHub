@@ -1,0 +1,58 @@
+{
+  "use": "使用",
+  "copy": "コピー",
+  "copySuccess": "コピーしました",
+  "copyFailed": "コピー失敗",
+  "loading": "読み込み中...",
+  "promptDetails": "プロンプト詳細",
+  "close": "閉じる",
+  "usePrompt": "プロンプトを使用",
+  "promptContent": "プロンプト内容",
+  "description": "説明",
+  "tags": "タグ",
+  "visibility": "可視性",
+  "public": "公開",
+  "private": "プライベート",
+  "stats": "統計",
+  "useCount": "使用回数",
+  "createdAt": "作成日時",
+  "updatedAt": "更新日時",
+  "actions": "操作",
+  "preview": "プレビュー",
+  "fullScreen": "全画面",
+  "exitFullScreen": "全画面解除",
+  "noDescription": "説明なし",
+  "noTags": "タグなし",
+  "dialog": {
+    "title": "プロンプトを使用",
+    "hasVariables": "このプロンプトには {{count}} 個の変数が含まれています",
+    "noVariables": "このプロンプトには変数が含まれず、直接使用できます"
+  },
+  "sections": {
+    "variables": "変数設定",
+    "preview": "内容プレビュー"
+  },
+  "buttons": {
+    "cancel": "キャンセル",
+    "use": "プロンプトを使用",
+    "processing": "処理中..."
+  },
+  "toast": {
+    "success": {
+      "title": "プロンプトをコピーしました",
+      "message": "内容がクリップボードにコピーされました"
+    },
+    "error": {
+      "title": "コピー失敗",
+      "message": "手動で内容をコピーしてください"
+    },
+    "warning": {
+      "title": "変数が未入力",
+      "message": "以下の変数を入力してください: {{variables}}"
+    }
+  },
+  "variables": {
+    "placeholder": "{{variable}} の値を入力してください",
+    "helperText": "変数形式：{{{{variable}}}}"
+  }
+}

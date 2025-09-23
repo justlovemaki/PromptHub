@@ -1,0 +1,58 @@
+{
+  "use": "Use",
+  "copy": "Copy",
+  "copySuccess": "Copied successfully",
+  "copyFailed": "Copy failed",
+  "loading": "Loading...",
+  "promptDetails": "Prompt Details",
+  "close": "Close",
+  "usePrompt": "Use Prompt",
+  "promptContent": "Prompt Content",
+  "description": "Description",
+  "tags": "Tags",
+  "visibility": "Visibility",
+  "public": "Public",
+  "private": "Private",
+  "stats": "Stats",
+  "useCount": "Use Count",
+  "createdAt": "Created At",
+  "updatedAt": "Updated At",
+  "actions": "Actions",
+  "preview": "Preview",
+  "fullScreen": "Full Screen",
+  "exitFullScreen": "Exit Full Screen",
+  "noDescription": "No description",
+  "noTags": "No tags",
+  "dialog": {
+    "title": "Use Prompt",
+    "hasVariables": "This prompt contains {{count}} variables",
+    "noVariables": "This prompt contains no variables and can be used directly"
+  },
+  "sections": {
+    "variables": "Variable Settings",
+    "preview": "Content Preview"
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "use": "Use Prompt",
+    "processing": "Processing..."
+  },
+  "toast": {
+    "success": {
+      "title": "Prompt copied",
+      "message": "Content successfully copied to clipboard"
+    },
+    "error": {
+      "title": "Copy failed",
+      "message": "Please copy the content manually"
+    },
+    "warning": {
+      "title": "Variables not filled",
+      "message": "Please fill in the following variables: {{variables}}"
+    }
+  },
+  "variables": {
+    "placeholder": "Please enter a value for {{variable}}",
+    "helperText": "Variable format: {{{{variable}}}}"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Terms of Service",
+  "welcomeMessage": "Welcome to our podcast template. By accessing or using our service, you agree to be bound by these terms.",
+  "section1": {
+    "title": "1. Use of Service",
+    "content": "You agree to use our service only for lawful purposes and in accordance with these terms."
+  },
+  "section2": {
+    "title": "2. Intellectual Property",
+    "content": "All content and materials provided through our service are the property of our company or our licensors."
+  },
+  "section3": {
+    "title": "3. Limitation of Liability",
+    "content": "We shall not be liable for any indirect, incidental, special, consequential or punitive damages."
+  }
+}

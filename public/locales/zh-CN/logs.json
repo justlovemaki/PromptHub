@@ -1,0 +1,73 @@
+{
+  "title": "系统日志管理",
+  "description": "查看和管理系统操作日志",
+  "totalLogs": "共 {count} 条日志",
+  "searchPlaceholder": "搜索日志内容...",
+  "filterOptions": {
+    "allLevels": "所有级别",
+    "info": "INFO",
+    "warn": "WARN",
+    "error": "ERROR",
+    "debug": "DEBUG"
+  },
+  "sortOptions": {
+    "time": "时间",
+    "level": "级别",
+    "category": "分类"
+  },
+  "tableHeaders": {
+    "time": "时间",
+    "level": "级别",
+    "category": "分类",
+    "message": "消息",
+    "listTitle": "日志列表"
+  },
+  "loading": {
+    "loading": "加载中",
+    "getFailed": "获取系统日志失败"
+  },
+  "empty": {
+    "noData": "暂无日志数据",
+    "noMatch": "未找到匹配的日志"
+  },
+  "retry": "重试",
+  "pagination": {
+    "pageInfo": "第 {current} 页，共 {total} 页",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "details": {
+    "showDetails": "查看详情",
+    "ip": "IP",
+    "user": "用户",
+    "userAgent": "UA"
+  },
+  "levels": {
+    "info": "INFO",
+    "warn": "WARN",
+    "error": "ERROR",
+    "debug": "DEBUG"
+  },
+  "levelLabels": {
+    "INFO": "INFO",
+    "WARN": "WARN",
+    "ERROR": "ERROR",
+    "DEBUG": "DEBUG"
+  },
+  "categoryLabels": {
+    "AUTH": "AUTH",
+    "API": "API",
+    "USER": "USER",
+    "SYSTEM": "SYSTEM",
+    "SECURITY": "SECURITY",
+    "PERFORMANCE": "PERFORMANCE"
+  },
+  "categories": {
+    "auth": "AUTH",
+    "api": "API",
+    "user": "USER",
+    "system": "SYSTEM",
+    "security": "SECURITY",
+    "performance": "PERFORMANCE"
+  }
+}

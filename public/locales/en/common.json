@@ -55,5 +55,44 @@
   "faq2Question": "What happens if I cancel my subscription?",
   "faq2Answer": "If you cancel your subscription, you will be downgraded to the free plan. You will still be able to access your content, but will be subject to the limitations of the free plan.",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "accountSettings": "Account Settings",
+  "viewAll": "View All",
+  "characterCount": "Character Count",
+  "retry": "Retry",
+  "update": "Update",
+  "updating": "Updating...",
+  "noDescription": "No description",
+  "dataTable": {
+    "loading": "Loading...",
+    "noData": "No data",
+    "pagination": {
+      "show": "Showing",
+      "to": "to",
+      "of": "of",
+      "items": "items",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "totalPages": "of {{totalPages}}"
+    }
+  },
+  "search": {
+    "placeholder": "Search...",
+    "filter": {
+      "all": "All",
+      "public": "Public",
+      "private": "Private"
+    },
+    "sortBy": {
+      "updatedAt": "Updated At",
+      "createdAt": "Created At",
+      "title": "Title",
+      "useCount": "Use Count"
+    },
+    "sortOrder": {
+      "desc": "Descending",
+      "asc": "Ascending"
+    }
+  }
 }

@@ -53,3 +53,31 @@ export const HTTP_STATUS = {
   TOO_MANY_REQUESTS: 429,
   INTERNAL_SERVER_ERROR: 500,
 } as const;
+
+import { type NextRequest } from 'next/server';
+import { fallbackLng, languages } from '../i18n/settings';
+
+export function getLanguageFromNextRequest(request: NextRequest): string {
+  // 优先使用 URL 查询参数中的 'lang'
+  const langParam = request.nextUrl.searchParams.get('lang');
+  if (langParam && languages.includes(langParam)) {
+    return langParam;
+  }
+
+  // 否则，尝试从 'Accept-Language' 请求头中获取
+  const acceptLanguage = request.headers.get('x-next-locale');
+  if (acceptLanguage) {
+    const detectedLng = acceptLanguage
+      .split(',')
+      .map(l => l.split(';')[0])
+      .find(l => languages.includes(l));
+    if (detectedLng) {
+      return detectedLng;
+    }
+  }
+  console.log(fallbackLng)
+  // 如果未找到支持的语言，则返回默认语言
+  return fallbackLng;
+}
+
+

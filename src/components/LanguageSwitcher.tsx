@@ -37,23 +37,10 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
     router.push(newPath)
   }
 
-  const getLanguageDisplay = (locale: string) => {
-    switch (locale) {
-      case 'zh-CN':
-        return '中文简体'
-      case 'en':
-        return 'English'
-      case 'ja':
-        return '日本語'
-      default:
-        return '中文简体'
-    }
-  }
-
   const languages = [
-    { code: 'zh-CN', name: '中文简体' },
-    { code: 'en', name: 'English' },
-    { code: 'ja', name: '日本語' }
+    { code: 'zh-CN', name: 'chinese' },
+    { code: 'en', name: 'english' },
+    { code: 'ja', name: 'japanese' }
   ]
 
   // 只在客户端渲染时显示组件
@@ -67,7 +54,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-blue transition-colors rounded-md border border-gray-300 bg-white"
       >
-        <span>{getLanguageDisplay(lang)}</span>
+        <span>{t(lang)}</span>
         <svg 
           className={`ml-2 w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
           fill="none" 
@@ -91,7 +78,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                {language.name}
+                {t(language.name)}
               </button>
             ))}
           </div>

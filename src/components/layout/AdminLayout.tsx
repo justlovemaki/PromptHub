@@ -6,7 +6,6 @@ import { useAuthStore, useAuthStatus } from '@promptmanager/core-logic'
 import LanguageSwitcher from '../LanguageSwitcher'
 import LoginButton from '../LoginButton'
 import { useSession } from '@/lib/auth-client'
-import { user } from '@/drizzle-schema'
 
 interface AdminLayoutProps {
   children: React.ReactNode

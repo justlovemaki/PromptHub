@@ -15,7 +15,8 @@ export interface UsePromptDialogReturn {
 
 export const usePromptDialog = (
   onCopySuccess?: (content: string) => void,
-  onRefreshPrompts?: () => void
+  onRefreshPrompts?: () => void,
+  lang?: string
 ): UsePromptDialogReturn => {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null)
   const [open, setOpen] = useState(false)
@@ -45,6 +46,7 @@ export const usePromptDialog = (
       onOpenChange={setOpen}
       onCopySuccess={handleCopySuccess}
       onRefreshPrompts={onRefreshPrompts}
+      lang={lang}
     />
   )
 
@@ -65,6 +67,7 @@ export interface PromptUseButtonProps {
   size?: 'default' | 'sm' | 'lg'
   className?: string
   children?: React.ReactNode
+  lang?: string
 }
 
 export const PromptUseButton: React.FC<PromptUseButtonProps> = ({
@@ -74,9 +77,10 @@ export const PromptUseButton: React.FC<PromptUseButtonProps> = ({
   variant = 'default',
   size = 'default',
   className,
-  children = '使用'
+  children = '',
+  lang
 }) => {
-  const { openDialog, PromptDialog } = usePromptDialog(onCopySuccess, onRefreshPrompts)
+  const { openDialog, PromptDialog } = usePromptDialog(onCopySuccess, onRefreshPrompts, lang)
 
   const handleClick = () => {
     openDialog(prompt)

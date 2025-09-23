@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { UserService } from '@/lib/services';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
+import { getTranslation } from '@/i18n';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,13 +18,16 @@ const RATE_LIMIT_DURATION = 2000 // 2秒内最多1次请求
  * 包含缓存和频率限制机制
  */
 export async function GET(request: NextRequest) {
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
   try {
     // 验证用户身份
     const authenticatedUser = await verifyUserInApiRoute(request);
     
     if (!authenticatedUser) {
       return NextResponse.json(
-        errorResponse('Unauthorized: Please login first'),
+        errorResponse(t('error.unauthorizedLoginRequired')),
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
@@ -40,13 +44,13 @@ export async function GET(request: NextRequest) {
       if (cached && (now - cached.timestamp) < CACHE_DURATION) {
         console.log('Returning cached data due to rate limit')
         return NextResponse.json(
-          successResponse(cached.data, 'User information retrieved from cache'),
+          successResponse(cached.data, t('success.userInfoRetrievedFromCache')),
           { status: HTTP_STATUS.OK }
         )
       }
       // 如果没有缓存，返回限流错误
       return NextResponse.json(
-        errorResponse('Too many requests, please try again later'),
+        errorResponse(t('error.tooManyRequests')),
         { status: HTTP_STATUS.TOO_MANY_REQUESTS }
       )
     }
@@ -59,7 +63,7 @@ export async function GET(request: NextRequest) {
     if (cached && (now - cached.timestamp) < CACHE_DURATION) {
       console.log('Returning cached user data for:', userId)
       return NextResponse.json(
-        successResponse(cached.data, 'User information retrieved from cache'),
+        successResponse(cached.data, t('success.userInfoRetrievedFromCache')),
         { status: HTTP_STATUS.OK }
       )
     }
@@ -67,11 +71,11 @@ export async function GET(request: NextRequest) {
     console.log('Fetching fresh user data for:', userId)
 
     // 从数据库获取完整的用户信息
-    const userDetails = await UserService.findUserById(userId);
+    const userDetails = await UserService.findUserById(authenticatedUser.id);
     
     if (!userDetails) {
       return NextResponse.json(
-        errorResponse('User not found'),
+        errorResponse(t('error.userNotFound')),
         { status: HTTP_STATUS.NOT_FOUND }
       );
     }
@@ -104,14 +108,14 @@ export async function GET(request: NextRequest) {
     console.log('Cached user data for:', userId)
 
     return NextResponse.json(
-      successResponse(completeUserInfo, 'User information retrieved successfully'),
+      successResponse(completeUserInfo, t('success.userInfoRetrieved')),
       { status: HTTP_STATUS.OK }
     );
     
   } catch (error) {
     console.error('Get user info error:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

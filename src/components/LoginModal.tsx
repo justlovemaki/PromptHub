@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { loginOrRegister, signIn, useSession } from '../lib/auth-client'
+import { loginOrRegister, signIn } from '../lib/auth-client'
 import { useTranslation } from '../i18n/client'
 
 interface LoginModalProps {
@@ -16,8 +16,6 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  // 获取会话信息
-  const { data: session } = useSession()
   const { t } = useTranslation(lng, 'common')
 
   // 重置表单状态当模态框关闭时
@@ -39,7 +37,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       const result = await loginOrRegister(email, password)
 
       if (result.error) {
-        setError(result.error.message || 'An error occurred')
+        setError(result.error.message || t('loginError'))
       } else if ('data' in result && result.data?.user) {
           // 成功后关闭模态框并刷新页面
           onClose()
@@ -50,7 +48,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
           }
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      setError(t('unexpectedError'))
     } finally {
       setIsLoading(false)
     }
@@ -69,7 +67,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       })
     } catch (err) {
       console.error('GitHub login error:', err)
-      setError('GitHub login failed')
+      setError(t('githubLoginFailed'))
       setIsLoading(false)
     }
   }
@@ -87,7 +85,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       })
     } catch (err) {
       console.error('Google login error:', err)
-      setError('Google login failed')
+      setError(t('googleLoginFailed'))
       setIsLoading(false)
     }
   }

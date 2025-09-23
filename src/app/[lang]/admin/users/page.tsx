@@ -1,16 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import AdminPanelLayout from '../../../../components/layout/AdminPanelLayout'
+import AdminPageWrapper from '../../../../components/admin/AdminPageWrapper'
 import { useAuth, api } from '@promptmanager/core-logic'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
+import { useTranslation } from '@/i18n/client'
 
 import type { User } from '@promptmanager/core-logic'
 
 
 export default function AdminUsersPage({ params }: { params: { lang: string } }) {
-  const [isClient, setIsClient] = useState(false)
-  const { isAdmin, isLoading } = useAuth()
+  const { t: tAdmin } = useTranslation(params.lang, 'admin')
+  const { t: tCommon } = useTranslation(params.lang, 'common')
+  const { isLoading } = useAuth()
 
   // 用户数据状态
   const [users, setUsers] = useState<User[]>([])
@@ -34,15 +36,9 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
 
-  // 客户端 hydration 检查
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-
   // 搜索、筛选、排序变化时重新获取数据（防抖处理）
   useEffect(() => {
-    if (isClient && isAdmin && !isLoading) {
+    if (!isLoading) {
       const debounceTimer = setTimeout(() => {
         if (currentPage !== 1) {
           setCurrentPage(1) // 重置到第一页
@@ -57,10 +53,10 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
 
   // 页码变化时获取数据
   useEffect(() => {
-    if (isClient && isAdmin && !isLoading && currentPage > 0) {
+    if (!isLoading && currentPage > 0) {
       fetchUsers(currentPage, searchTerm, sortField, sortOrder);
     }
-  }, [isClient, isAdmin, isLoading, currentPage])
+  }, [isLoading, currentPage])
 
   // 加载用户数据
   const fetchUsers = async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
@@ -84,18 +80,18 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         query.subscriptionStatus = filterSubscription as 'FREE' | 'PRO' | 'TEAM'
       }
 
-      const result = await api.getAdminUsers(query)
+      const result = await api.getAdminUsers(query, params.lang)
 
       if (result.success) {
         setUsers(result.data.users || [])
         setTotalPages(result.data.totalPages || 1)
         setTotalUsers(result.data.total || 0)
       } else {
-        setError('获取用户数据失败')
+        setError(tAdmin('users.fetchFailed'))
       }
     } catch (error) {
       console.error('Fetch users error:', error)
-      setError(error instanceof Error ? error.message : '获取用户数据失败')
+      setError(error instanceof Error ? error.message : tAdmin('users.fetchFailed'))
     } finally {
       setLoading(false)
     }
@@ -112,7 +108,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         ...(updates.subscriptionStatus !== undefined && { subscriptionStatus: updates.subscriptionStatus }),
         ...(updates.subscriptionEndDate !== undefined && { subscriptionEndDate: updates.subscriptionEndDate }),
         ...(updates.name !== undefined && { name: updates.name }),
-      })
+      }, params.lang)
 
       if (result.success) {
         // 重新加载用户数据
@@ -120,12 +116,12 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         setEditingUser(null)
         return true
       } else {
-        setError('更新用户失败')
+        setError(tAdmin('users.updateFailed'))
         return false
       }
     } catch (error) {
       console.error('Update user error:', error)
-      setError(error instanceof Error ? error.message : '更新用户失败')
+      setError(error instanceof Error ? error.message : tAdmin('users.updateFailed'))
       return false
     } finally {
       setIsUpdating(false)
@@ -151,48 +147,20 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
   }
 
 
-  // 在服务端渲染期间显示布局和加载状态
-  if (!isClient) {
-    return (
-      <AdminPanelLayout lang={params.lang}>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue mx-auto"></div>
-            <p className="mt-4 text-gray-600">加载中...</p>
-          </div>
-        </div>
-      </AdminPanelLayout>
-    )
-  }
-
-  // 权限检查
-  if (!isAdmin) {
-    return (
-      <AdminPanelLayout lang={params.lang}>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="text-red-500 text-lg mb-4">访问被拒绝</div>
-            <p className="text-gray-600">您没有管理员权限，无法访问此页面。</p>
-          </div>
-        </div>
-      </AdminPanelLayout>
-    )
-  }
-
   return (
-    <AdminPanelLayout lang={params.lang}>
+    <AdminPageWrapper lang={params.lang}>
       <div className="space-y-6">
         {/* 页面标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{tAdmin('users.title')}</h1>
               <p className="text-gray-600 mt-1">
-                管理系统用户账户、权限和订阅状态
+                {tAdmin('users.description')}
               </p>
             </div>
             <div className="text-sm text-gray-500">
-              共 {totalUsers} 个用户
+              {tAdmin('users.totalUsers', { count: totalUsers })}
             </div>
           </div>
         </div>
@@ -201,13 +169,13 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         <SearchToolbar
           searchQuery={searchTerm}
           onSearchChange={setSearchTerm}
-          searchPlaceholder="搜索用户邮箱、姓名..."
+          searchPlaceholder={tAdmin('users.searchPlaceholder')}
           filterStatus={filterRole}
           onFilterChange={(value) => handleFilterChange(value, 'role')}
           filterOptions={[
-            { value: 'all', label: '所有角色' },
-            { value: 'ADMIN', label: '管理员' },
-            { value: 'USER', label: '普通用户' }
+            { value: 'all', label: tAdmin('users.filterOptions.allRoles') },
+            { value: 'ADMIN', label: tAdmin('users.filterOptions.admin') },
+            { value: 'USER', label: tAdmin('users.filterOptions.user') }
           ]}
           sortBy={sortField}
           onSortByChange={(value) => {
@@ -215,9 +183,9 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
             setCurrentPage(1)
           }}
           sortByOptions={[
-            { value: 'createdAt', label: '创建时间' },
-            { value: 'name', label: '姓名' },
-            { value: 'email', label: '邮箱' }
+            { value: 'createdAt', label: tAdmin('users.sortOptions.createdAt') },
+            { value: 'name', label: tAdmin('users.sortOptions.name') },
+            { value: 'email', label: tAdmin('users.sortOptions.email') }
           ]}
           sortOrder={sortOrder}
           onSortOrderChange={(value) => {
@@ -229,7 +197,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         {/* 用户列表 */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">用户列表</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{tAdmin('users.listTitle')}</h2>
           </div>
 
           {loading ? (
@@ -243,12 +211,12 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                 onClick={() => fetchUsers(currentPage, searchTerm, sortField, sortOrder)}
                 className="px-4 py-2 bg-brand-blue text-white rounded hover:bg-brand-blue/90"
               >
-                重试
+                {tCommon('retry')}
               </button>
             </div>
           ) : users.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
-              {searchTerm ? '未找到匹配的用户' : '暂无用户数据'}
+              {searchTerm ? tAdmin('users.empty.noMatch') : tAdmin('users.empty.noData')}
             </div>
           ) : (
             <>
@@ -260,7 +228,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                       onClick={() => handleSort('name')}
                       className="flex items-center hover:text-gray-700"
                     >
-                      用户信息
+                      {tAdmin('users.tableHeaders.userInfo')}
                       {sortField === 'name' && (
                         <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -273,7 +241,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                       onClick={() => handleSort('role')}
                       className="flex items-center hover:text-gray-700"
                     >
-                      角色
+                      {tAdmin('users.tableHeaders.role')}
                       {sortField === 'role' && (
                         <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -286,7 +254,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                       onClick={() => handleSort('subscriptionStatus')}
                       className="flex items-center hover:text-gray-700"
                     >
-                      订阅状态
+                      {tAdmin('users.tableHeaders.subscriptionStatus')}
                       {sortField === 'subscriptionStatus' && (
                         <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -299,7 +267,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                       onClick={() => handleSort('createdAt')}
                       className="flex items-center hover:text-gray-700"
                     >
-                      创建时间
+                      {tAdmin('users.tableHeaders.createdAt')}
                       {sortField === 'createdAt' && (
                         <svg className={`ml-1 w-4 h-4 ${sortOrder === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -307,7 +275,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                       )}
                     </button>
                   </div>
-                  <div className="col-span-3">操作</div>
+                  <div className="col-span-3">{tAdmin('users.tableHeaders.actions')}</div>
                 </div>
               </div>
 
@@ -325,7 +293,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
-                              {user.name || '未设置姓名'}
+                              {user.name || tAdmin('users.unnamedUser')}
                             </p>
                             <p className="text-gray-500 text-xs truncate max-w-xs">
                               {user.email}
@@ -339,7 +307,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                             ? 'bg-red-100 text-red-800'
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {user.role === 'ADMIN' ? '管理员' : '普通用户'}
+                          {user.role === 'ADMIN' ? tAdmin('users.roleAdmin') : tAdmin('users.roleUser')}
                         </span>
                       </div>
                       <div className="col-span-2">
@@ -350,13 +318,13 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                             ? 'bg-blue-100 text-blue-800'
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {user.subscriptionStatus === 'PRO' ? 'Pro' :
-                           user.subscriptionStatus === 'TEAM' ? 'Team' : 'Free'}
+                          {user.subscriptionStatus === 'PRO' ? tAdmin('users.subscriptionPro') :
+                           user.subscriptionStatus === 'TEAM' ? tAdmin('users.subscriptionTeam') : tAdmin('users.subscriptionFree')}
                         </span>
                       </div>
                       <div className="col-span-2">
                         <span className="text-gray-500 text-xs">
-                          {new Date(user.createdAt).toLocaleDateString('zh-CN')}
+                          {new Date(user.createdAt).toLocaleDateString(params.lang)}
                         </span>
                       </div>
                       <div className="col-span-3">
@@ -365,7 +333,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                             onClick={() => setEditingUser(user)}
                             className="text-brand-blue hover:text-brand-blue/80 text-sm"
                           >
-                            编辑
+                            {tCommon('edit')}
                           </button>
                         </div>
                       </div>
@@ -379,7 +347,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                 <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-700">
-                      第 {currentPage} 页，共 {totalPages} 页
+                      {tAdmin('pagination.pageInfo', { current: currentPage, total: totalPages })}
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -387,7 +355,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                         disabled={currentPage === 1}
                         className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        上一页
+                        {tAdmin('pagination.previous')}
                       </button>
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i
@@ -410,7 +378,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                         disabled={currentPage === totalPages}
                         className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        下一页
+                        {tAdmin('pagination.next')}
                       </button>
                     </div>
                   </div>
@@ -427,7 +395,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">编辑用户</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{tAdmin('users.editUserTitle')}</h3>
                 <button
                   onClick={() => setEditingUser(null)}
                   className="text-gray-400 hover:text-gray-600"
@@ -443,7 +411,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    邮箱
+                    {tAdmin('users.emailLabel')}
                   </label>
                   <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded">
                     {editingUser.email}
@@ -452,40 +420,40 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    姓名
+                    {tAdmin('users.nameLabel')}
                   </label>
                   <input
                     type="text"
                     defaultValue={editingUser.name || ''}
-                    placeholder="请输入用户姓名"
+                    placeholder={tAdmin('users.namePlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    角色
+                    {tAdmin('users.roleLabel')}
                   </label>
                   <select
                     defaultValue={editingUser.role}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent"
                   >
-                    <option value="USER">普通用户</option>
-                    <option value="ADMIN">管理员</option>
+                    <option value="USER">{tAdmin('users.roleUser')}</option>
+                    <option value="ADMIN">{tAdmin('users.roleAdmin')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    订阅状态
+                    {tAdmin('users.subscriptionStatusLabel')}
                   </label>
                   <select
                     defaultValue={editingUser.subscriptionStatus}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent"
                   >
-                    <option value="FREE">Free</option>
-                    <option value="PRO">Pro</option>
-                    <option value="TEAM">Team</option>
+                    <option value="FREE">{tAdmin('users.subscriptionFree')}</option>
+                    <option value="PRO">{tAdmin('users.subscriptionPro')}</option>
+                    <option value="TEAM">{tAdmin('users.subscriptionTeam')}</option>
                   </select>
                 </div>
               </div>
@@ -496,7 +464,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                 onClick={() => setEditingUser(null)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
               >
-                取消
+                {tCommon('cancel')}
               </button>
               <button
                 onClick={async () => {
@@ -532,12 +500,12 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
                 disabled={isUpdating}
                 className="px-4 py-2 text-sm font-medium text-white bg-brand-blue border border-transparent rounded-lg hover:bg-brand-blue/90 disabled:opacity-50"
               >
-                {isUpdating ? '更新中...' : '更新'}
+                {isUpdating ? tCommon('updating') : tCommon('update')}
               </button>
             </div>
           </div>
         </div>
       )}
-    </AdminPanelLayout>
+    </AdminPageWrapper>
   )
 }

@@ -5,7 +5,7 @@ import { cn } from "../lib/utils";
 
 export interface Column<T> {
   key: keyof T | string;
-  title: string;
+  title: string | ((t?: (key: string, options?: any) => string) => string);
   render?: (value: any, record: T, index: number) => React.ReactNode;
   width?: string | number;
   align?: "left" | "center" | "right";
@@ -27,6 +27,7 @@ export interface DataTableProps<T> {
     total: number;
     onChange: (page: number, pageSize: number) => void;
   };
+  t?: (key: string, options?: any) => string;
 }
 
 // ============== DataTable 组件实现 ==============
@@ -41,7 +42,10 @@ function DataTable<T extends Record<string, any>>({
   rowKey = "id" as keyof T,
   onRowClick,
   pagination,
+  t,
 }: DataTableProps<T>) {
+  // 默认的翻译函数，如果未提供则使用默认值
+  const tDashboard = t ;
   const [sortColumn, setSortColumn] = React.useState<string | null>(null);
   const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
 
@@ -111,7 +115,7 @@ function DataTable<T extends Record<string, any>>({
     return (
       <div className="flex items-center justify-between px-2 py-4">
         <div className="text-sm text-gray-700">
-          显示 {(current - 1) * pageSize + 1} 到 {Math.min(current * pageSize, total)} 条，共 {total} 条
+          {tDashboard('dataTable.pagination.show')} {(current - 1) * pageSize + 1} {tDashboard('dataTable.pagination.to')} {Math.min(current * pageSize, total)} {tDashboard('dataTable.pagination.of')} {total} {tDashboard('dataTable.pagination.items')}
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -119,17 +123,17 @@ function DataTable<T extends Record<string, any>>({
             disabled={current <= 1}
             className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            上一页
+            {tDashboard('dataTable.pagination.previous')}
           </button>
           <span className="text-sm">
-            第 {current} 页，共 {totalPages} 页
+            {tDashboard('dataTable.pagination.page')} {current} {tDashboard('dataTable.pagination.totalPages', { totalPages })}
           </span>
           <button
             onClick={() => onChange(current + 1, pageSize)}
             disabled={current >= totalPages}
             className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            下一页
+            {tDashboard('dataTable.pagination.next')}
           </button>
         </div>
       </div>
@@ -167,7 +171,7 @@ function DataTable<T extends Record<string, any>>({
                       <span className={cn(
                         column.width && "truncate"
                       )}>
-                        {column.title}
+                        {typeof column.title === 'function' ? column.title(t) : column.title}
                       </span>
                       {column.sortable && renderSortIcon(String(column.key))}
                     </div>
@@ -181,14 +185,14 @@ function DataTable<T extends Record<string, any>>({
                   <td colSpan={columns.length} className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center">
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-blue border-t-transparent"></div>
-                      <span className="ml-2">加载中...</span>
+                      <span className="ml-2">{tDashboard('dataTable.loading')}</span>
                     </div>
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
-                    {empty || "暂无数据"}
+                    {empty || tDashboard('dataTable.noData')}
                   </td>
                 </tr>
               ) : (

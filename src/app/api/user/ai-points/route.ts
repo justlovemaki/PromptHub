@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { db } from '@/lib/database';
 import { aiPointTransaction, user } from '@/drizzle-schema';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
+import { getTranslation } from '@/i18n';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
   try {
     // 验证用户身份
     const authenticatedUser = await verifyUserInApiRoute(request);
     
     if (!authenticatedUser) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        errorResponse(t('error.unauthorized')),
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
@@ -89,13 +93,13 @@ export async function GET(request: NextRequest) {
         usedPoints: totalUsedPoints,
         remainingPoints,
         usageRecords,
-      }, 'AI点数使用情况获取成功')
+      }, t('success.aiPointsRetrieved'))
     );
     
   } catch (error) {
     console.error('获取AI点数使用情况失败:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

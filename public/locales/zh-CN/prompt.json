@@ -1,0 +1,58 @@
+{
+  "use": "使用",
+  "copy": "复制",
+  "copySuccess": "复制成功",
+  "copyFailed": "复制失败",
+  "loading": "加载中...",
+  "promptDetails": "提示词详情",
+  "close": "关闭",
+  "usePrompt": "使用提示词",
+  "promptContent": "提示词内容",
+  "description": "描述",
+  "tags": "标签",
+  "visibility": "可见性",
+  "public": "公开",
+  "private": "私有",
+  "stats": "统计",
+  "useCount": "使用次数",
+  "createdAt": "创建时间",
+  "updatedAt": "更新时间",
+  "actions": "操作",
+  "preview": "预览",
+  "fullScreen": "全屏",
+  "exitFullScreen": "退出全屏",
+  "noDescription": "暂无描述",
+  "noTags": "暂无标签",
+  "dialog": {
+    "title": "使用提示词",
+    "hasVariables": "该提示词包含 {{count}} 个变量",
+    "noVariables": "该提示词不包含变量，可直接使用"
+  },
+  "sections": {
+    "variables": "变量设置",
+    "preview": "内容预览"
+  },
+  "buttons": {
+    "cancel": "取消",
+    "use": "使用提示词",
+    "processing": "处理中..."
+  },
+  "toast": {
+    "success": {
+      "title": "提示词已复制",
+      "message": "内容已成功复制到剪贴板"
+    },
+    "error": {
+      "title": "复制失败",
+      "message": "请手动复制内容"
+    },
+    "warning": {
+      "title": "变量未填写",
+      "message": "请填写以下变量: {{variables}}"
+    }
+  },
+  "variables": {
+    "placeholder": "请输入 {{variable}} 的值",
+    "helperText": "变量格式：{{{{variable}}}}"
+  }
+}

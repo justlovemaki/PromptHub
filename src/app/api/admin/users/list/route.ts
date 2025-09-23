@@ -1,21 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/lib/services';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyAdminInApiRoute } from '@/lib/auth-helpers';
 import { db } from '@/lib/database';
 import { user } from '@/drizzle-schema';
 import { sql, asc, desc } from 'drizzle-orm';
+import { getTranslation } from '@/i18n';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  // 获取语言设置
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'admin');
+
   try {
     // 验证管理员身份
     const adminUser = await verifyAdminInApiRoute(request);
-    
+
     if (!adminUser) {
       return NextResponse.json(
-        errorResponse('Forbidden: Admin access required'),
+        errorResponse(t('error.forbidden')),
         { status: HTTP_STATUS.FORBIDDEN }
       );
     }
@@ -123,14 +128,14 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         totalPages: Math.ceil(total / limit),
-      }, 'Users retrieved successfully'),
+      }, t('success.usersRetrieved')),
       { status: HTTP_STATUS.OK }
     );
     
   } catch (error) {
     console.error('Admin users list error:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

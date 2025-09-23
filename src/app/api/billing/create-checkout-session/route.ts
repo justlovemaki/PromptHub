@@ -1,26 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { UserService } from '@/lib/services';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { z } from 'zod';
 import { db } from '@/lib/database';
 import { user as user_table } from '@/drizzle-schema';
 import { eq } from 'drizzle-orm';
+import { getTranslation } from '@/i18n';
 
 // Stripe 初始化
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
 });
 
-// 创建付费会话验证模式
-const createCheckoutSessionSchema = z.object({
-  priceId: z.string().min(1, 'Price ID is required'),
-  successUrl: z.string().url('Valid success URL is required').optional(),
-  cancelUrl: z.string().url('Valid cancel URL is required').optional(),
-});
-
 export async function POST(request: NextRequest) {
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
+  // 创建付费会话验证模式
+  const createCheckoutSessionSchema = z.object({
+    priceId: z.string().min(1, t('validation.priceIdRequired')),
+    successUrl: z.string().url(t('validation.validSuccessUrlRequired')).optional(),
+    cancelUrl: z.string().url(t('validation.validCancelUrlRequired')).optional(),
+  });
+ 
   try {
     const body = await request.json();
     
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
     
     if (!authenticatedUser) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        errorResponse(t('error.unauthorized')),
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
@@ -38,7 +42,7 @@ export async function POST(request: NextRequest) {
     const validation = createCheckoutSessionSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        errorResponse('Invalid input: ' + validation.error.errors.map(e => e.message).join(', ')),
+        errorResponse(t('validation.invalidInput') + ': ' + validation.error.errors.map(e => e.message).join(', ')),
         { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
@@ -49,7 +53,7 @@ export async function POST(request: NextRequest) {
     const userDetails = await UserService.findUserById(authenticatedUser.id);
     if (!userDetails) {
       return NextResponse.json(
-        errorResponse('User not found'),
+        errorResponse(t('error.userNotFound')),
         { status: HTTP_STATUS.NOT_FOUND }
       );
     }
@@ -96,14 +100,14 @@ export async function POST(request: NextRequest) {
       successResponse({
         sessionId: session.id,
         url: session.url,
-      }, 'Checkout session created successfully'),
+      }, t('success.checkoutSessionCreated')),
       { status: HTTP_STATUS.CREATED }
     );
     
   } catch (error) {
     console.error('Create checkout session error:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

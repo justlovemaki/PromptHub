@@ -1,12 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import AdminPanelLayout from '@/components/layout/AdminPanelLayout'
-import SearchToolbar from '../../../../../packages/ui-components/src/components/search-toolbar'
+import AdminPageWrapper from '@/components/admin/AdminPageWrapper'
+import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { DataTable, Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle } from '@promptmanager/ui-components'
 import TagSelector from '@/components/TagSelector'
 import { api, useAuth } from '@promptmanager/core-logic'
 import type { Prompt } from '@promptmanager/core-logic'
+import { useTranslation } from '@/i18n/client'
 
 interface AdminPromptsPageProps {
   params: {
@@ -22,15 +23,18 @@ interface PromptFormData {
   isPublic: boolean
 }
 
-const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
+export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
+  const { t: tAdminPrompt } = useTranslation(params.lang, 'admin')
+  const { t: tCommon } = useTranslation(params.lang, 'common')
+
+  // 状态管理
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [sortBy, setSortBy] = useState('updatedAt')
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
   
   // PromptManagement 组件的状态
-  const [isClient, setIsClient] = useState(false)
-  const { isAdmin, isLoading } = useAuth()
+  const { isLoading } = useAuth()
   const [prompts, setPrompts] = useState<Prompt[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -48,11 +52,6 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
   })
   const [operationLoading, setOperationLoading] = useState(false)
 
-  // 客户端 hydration 检查
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
   // 获取提示词列表
   const fetchPrompts = async (page = currentPage, search = searchQuery, sort = sortBy, order = sortOrder) => {
     try {
@@ -65,17 +64,17 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
         sortBy: sort || 'updatedAt',
         sortOrder: order || 'desc',
         isPublic: filterStatus === 'public' ? true : filterStatus === 'private' ? false : undefined
-      })
+      }, params.lang)
 
       if (response.success) {
         setPrompts(response.data.prompts || [])
         setTotalPages(response.data.totalPages || 1)
         setTotalPrompts(response.data.total || 0)
       } else {
-        console.error('获取提示词失败')
+        console.error(tAdminPrompt('fetchFailed'))
       }
     } catch (error) {
-      console.error('获取提示词错误:', error)
+      console.error(tAdminPrompt('fetchError'), error)
     } finally {
       setLoading(false)
     }
@@ -83,7 +82,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
 
   // 搜索、筛选、排序变化时重新获取数据（防抖处理）
   useEffect(() => {
-    if (isClient && isAdmin && !isLoading) {
+    if (!isLoading) {
       const debounceTimer = setTimeout(() => {
         if (currentPage !== 1) {
           setCurrentPage(1) // 重置到第一页
@@ -98,10 +97,10 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
 
   // 页码变化时获取数据
   useEffect(() => {
-    if (isClient && isAdmin && !isLoading && currentPage > 0) {
+    if (!isLoading && currentPage > 0) {
       fetchPrompts()
     }
-  }, [isClient, isAdmin, isLoading, currentPage])
+  }, [isLoading, currentPage])
 
   // 处理搜索变化
   const handleSearchChange = (value: string) => {
@@ -138,19 +137,19 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
 
   // 删除提示词
   const handleDelete = async (promptId: string) => {
-    if (!confirm('确定要删除这个提示词吗？此操作不可恢复。')) return
+    if (!confirm(tAdminPrompt('deleteConfirm'))) return
 
     try {
       setOperationLoading(true)
-      const response = await api.deletePrompt({ id: promptId })
+      const response = await api.deletePrompt({ id: promptId }, params.lang)
       if (response.success) {
         await fetchPrompts()
       } else {
-        alert('删除失败')
+        alert(tAdminPrompt('deleteFailed'))
       }
     } catch (error) {
-      console.error('删除提示词错误:', error)
-      alert('删除失败')
+      console.error(tAdminPrompt('deleteError'), error)
+      alert(tAdminPrompt('deleteFailed'))
     } finally {
       setOperationLoading(false)
     }
@@ -159,7 +158,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
   // 创建提示词
   const handleCreate = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert('标题和内容不能为空')
+      alert(tAdminPrompt('requiredFields'))
       return
     }
 
@@ -172,18 +171,18 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
         tags: formData.tags.length > 0 ? formData.tags : undefined,
         isPublic: formData.isPublic,
         spaceId: 'admin'
-      })
+      }, params.lang)
 
       if (response.success) {
         setIsCreateModalOpen(false)
         resetForm()
         await fetchPrompts()
       } else {
-        alert('创建失败')
+        alert(tAdminPrompt('createFailed'))
       }
     } catch (error) {
-      console.error('创建提示词错误:', error)
-      alert('创建失败')
+      console.error(tAdminPrompt('createError'), error)
+      alert(tAdminPrompt('createFailed'))
     } finally {
       setOperationLoading(false)
     }
@@ -205,7 +204,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
     if (!editingPrompt) return
 
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert('标题和内容不能为空')
+      alert(tAdminPrompt('requiredFields'))
       return
     }
 
@@ -218,7 +217,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
         isPublic: formData.isPublic
-      })
+      }, params.lang)
 
       if (response.success) {
         setIsEditModalOpen(false)
@@ -226,66 +225,30 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
         resetForm()
         await fetchPrompts()
       } else {
-        alert('更新失败')
+        alert(tAdminPrompt('updateFailed'))
       }
     } catch (error) {
-      console.error('更新提示词错误:', error)
-      alert('更新失败')
+      console.error(tAdminPrompt('updateError'), error)
+      alert(tAdminPrompt('updateFailed'))
     } finally {
       setOperationLoading(false)
     }
   }
 
-  // 在服务端渲染期间显示加载状态
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center min-h-96">
-      </div>
-    )
-  }
-
-  // 权限检查
-  if (isLoading) {
-    return (
-      <AdminPanelLayout lang={params.lang}>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue mx-auto"></div>
-            <p className="mt-4 text-gray-600">加载中...</p>
-          </div>
-        </div>
-      </AdminPanelLayout>
-    )
-  }
-
-  // 权限检查
-  if (!isAdmin) {
-    return (
-      <AdminPanelLayout lang={params.lang}>
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="text-red-500 text-lg mb-4">访问被拒绝</div>
-            <p className="text-gray-600">您没有管理员权限，无法访问此功能。</p>
-          </div>
-        </div>
-      </AdminPanelLayout>
-    )
-  }
-
   return (
-    <AdminPanelLayout lang={params.lang}>
+    <AdminPageWrapper lang={params.lang}>
       <div className="space-y-6">
         {/* 页面标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">提示词管理</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{tAdminPrompt('promptsManagement.title')}</h1>
               <p className="text-gray-600 mt-1">
-                管理系统中的所有提示词，进行创建、编辑、删除等操作
+                {tAdminPrompt('promptsManagement.description')}
               </p>
             </div>
             <div className="text-sm text-gray-500">
-              共 {totalPrompts} 条提示词
+              {tAdminPrompt('promptsManagement.totalCount', { count: totalPrompts })}
             </div>
           </div>
         </div>
@@ -294,21 +257,21 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
         <SearchToolbar
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          searchPlaceholder="搜索提示词..."
+          searchPlaceholder={tAdminPrompt('search.placeholder')}
           filterStatus={filterStatus}
           onFilterChange={handleFilterChange}
           filterOptions={[
-            { value: 'all', label: '全部' },
-            { value: 'public', label: '公开' },
-            { value: 'private', label: '私有' }
+            { value: 'all', label: tAdminPrompt('filter.all') },
+            { value: 'public', label: tAdminPrompt('filter.public') },
+            { value: 'private', label: tAdminPrompt('filter.private') }
           ]}
           sortBy={sortBy}
           onSortByChange={handleSortByChange}
           sortByOptions={[
-            { value: 'updatedAt', label: '更新时间' },
-            { value: 'createdAt', label: '创建时间' },
-            { value: 'title', label: '标题' },
-            { value: 'useCount', label: '使用次数' }
+            { value: 'updatedAt', label: tAdminPrompt('sort.updatedAt') },
+            { value: 'createdAt', label: tAdminPrompt('sort.createdAt') },
+            { value: 'title', label: tAdminPrompt('sort.title') },
+            { value: 'useCount', label: tAdminPrompt('sort.useCount') }
           ]}
           sortOrder={sortOrder}
           onSortOrderChange={handleSortOrderChange}
@@ -323,7 +286,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
               </div>
             ) : prompts.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-gray-500">暂无提示词</div>
+                <div className="text-gray-500">{tAdminPrompt('noPrompts')}</div>
               </div>
             ) : (
               <DataTable
@@ -331,7 +294,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                 columns={[
                   {
                     key: 'title',
-                    title: '标题',
+                    title: tAdminPrompt('table.title'),
                     width: '25%',
                     render: (value: string, record: Prompt) => (
                       <div className="space-y-1">
@@ -340,7 +303,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                           <div className="flex gap-1">
                             {record.isPublic && (
                               <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">
-                                公开
+                                {tAdminPrompt('visibility.public')}
                               </span>
                             )}
                           </div>
@@ -353,7 +316,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                   },
                   {
                     key: 'tags',
-                    title: '标签',
+                    title: tAdminPrompt('table.tags'),
                     width: '20%',
                     render: (value: string[], record: Prompt) => (
                       <div className="flex flex-wrap gap-1">
@@ -367,7 +330,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-400 text-sm">暂无标签</span>
+                          <span className="text-gray-400 text-sm">{tAdminPrompt('noTags')}</span>
                         )}
                         {value && value.length > 3 && (
                           <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded">
@@ -379,49 +342,49 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                   },
                   {
                     key: 'useCount',
-                    title: '使用次数',
+                    title: tAdminPrompt('table.useCount'),
                     width: '15%',
                     render: (value: number) => (
                       <span className="px-2 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
-                        {value || 0} 次
+                        {value || 0} {tAdminPrompt('table.times')}
                       </span>
                     )
                   },
                   {
                     key: 'createdAt',
-                    title: '创建时间',
+                    title: tAdminPrompt('table.createdAt'),
                     width: '20%',
                     render: (value: string) => (
                       <div className="text-sm text-gray-600">
-                        <div>{new Date(value).toLocaleDateString()}</div>
+                        <div>{new Date(value).toLocaleDateString(params.lang)}</div>
                         <div className="text-xs text-gray-400">
-                          {new Date(value).toLocaleTimeString()}
+                          {new Date(value).toLocaleTimeString(params.lang)}
                         </div>
                       </div>
                     )
                   },
                   {
                     key: 'updatedAt',
-                    title: '更新时间',
+                    title: tAdminPrompt('table.updatedAt'),
                     width: '20%',
                     render: (value: string, record: Prompt) => (
                       <div className="text-sm text-gray-600">
                         {record.updatedAt !== record.createdAt ? (
                           <>
-                            <div>{new Date(value).toLocaleDateString()}</div>
+                            <div>{new Date(value).toLocaleDateString(params.lang)}</div>
                             <div className="text-xs text-gray-400">
-                              {new Date(value).toLocaleTimeString()}
+                              {new Date(value).toLocaleTimeString(params.lang)}
                             </div>
                           </>
                         ) : (
-                          <span className="text-gray-400">未更新</span>
+                          <span className="text-gray-400">{tAdminPrompt('notUpdated')}</span>
                         )}
                       </div>
                     )
                   },
                   {
                     key: 'actions',
-                    title: '操作',
+                    title: tAdminPrompt('table.actions'),
                     width: '15%',
                     render: (_, record: Prompt) => (
                       <div className="flex gap-1">
@@ -435,7 +398,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
-                          编辑
+                          {tAdminPrompt('buttons.edit')}
                         </Button>
                         <Button
                           size="sm"
@@ -447,13 +410,13 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                          删除
+                          {tAdminPrompt('buttons.delete')}
                         </Button>
                       </div>
                     )
                   }
                 ]}
-                empty="暂无提示词"
+                empty={tAdminPrompt('noPrompts')}
               />
             )}
           </div>
@@ -467,17 +430,17 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
               disabled={currentPage === 1}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              上一页
+              {tAdminPrompt('pagination.previous')}
             </button>
             <span className="text-sm text-gray-600">
-              第 {currentPage} 页 / 共 {totalPages} 页
+              {tAdminPrompt('pagination.current', { current: currentPage, total: totalPages })}
             </span>
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              下一页
+              {tAdminPrompt('pagination.next')}
             </button>
           </div>
         )}
@@ -500,8 +463,8 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">创建新提示词</div>
-                    <div className="text-sm text-gray-500 font-normal">创建一个新的 AI 提示词模板</div>
+                    <div className="text-xl font-bold text-gray-900">{tAdminPrompt('createModal.title')}</div>
+                    <div className="text-sm text-gray-500 font-normal">{tAdminPrompt('createModal.description')}</div>
                   </div>
                 </div>
               </ModalTitle>
@@ -515,30 +478,30 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                     <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    基本信息
+                    {tAdminPrompt('sections.basicInfo')}
                   </div>
 
                   <div className="grid gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        标题 <span className="text-red-500">*</span>
+                        {tAdminPrompt('labels.title')} <span className="text-red-500">*</span>
                       </label>
                       <Input
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="为你的提示词起一个清晰的标题"
+                        placeholder={tAdminPrompt('placeholders.title')}
                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        描述
+                        {tAdminPrompt('labels.description')}
                       </label>
                       <Input
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="简短描述这个提示词的用途和场景"
+                        placeholder={tAdminPrompt('placeholders.description')}
                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
@@ -551,17 +514,17 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                     <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    提示词内容
+                    {tAdminPrompt('sections.content')}
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      内容 <span className="text-red-500">*</span>
+                      {tAdminPrompt('labels.content')} <span className="text-red-500">*</span>
                     </label>
                     <Textarea
                       value={formData.content}
                       onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="输入提示词的具体内容..."
+                      placeholder={tAdminPrompt('placeholders.content')}
                       rows={6}
                       className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none rounded-xl px-4 py-3"
                     />
@@ -569,7 +532,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      字符数：{formData.content.length}
+                      {tCommon('characterCount')}: {formData.content.length}
                     </div>
                   </div>
                 </div>
@@ -581,13 +544,13 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    设置选项
+                    {tAdminPrompt('sections.settings')}
                   </div>
 
                   <div className="grid gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        可见性
+                        {tAdminPrompt('labels.visibility')}
                       </label>
                       <div className="relative">
                         <select
@@ -595,8 +558,8 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                           onChange={(e) => setFormData({ ...formData, isPublic: e.target.value === 'public' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
                         >
-                          <option value="private">🔒 私有 - 仅自己可见</option>
-                          <option value="public">🌐 公开 - 所有人可见</option>
+                          <option value="private">{tAdminPrompt('visibility.private')}</option>
+                          <option value="public">{tAdminPrompt('visibility.public')}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -608,13 +571,13 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        标签
+                        {tAdminPrompt('labels.tags')}
                       </label>
                       <TagSelector
                         selectedTags={formData.tags}
                         onChange={(tags) => setFormData({ ...formData, tags })}
                         language="cn"
-                        placeholder="点击选择标签..."
+                        placeholder={tAdminPrompt('placeholders.tags')}
                         className=""
                         isEditing={!!editingPrompt}
                       />
@@ -631,7 +594,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  填写必填字段后即可创建
+                  {tAdminPrompt('form.footer.note')}
                 </span>
               </div>
               <div className="flex space-x-3">
@@ -646,14 +609,14 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      创建中...
+                      {tAdminPrompt('buttons.creating')}
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      创建提示词
+                      {tAdminPrompt('buttons.create')}
                     </span>
                   )}
                 </Button>
@@ -683,8 +646,8 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">编辑提示词</div>
-                    <div className="text-sm text-gray-500 font-normal">修改已有的提示词内容和设置</div>
+                    <div className="text-xl font-bold text-gray-900">{tAdminPrompt('editModal.title')}</div>
+                    <div className="text-sm text-gray-500 font-normal">{tAdminPrompt('editModal.description')}</div>
                   </div>
                 </div>
               </ModalTitle>
@@ -698,30 +661,30 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                     <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    基本信息
+                    {tAdminPrompt('sections.basicInfo')}
                   </div>
 
                   <div className="grid gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        标题 <span className="text-red-500">*</span>
+                        {tAdminPrompt('labels.title')} <span className="text-red-500">*</span>
                       </label>
                       <Input
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="为你的提示词起一个清晰的标题"
+                        placeholder={tAdminPrompt('placeholders.title')}
                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        描述
+                        {tAdminPrompt('labels.description')}
                       </label>
                       <Input
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="简短描述这个提示词的用途和场景"
+                        placeholder={tAdminPrompt('placeholders.description')}
                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
@@ -734,17 +697,17 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                     <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    提示词内容
+                    {tAdminPrompt('sections.content')}
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      内容 <span className="text-red-500">*</span>
+                      {tAdminPrompt('labels.content')} <span className="text-red-500">*</span>
                     </label>
                     <Textarea
                       value={formData.content}
                       onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="输入提示词的具体内容..."
+                      placeholder={tAdminPrompt('placeholders.content')}
                       rows={6}
                       className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none rounded-xl px-4 py-3"
                     />
@@ -752,7 +715,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      字符数：{formData.content.length}
+                      {tCommon('characterCount')}: {formData.content.length}
                     </div>
                   </div>
                 </div>
@@ -764,13 +727,13 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    设置选项
+                    {tAdminPrompt('sections.settings')}
                   </div>
 
                   <div className="grid gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        可见性
+                        {tAdminPrompt('labels.visibility')}
                       </label>
                       <div className="relative">
                         <select
@@ -778,8 +741,8 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                           onChange={(e) => setFormData({ ...formData, isPublic: e.target.value === 'public' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
                         >
-                          <option value="private">🔒 私有 - 仅自己可见</option>
-                          <option value="public">🌐 公开 - 所有人可见</option>
+                          <option value="private">{tAdminPrompt('visibility.privateOption')}</option>
+                          <option value="public">{tAdminPrompt('visibility.publicOption')}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -791,13 +754,13 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        标签
+                        {tAdminPrompt('labels.tags')}
                       </label>
                       <TagSelector
                         selectedTags={formData.tags}
                         onChange={(tags) => setFormData({ ...formData, tags })}
                         language="cn"
-                        placeholder="点击选择标签..."
+                        placeholder={tAdminPrompt('placeholders.tags')}
                         className=""
                         isEditing={!!editingPrompt}
                       />
@@ -814,7 +777,7 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  修改后的内容将立即生效
+                  {tAdminPrompt('form.footer.editNote')}
                 </span>
               </div>
               <div className="flex space-x-3">
@@ -829,14 +792,14 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      保存中...
+                      {tAdminPrompt('buttons.saving')}
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      保存更改
+                      {tAdminPrompt('buttons.save')}
                     </span>
                   )}
                 </Button>
@@ -845,8 +808,6 @@ const AdminPromptsPage: React.FC<AdminPromptsPageProps> = ({ params }) => {
           </ModalContent>
         </Modal>
       </div>
-    </AdminPanelLayout>
+    </AdminPageWrapper>
   )
 }
-
-export default AdminPromptsPage

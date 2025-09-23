@@ -55,5 +55,44 @@
   "faq2Question": "サブスクリプションをキャンセルするとどうなりますか？",
   "faq2Answer": "サブスクリプションをキャンセルすると、無料プランにダウングレードします。コンテンツへのアクセスは可能ですが、無料プランの制限が適用されます。",
   "yes": "あり",
-  "no": "なし"
+  "no": "なし",
+  "accountSettings": "アカウント設定",
+  "viewAll": "すべて表示",
+  "characterCount": "文字数",
+  "retry": "再試行",
+  "update": "更新",
+  "updating": "更新中...",
+  "noDescription": "説明なし",
+  "dataTable": {
+    "loading": "読み込み中...",
+    "noData": "データなし",
+    "pagination": {
+      "show": "表示",
+      "to": "から",
+      "of": "のうち",
+      "items": "件",
+      "previous": "前へ",
+      "next": "次へ",
+      "page": "ページ",
+      "totalPages": "全 {{totalPages}} ページ"
+    }
+  },
+  "search": {
+    "placeholder": "検索...",
+    "filter": {
+      "all": "すべて",
+      "public": "公開",
+      "private": "非公開"
+    },
+    "sortBy": {
+      "updatedAt": "更新日時",
+      "createdAt": "作成日時",
+      "title": "タイトル",
+      "useCount": "使用回数"
+    },
+    "sortOrder": {
+      "desc": "降順",
+      "asc": "昇順"
+    }
+  }
 }

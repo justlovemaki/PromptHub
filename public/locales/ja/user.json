@@ -1,0 +1,59 @@
+{
+  "error": {
+    "unauthorized": "未認証アクセス",
+    "unauthorizedLoginRequired": "ログインしてください",
+    "forbidden": "権限が不足しています",
+    "notFound": "見つかりません",
+    "internalServer": "サーバー内部エラー",
+    "userNotFound": "ユーザーが存在しません",
+    "promptNotFound": "プロンプトが存在しません",
+    "promptNotFoundOrAccessDenied": "プロンプトが存在しないか、アクセスが拒否されました",
+    "personalSpaceNotFound": "個人スペースが存在しません",
+    "failedToCreatePrompt": "プロンプトの作成に失敗しました",
+    "failedToUpdatePrompt": "プロンプトの更新に失敗しました",
+    "tooManyRequests": "リクエストが多すぎます。しばらくしてから再試行してください"
+  },
+  "validation": {
+    "nameRequired": "名前は必須です",
+    "invalidInput": "入力データが無効です",
+    "promptIdRequired": "プロンプトIDは必須です",
+    "titleRequired": "タイトルは必須です",
+    "contentRequired": "内容は必須です",
+    "priceIdRequired": "価格IDは必須です",
+    "validSuccessUrlRequired": "有効な成功URLを入力してください",
+    "validCancelUrlRequired": "有効なキャンセルURLを入力してください",
+    "invalidActionType": "無効なアクションタイプ",
+    "invalidPackageType": "無効なパッケージタイプ",
+    "missingSpaceId": "スペースIDがありません",
+    "invalidPageOrLimit": "ページまたは制限パラメータが無効です"
+  },
+  "success": {
+    "userUpdated": "ユーザー情報が正常に更新されました",
+    "subscriptionUpdated": "サブスクリプション情報が正常に更新されました",
+    "aiPointsPurchased": "AIポイントが正常に購入されました",
+    "aiPointsRetrieved": "AIポイント使用記録が正常に取得されました",
+    "useCountUpdated": "使用回数が正常に更新されました",
+    "promptStatsRetrieved": "プロンプト統計情報が正常に取得されました",
+    "promptsRetrieved": "プロンプトリストが正常に取得されました",
+    "promptDeletedSuccessfully": "プロンプトが正常に削除されました",
+    "promptUpdatedSuccessfully": "プロンプトが正常に更新されました",
+    "promptCreatedSuccessfully": "プロンプトが正常に作成されました",
+    "dashboardStatsRetrieved": "ダッシュボード統計情報が正常に取得されました",
+    "checkoutSessionCreated": "チェックアウトセッションが正常に作成されました",
+    "userInfoRetrieved": "ユーザー情報が正常に取得されました",
+    "userInfoRetrievedFromCache": "キャッシュからユーザー情報が正常に取得されました",
+    "noLogsFound": "ログ記録が見つかりません",
+    "logsRetrieved": "ログ記録が正常に取得されました",
+    "usersRetrieved": "ユーザーリストが正常に取得されました",
+    "statsRetrieved": "統計情報が正常に取得されました",
+    "operationCompleted": "操作が完了しました"
+  },
+  "log": {
+    "promptCreatedSuccessfully": "プロンプトが正常に作成されました",
+    "promptUpdatedSuccessfully": "プロンプトが正常に更新されました",
+    "promptDeletedSuccessfully": "プロンプトが正常に削除されました"
+  },
+  "sse": {
+    "connected": "サーバー送信イベントに接続されました"
+  }
+}

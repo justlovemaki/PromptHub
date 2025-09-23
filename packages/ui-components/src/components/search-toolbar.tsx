@@ -19,6 +19,9 @@ export interface SearchToolbarProps {
 
   sortOrder: any
   onSortOrderChange: (value: any) => void
+  
+  // 翻译函数
+  t?: (key: string, options?: any) => string
 }
 
 /**
@@ -28,25 +31,36 @@ export interface SearchToolbarProps {
 const SearchToolbar: React.FC<SearchToolbarProps> = ({
   searchQuery,
   onSearchChange,
-  searchPlaceholder = "搜索...",
+  searchPlaceholder,
   filterStatus,
   onFilterChange,
-  filterOptions = [
-    { value: 'all', label: '全部' },
-    { value: 'public', label: '公开' },
-    { value: 'private', label: '私有' }
-  ],
+  filterOptions,
   sortBy,
   onSortByChange,
-  sortByOptions = [
-    { value: 'updatedAt', label: '更新时间' },
-    { value: 'createdAt', label: '创建时间' },
-    { value: 'title', label: '标题' },
-    { value: 'useCount', label: '使用次数' }
-  ],
+  sortByOptions,
   sortOrder,
-  onSortOrderChange
+  onSortOrderChange,
+  t
 }) => {
+  // 设置默认值
+  const defaultSearchPlaceholder = t ? t('search.placeholder') : "搜索...";
+  const defaultFilterOptions = [
+    { value: 'all', label: t ? t('search.filter.all') : '全部' },
+    { value: 'public', label: t ? t('search.filter.public') : '公开' },
+    { value: 'private', label: t ? t('search.filter.private') : '私有' }
+  ];
+  const defaultSortByOptions = [
+    { value: 'updatedAt', label: t ? t('search.sortBy.updatedAt') : '更新时间' },
+    { value: 'createdAt', label: t ? t('search.sortBy.createdAt') : '创建时间' },
+    { value: 'title', label: t ? t('search.sortBy.title') : '标题' },
+    { value: 'useCount', label: t ? t('search.sortBy.useCount') : '使用次数' }
+  ];
+  
+  // 使用默认值或传入的值
+  const actualSearchPlaceholder = searchPlaceholder || defaultSearchPlaceholder;
+  const actualFilterOptions = filterOptions || defaultFilterOptions;
+  const actualSortByOptions = sortByOptions || defaultSortByOptions;
+  
   return (
     <Card className="p-6">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -54,7 +68,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
         <div className="flex-1">
           <Input
             key="search-input"
-            placeholder={searchPlaceholder}
+            placeholder={actualSearchPlaceholder}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -68,7 +82,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
             onChange={(e) => onFilterChange(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue min-w-[100px]"
           >
-            {filterOptions.map((option) => (
+            {actualFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -81,7 +95,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
             onChange={(e) => onSortByChange(e.target.value as any)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue min-w-[100px]"
           >
-            {sortByOptions.map((option) => (
+            {actualSortByOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -94,8 +108,8 @@ const SearchToolbar: React.FC<SearchToolbarProps> = ({
             onChange={(e) => onSortOrderChange(e.target.value as any)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue min-w-[80px]"
           >
-            <option value="desc">降序</option>
-            <option value="asc">升序</option>
+            <option value="desc">{t ? t('search.sortOrder.desc') : 'Descending'}</option>
+            <option value="asc">{t ? t('search.sortOrder.asc') : 'Ascending'}</option>
           </select>
         </div>
       </div>

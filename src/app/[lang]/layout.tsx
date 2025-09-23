@@ -3,33 +3,22 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ApiProvider } from '../../components/ApiProvider'
 import { ToastProvider } from '../../components/ToastProvider'
+import { getTranslation } from '../../i18n'
 
 const inter = Inter({ subsets: ['latin'] })
 
-// 为不同的语言提供静态元数据
-const getMetadata = (lang: string) => {
-  switch (lang) {
-    case 'zh-CN':
-      return {
-        title: '播客模板',
-        description: '播客应用程序模板'
-      }
-    case 'ja':
-      return {
-        title: 'ポッドキャストテンプレート',
-        description: 'ポッドキャストアプリケーションのテンプレート'
-      }
-    default: // English
-      return {
-        title: 'Podcast Template',
-        description: 'A template for podcast applications'
-      }
+// 获取多语言元数据
+const getMetadata = async (lang: string) => {
+  const { t } = await getTranslation(lang, 'layout')
+  return {
+    title: t('title'),
+    description: t('description')
   }
 }
 
 export async function generateMetadata({ params }: { params: { lang: string } }) {
-  const metadata = getMetadata(params.lang)
-  
+  const metadata = await getMetadata(params.lang)
+
   return {
     title: metadata.title,
     description: metadata.description,

@@ -1,0 +1,59 @@
+{
+  "error": {
+    "unauthorized": "Unauthorized access",
+    "unauthorizedLoginRequired": "Please log in first",
+    "forbidden": "Insufficient permissions",
+    "notFound": "Not found",
+    "internalServer": "Internal server error",
+    "userNotFound": "User does not exist",
+    "promptNotFound": "Prompt does not exist",
+    "promptNotFoundOrAccessDenied": "Prompt does not exist or access denied",
+    "personalSpaceNotFound": "Personal space does not exist",
+    "failedToCreatePrompt": "Failed to create prompt",
+    "failedToUpdatePrompt": "Failed to update prompt",
+    "tooManyRequests": "Too many requests, please try again later"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "invalidInput": "Invalid input data",
+    "promptIdRequired": "Prompt ID is required",
+    "titleRequired": "Title is required",
+    "contentRequired": "Content is required",
+    "priceIdRequired": "Price ID is required",
+    "validSuccessUrlRequired": "Please enter a valid success URL",
+    "validCancelUrlRequired": "Please enter a valid cancel URL",
+    "invalidActionType": "Invalid action type",
+    "invalidPackageType": "Invalid package type",
+    "missingSpaceId": "Missing space ID",
+    "invalidPageOrLimit": "Invalid page or limit parameter"
+  },
+  "success": {
+    "userUpdated": "User information updated successfully",
+    "subscriptionUpdated": "Subscription information updated successfully",
+    "aiPointsPurchased": "AI points purchased successfully",
+    "aiPointsRetrieved": "AI points usage records retrieved successfully",
+    "useCountUpdated": "Usage count updated successfully",
+    "promptStatsRetrieved": "Prompt statistics retrieved successfully",
+    "promptsRetrieved": "Prompt list retrieved successfully",
+    "promptDeletedSuccessfully": "Prompt deleted successfully",
+    "promptUpdatedSuccessfully": "Prompt updated successfully",
+    "promptCreatedSuccessfully": "Prompt created successfully",
+    "dashboardStatsRetrieved": "Dashboard statistics retrieved successfully",
+    "checkoutSessionCreated": "Checkout session created successfully",
+    "userInfoRetrieved": "User information retrieved successfully",
+    "userInfoRetrievedFromCache": "User information retrieved from cache successfully",
+    "noLogsFound": "No log records found",
+    "logsRetrieved": "Log records retrieved successfully",
+    "usersRetrieved": "User list retrieved successfully",
+    "statsRetrieved": "Statistics retrieved successfully",
+    "operationCompleted": "Operation completed"
+  },
+  "log": {
+    "promptCreatedSuccessfully": "Prompt created successfully",
+    "promptUpdatedSuccessfully": "Prompt updated successfully",
+    "promptDeletedSuccessfully": "Prompt deleted successfully"
+  },
+  "sse": {
+    "connected": "Connected to server-sent events"
+  }
+}

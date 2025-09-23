@@ -23,6 +23,31 @@ import type {
    SystemLogListResponse,
  } from './types';
 
+// ============== 辅助函数 ==============
+
+function createUrlWithQuery(baseUrl: string, query?: Record<string, any>): string {
+ if (!query) return baseUrl;
+ 
+ const params = new URLSearchParams();
+ 
+ Object.entries(query).forEach(([key, value]) => {
+   if (value !== undefined && value !== null) {
+     if (Array.isArray(value)) {
+       value.forEach(v => params.append(key, v.toString()));
+     } else if (value instanceof Date) {
+       params.append(key, value.toISOString());
+     } else if (typeof value === 'boolean') {
+       params.append(key, value.toString());
+     } else {
+       params.append(key, value.toString());
+     }
+   }
+ });
+ 
+ const queryString = params.toString();
+ return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+}
+
 // ============== API 客户端配置 ==============
 
 export interface ApiClientConfig {
@@ -46,9 +71,10 @@ export class ApiClient {
     options: RequestInit & {
       body?: any;
       requireAuth?: boolean;
+      lang?: string;
     } = {}
   ): Promise<ApiResponse<T>> {
-    const { body, requireAuth = true, ...fetchOptions } = options;
+    const { body, requireAuth = true, lang, ...fetchOptions } = options;
     
     const url = `${this.config.baseURL}${endpoint}`;
     const headers: Record<string, string> = {
@@ -57,6 +83,11 @@ export class ApiClient {
         Object.entries(fetchOptions.headers || {}).map(([k, v]) => [k, String(v)])
       ),
     };
+
+    // 添加语言header
+    if (lang) {
+      headers['x-next-locale'] = lang;
+    }
 
     // 添加认证token
     if (requireAuth) {
@@ -126,16 +157,17 @@ export class ApiClient {
     }
   }
 
-  private get<T>(endpoint: string, requireAuth = true): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET', requireAuth });
+  public get<T>(endpoint: string, requireAuth = true, lang?: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET', requireAuth, lang });
   }
 
-  private post<T>(
+  public post<T>(
     endpoint: string,
     body?: any,
-    requireAuth = true
+    requireAuth = true,
+    lang?: string
   ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'POST', body, requireAuth });
+    return this.request<T>(endpoint, { method: 'POST', body, requireAuth, lang });
   }
 
   // ============== 认证相关 API ==============
@@ -162,7 +194,7 @@ export class ApiClient {
 
   // ============== 提示词相关 API ==============
 
-  async getPrompts(query?: PromptListQuery): Promise<ApiResponse<PromptListResponse>> {
+  async getPrompts(query?: PromptListQuery, lang?: string): Promise<ApiResponse<PromptListResponse>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -180,26 +212,26 @@ export class ApiClient {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/prompts/list?${queryString}` : '/api/prompts/list';
     
-    return this.get<PromptListResponse>(endpoint);
+    return this.get<PromptListResponse>(endpoint, true, lang);
   }
 
-  async createPrompt(data: CreatePromptRequest): Promise<ApiResponse<Prompt>> {
-    return this.post<Prompt>('/api/prompts/create', data);
+  async createPrompt(data: CreatePromptRequest, lang?: string): Promise<ApiResponse<Prompt>> {
+    return this.post<Prompt>('/api/prompts/create', data, true, lang);
   }
 
-  async updatePrompt(data: UpdatePromptRequest): Promise<ApiResponse<Prompt>> {
-    return this.post<Prompt>('/api/prompts/update', data);
+  async updatePrompt(data: UpdatePromptRequest, lang?: string): Promise<ApiResponse<Prompt>> {
+    return this.post<Prompt>('/api/prompts/update', data, true, lang);
   }
 
-  async deletePrompt(data: DeletePromptRequest): Promise<ApiResponse<void>> {
-    return this.post<void>('/api/prompts/delete', data);
+  async deletePrompt(data: DeletePromptRequest, lang?: string): Promise<ApiResponse<void>> {
+    return this.post<void>('/api/prompts/delete', data, true, lang);
   }
 
-  async getPrompt(id: string): Promise<ApiResponse<Prompt>> {
-    return this.get<Prompt>(`/api/prompts/${id}`);
+  async getPrompt(id: string, lang?: string): Promise<ApiResponse<Prompt>> {
+    return this.get<Prompt>(`/api/prompts/${id}`, true, lang);
   }
 
-  async getPromptStats(query?: PromptStatsQuery): Promise<ApiResponse<PromptStats>> {
+  async getPromptStats(query?: PromptStatsQuery, lang?: string): Promise<ApiResponse<PromptStats>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -213,18 +245,18 @@ export class ApiClient {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/prompts/stats?${queryString}` : '/api/prompts/stats';
     
-    return this.get<PromptStats>(endpoint);
+    return this.get<PromptStats>(endpoint, true, lang);
   }
 
-  async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
-    return this.get<DashboardStats>('/api/dashboard/stats');
+  async getDashboardStats(lang?: string): Promise<ApiResponse<DashboardStats>> {
+    return this.get<DashboardStats>('/api/dashboard/stats', true, lang);
   }
 
-  async incrementPromptUseCount(promptId: string): Promise<ApiResponse<{ id: string; useCount: number }>> {
-    return this.post<{ id: string; useCount: number }>('/api/prompts/use', { promptId });
+  async incrementPromptUseCount(promptId: string, lang?: string): Promise<ApiResponse<{ id: string; useCount: number }>> {
+    return this.post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang);
   }
 
-  async getAiPointsUsage(): Promise<ApiResponse<{
+  async getAiPointsUsage(lang?: string): Promise<ApiResponse<{
     totalPoints: number;
     usedPoints: number;
     remainingPoints: number;
@@ -235,10 +267,10 @@ export class ApiClient {
       usedPoints: number;
       remainingPoints: number;
       usageRecords: any[]
-    }>('/api/user/ai-points');
+    }>('/api/user/ai-points', true, lang);
   }
 
-  async purchaseAiPoints(packageType: 'small' | 'medium' | 'large'): Promise<ApiResponse<{
+  async purchaseAiPoints(packageType: 'small' | 'medium' | 'large', lang?: string): Promise<ApiResponse<{
     userId: string;
     newBalance: number;
     purchasedPoints: number
@@ -247,26 +279,26 @@ export class ApiClient {
       userId: string;
       newBalance: number;
       purchasedPoints: number
-    }>('/api/user/purchase-ai-points', { packageType });
+    }>('/api/user/purchase-ai-points', { packageType }, true, lang);
   }
 
-  async manageSubscription(action: 'upgrade' | 'downgrade' | 'cancel'): Promise<ApiResponse<{
+  async manageSubscription(action: 'upgrade' | 'downgrade' | 'cancel', lang?: string): Promise<ApiResponse<{
     userId: string;
     subscriptionStatus: string;
   }>> {
     return this.post<{
       userId: string;
       subscriptionStatus: string;
-    }>('/api/user/subscription', { action });
+    }>('/api/user/subscription', { action }, true, lang);
   }
 
   // ============== 管理员相关 API ==============
 
-  async getAdminStats(): Promise<ApiResponse<AdminStats>> {
-    return this.get<AdminStats>('/api/admin/stats/get');
+  async getAdminStats(lang?: string): Promise<ApiResponse<AdminStats>> {
+    return this.get<AdminStats>('/api/admin/stats/get', true, lang);
   }
 
-  async getAdminUsers(query?: AdminUserListQuery): Promise<ApiResponse<AdminUserListResponse>> {
+  async getAdminUsers(query?: AdminUserListQuery, lang?: string): Promise<ApiResponse<AdminUserListResponse>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -280,14 +312,14 @@ export class ApiClient {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/admin/users/list?${queryString}` : '/api/admin/users/list';
     
-    return this.get<AdminUserListResponse>(endpoint);
+    return this.get<AdminUserListResponse>(endpoint, true, lang);
   }
 
-  async updateAdminUser(data: AdminUpdateUserRequest): Promise<ApiResponse<User>> {
-    return this.post<User>('/api/admin/users/update', data);
+  async updateAdminUser(data: AdminUpdateUserRequest, lang?: string): Promise<ApiResponse<User>> {
+    return this.post<User>('/api/admin/users/update', data, true, lang);
   }
 
-  async getAdminPopularPrompts(limit?: number): Promise<ApiResponse<PopularPromptsResponse>> {
+  async getAdminPopularPrompts(limit?: number, lang?: string): Promise<ApiResponse<PopularPromptsResponse>> {
     const params = new URLSearchParams();
     if (limit) {
       params.append('limit', limit.toString());
@@ -296,7 +328,7 @@ export class ApiClient {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/admin/prompts/popular?${queryString}` : '/api/admin/prompts/popular';
 
-    return this.get<PopularPromptsResponse>(endpoint);
+    return this.get<PopularPromptsResponse>(endpoint, true, lang);
   }
 
   async getAdminPrompts(query?: {
@@ -307,7 +339,7 @@ export class ApiClient {
     sortOrder?: 'asc' | 'desc';
     spaceId?: string;
     isPublic?: boolean;
-  }): Promise<ApiResponse<PromptListResponse>> {
+  }, lang?: string): Promise<ApiResponse<PromptListResponse>> {
     const params = new URLSearchParams();
 
     if (query) {
@@ -325,12 +357,12 @@ export class ApiClient {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/admin/prompts/list?${queryString}` : '/api/admin/prompts/list';
 
-    return this.get<PromptListResponse>(endpoint);
+    return this.get<PromptListResponse>(endpoint, true, lang);
   }
 
   // ============== 系统日志相关 API ==============
 
-  async getSystemLogs(query?: SystemLogListQuery): Promise<ApiResponse<SystemLogListResponse>> {
+  async getSystemLogs(query?: SystemLogListQuery, lang?: string): Promise<ApiResponse<SystemLogListResponse>> {
     const params = new URLSearchParams();
 
     if (query) {
@@ -350,21 +382,22 @@ export class ApiClient {
     const queryString = params.toString();
     const endpoint = queryString ? `/api/admin/logs/list?${queryString}` : '/api/admin/logs/list';
 
-    return this.get<SystemLogListResponse>(endpoint);
+    return this.get<SystemLogListResponse>(endpoint, true, lang);
   }
 
   // ============== 计费相关 API ==============
 
   async createCheckoutSession(
-    data: CreateCheckoutSessionRequest
+    data: CreateCheckoutSessionRequest,
+    lang?: string
   ): Promise<ApiResponse<CheckoutSessionResponse>> {
-    return this.post<CheckoutSessionResponse>('/api/billing/create-checkout-session', data);
+    return this.post<CheckoutSessionResponse>('/api/billing/create-checkout-session', data, true, lang);
   }
 
   // ============== 健康检查 API ==============
 
-  async healthCheck(): Promise<ApiResponse<{ status: string; timestamp: string }>> {
-    return this.get<{ status: string; timestamp: string }>('/api/health', false);
+  async healthCheck(lang?: string): Promise<ApiResponse<{ status: string; timestamp: string }>> {
+    return this.get<{ status: string; timestamp: string }>('/api/health', false, lang);
   }
 
   // ============== SSE 连接 ==============
@@ -437,31 +470,37 @@ export const api = {
   updateUser: (data: { name?: string }) => getApiClient().updateUser(data),
   
   // 提示词
-  getPrompts: (query?: PromptListQuery) => getApiClient().getPrompts(query),
-  createPrompt: (data: CreatePromptRequest) => getApiClient().createPrompt(data),
-  updatePrompt: (data: UpdatePromptRequest) => getApiClient().updatePrompt(data),
-  deletePrompt: (data: DeletePromptRequest) => getApiClient().deletePrompt(data),
-  getPrompt: (id: string) => getApiClient().getPrompt(id),
-  getPromptStats: (query?: PromptStatsQuery) => getApiClient().getPromptStats(query),
-  getDashboardStats: () => getApiClient().getDashboardStats(),
-  incrementPromptUseCount: (promptId: string) => getApiClient().incrementPromptUseCount(promptId),
-  getAiPointsUsage: () => getApiClient().getAiPointsUsage(),
-  purchaseAiPoints: (packageType: 'small' | 'medium' | 'large') => getApiClient().purchaseAiPoints(packageType),
-  manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel') => getApiClient().manageSubscription(action),
+  getPrompts: (query?: PromptListQuery, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/prompts/list', query), true, lang),
+  createPrompt: (data: CreatePromptRequest, lang?: string) => getApiClient().post<Prompt>('/api/prompts/create', data, true, lang),
+  updatePrompt: (data: UpdatePromptRequest, lang?: string) => getApiClient().post<Prompt>('/api/prompts/update', data, true, lang),
+  deletePrompt: (data: DeletePromptRequest, lang?: string) => getApiClient().post<void>('/api/prompts/delete', data, true, lang),
+  getPrompt: (id: string, lang?: string) => getApiClient().get<Prompt>(`/api/prompts/${id}`, true, lang),
+  getPromptStats: (query?: PromptStatsQuery, lang?: string) => getApiClient().get<PromptStats>(createUrlWithQuery('/api/prompts/stats', query), true, lang),
+  getDashboardStats: (lang?: string) => getApiClient().get<DashboardStats>('/api/dashboard/stats', true, lang),
+  incrementPromptUseCount: (promptId: string, lang?: string) => getApiClient().post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang),
+  getAiPointsUsage: (lang?: string) => getApiClient().get<{ totalPoints: number; usedPoints: number; remainingPoints: number; usageRecords: any[] }>('/api/user/ai-points', true, lang),
+  purchaseAiPoints: (packageType: 'small' | 'medium' | 'large', lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),
+  manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel', lang?: string) => getApiClient().post<{ userId: string; subscriptionStatus: string }>('/api/user/subscription', { action }, true, lang),
   
   // 管理员
-  getAdminStats: () => getApiClient().getAdminStats(),
-  getAdminUsers: (query?: AdminUserListQuery) => getApiClient().getAdminUsers(query),
-  updateAdminUser: (data: AdminUpdateUserRequest) => getApiClient().updateAdminUser(data),
-  getAdminPopularPrompts: (limit?: number) => getApiClient().getAdminPopularPrompts(limit),
-  getAdminPrompts: (query?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; spaceId?: string; isPublic?: boolean; }) => getApiClient().getAdminPrompts(query),
-  getSystemLogs: (query?: SystemLogListQuery) => getApiClient().getSystemLogs(query),
+  getAdminStats: (lang?: string) => getApiClient().get<AdminStats>('/api/admin/stats/get', true, lang),
+  getAdminUsers: (query?: AdminUserListQuery, lang?: string) => getApiClient().get<AdminUserListResponse>(createUrlWithQuery('/api/admin/users/list', query), true, lang),
+  updateAdminUser: (data: AdminUpdateUserRequest, lang?: string) => getApiClient().post<User>('/api/admin/users/update', data, true, lang),
+  getAdminPopularPrompts: (limit?: number, lang?: string) => {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/admin/prompts/popular?${queryString}` : '/api/admin/prompts/popular';
+    return getApiClient().get<PopularPromptsResponse>(endpoint, true, lang);
+  },
+  getAdminPrompts: (query?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; spaceId?: string; isPublic?: boolean; }, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/admin/prompts/list', query), true, lang),
+  getSystemLogs: (query?: SystemLogListQuery, lang?: string) => getApiClient().get<SystemLogListResponse>(createUrlWithQuery('/api/admin/logs/list', query), true, lang),
   
   // 计费
-  createCheckoutSession: (data: CreateCheckoutSessionRequest) => getApiClient().createCheckoutSession(data),
+  createCheckoutSession: (data: CreateCheckoutSessionRequest, lang?: string) => getApiClient().post<CheckoutSessionResponse>('/api/billing/create-checkout-session', data, true, lang),
   
   // 工具
-  healthCheck: () => getApiClient().healthCheck(),
-  createSSEConnection: (onMessage: (event: MessageEvent) => void, onError?: (error: Event) => void) => 
+  healthCheck: (lang?: string) => getApiClient().get<{ status: string; timestamp: string }>('/api/health', false, lang),
+  createSSEConnection: (onMessage: (event: MessageEvent) => void, onError?: (error: Event) => void) =>
     getApiClient().createSSEConnection(onMessage, onError),
 };

@@ -1,0 +1,16 @@
+{
+  "title": "Privacy Policy",
+  "welcomeMessage": "We respect your privacy and are committed to protecting your personal information.",
+  "section1": {
+    "title": "1. Information We Collect",
+    "content": "We may collect information you provide directly to us, such as when you create an account or contact us."
+  },
+  "section2": {
+    "title": "2. How We Use Your Information",
+    "content": "We use your information to provide, maintain, and improve our services."
+  },
+  "section3": {
+    "title": "3. Information Sharing",
+    "content": "We do not share your personal information with third parties except as described in this policy."
+  }
+}

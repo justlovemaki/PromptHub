@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PromptService, LogService } from '@/lib/services';
-import { successResponse, errorResponse, HTTP_STATUS } from '@/lib/utils';
+import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { z } from 'zod';
-
-// 创建提示词验证模式
-const createPromptSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  content: z.string().min(1, 'Content is required'),
-  description: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  isPublic: z.boolean().optional().default(false),
-});
+import { getTranslation } from '@/i18n';
 
 export async function POST(request: NextRequest) {
+  const language = getLanguageFromNextRequest(request);
+  const { t } = await getTranslation(language, 'user');
+
+  // 创建提示词验证模式
+  const createPromptSchema = z.object({
+    title: z.string().min(1, t('validation.titleRequired')),
+    content: z.string().min(1, t('validation.contentRequired')),
+    description: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    isPublic: z.boolean().optional().default(false),
+  });
+
   try {
     const body = await request.json();
     
@@ -22,7 +26,7 @@ export async function POST(request: NextRequest) {
     
     if (!user) {
       return NextResponse.json(
-        errorResponse('Unauthorized'),
+        errorResponse(t('error.unauthorized')),
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest) {
     const validation = createPromptSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        errorResponse('Invalid input: ' + validation.error.errors.map(e => e.message).join(', ')),
+        errorResponse(t('validation.invalidInput') + ': ' + validation.error.errors.map(e => e.message).join(', ')),
         { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
@@ -54,17 +58,17 @@ export async function POST(request: NextRequest) {
 
     if (!newPrompt) {
       return NextResponse.json(
-        errorResponse('Failed to create prompt'),
+        errorResponse(t('error.failedToCreatePrompt')),
         { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
       );
     }
-
+ 
     const newDbPrompt = await PromptService.getPromptsById(newPrompt.id)
     // 记录日志
     await LogService.writeLog({
       level: 'INFO',
       category: 'API',
-      message: 'Prompt created successfully',
+      message: t('log.promptCreatedSuccessfully'),
       details: {
         promptId: newPrompt.id,
         title: newPrompt.title,
@@ -77,14 +81,14 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get('user-agent') || '',
     });
     return NextResponse.json(
-      successResponse(newDbPrompt, 'Prompt created successfully'),
+      successResponse(newDbPrompt, t('success.promptCreatedSuccessfully')),
       { status: HTTP_STATUS.CREATED }
     );
     
   } catch (error) {
     console.error('Create prompt error:', error);
     return NextResponse.json(
-      errorResponse('Internal server error'),
+      errorResponse(t('error.internalServer')),
       { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }

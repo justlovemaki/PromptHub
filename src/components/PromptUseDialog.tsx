@@ -15,6 +15,7 @@ import { Input } from '@promptmanager/ui-components'
 import { parsePromptVariables, replacePromptVariables, replacePromptVariablesForPreview, api } from '@promptmanager/core-logic'
 import type { Prompt } from '@promptmanager/core-logic'
 import { useToast } from './ToastProvider'
+import { useTranslation } from '@/i18n/client'
 
 // ============== 接口定义 ==============
 
@@ -24,6 +25,7 @@ export interface PromptUseDialogProps {
   onOpenChange: (open: boolean) => void
   onCopySuccess?: (content: string) => void
   onRefreshPrompts?: () => void
+  lang?: string
 }
 
 // ============== 主组件 ==============
@@ -33,13 +35,16 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
   open,
   onOpenChange,
   onCopySuccess,
-  onRefreshPrompts
+  onRefreshPrompts,
+  lang
 }) => {
   const [variables, setVariables] = useState<string[]>([])
   const [variableValues, setVariableValues] = useState<Record<string, string>>({})
   const [isProcessing, setIsProcessing] = useState(false)
   const [finalContent, setFinalContent] = useState('')
   const toast = useToast() // 在组件内部使用 toast
+  const { t: tPrompt } = useTranslation(lang || 'zh-CN', 'prompt')
+  const { t: tCommon } = useTranslation(lang || 'zh-CN', 'common')
 
   // 当提示词改变时，解析变量
   useEffect(() => {
@@ -121,12 +126,12 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
     if (variables.length === 0) {
       const success = await copyToClipboard(prompt.content)
       if (success) {
-        toast.showSuccess('提示词已复制', '内容已成功复制到剪贴板')
+        toast.showSuccess(tPrompt('toast.success.title'), tPrompt('toast.success.message'))
         onCopySuccess?.(prompt.content)
         
         // 增加使用次数
         try {
-          await api.incrementPromptUseCount(prompt.id)
+          await api.incrementPromptUseCount(prompt.id, lang)
           // 刷新最近更新的提示词列表
           onRefreshPrompts?.()
         } catch (error) {
@@ -136,7 +141,7 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
         
         onOpenChange(false)
       } else {
-        toast.showError('复制失败', '请手动复制内容')
+        toast.showError(tPrompt('toast.error.title'), tPrompt('toast.error.message'))
       }
       setIsProcessing(false)
       return
@@ -145,7 +150,7 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
     // 检查是否所有变量都已填写
     const emptyVariables = variables.filter(variable => !variableValues[variable]?.trim())
     if (emptyVariables.length > 0) {
-      toast.showWarning('请填写所有变量', `请填写以下变量：${emptyVariables.join(', ')}`)
+      toast.showWarning(tPrompt('toast.warning.title'), tPrompt('toast.warning.message', { variables: emptyVariables.join(', ') }))
       setIsProcessing(false)
       return
     }
@@ -153,12 +158,12 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
     // 替换变量并复制
     const success = await copyToClipboard(finalContent)
     if (success) {
-      toast.showSuccess('提示词已复制', '内容已成功复制到剪贴板')
+      toast.showSuccess(tPrompt('toast.success.title'), tPrompt('toast.success.message'))
       onCopySuccess?.(finalContent)
       
       // 增加使用次数
       try {
-        await api.incrementPromptUseCount(prompt.id)
+        await api.incrementPromptUseCount(prompt.id, lang)
         // 刷新最近更新的提示词列表
         onRefreshPrompts?.()
       } catch (error) {
@@ -168,7 +173,7 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
       
       onOpenChange(false)
     } else {
-      toast.showError('复制失败', '请手动复制内容')
+      toast.showError(tPrompt('toast.error.title'), tPrompt('toast.error.message'))
     }
     
     setIsProcessing(false)
@@ -192,11 +197,11 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
               </svg>
             </div>
             <div>
-              <ModalTitle>使用提示词</ModalTitle>
+              <ModalTitle>{tPrompt('dialog.title')}</ModalTitle>
               <ModalDescription>
-                {variables.length > 0 
-                  ? `检测到 ${variables.length} 个变量，请填写后使用`
-                  : '点击使用按钮复制提示词到剪贴板'
+                {variables.length > 0
+                  ? tPrompt('dialog.hasVariables', { count: variables.length })
+                  : tPrompt('dialog.noVariables')
                 }
               </ModalDescription>
             </div>
@@ -207,24 +212,22 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
           {/* 提示词标题 */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{prompt.title}</h3>
-            {prompt.description && (
-              <p className="text-sm text-gray-600">{prompt.description}</p>
-            )}
+            <p className="text-sm text-gray-600">{prompt.description || tCommon('noDescription')}</p>
           </div>
 
           {/* 变量输入区域 */}
           {variables.length > 0 && (
             <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-900 mb-4">请填写变量值：</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{tPrompt('sections.variables')}</h4>
               <div className="space-y-4">
                 {variables.map((variable, index) => (
                   <Input
                     key={variable}
                     label={`${variable}`}
-                    placeholder={`请输入 ${variable} 的值`}
+                    placeholder={tPrompt('variables.placeholder', { variable })}
                     value={variableValues[variable] || ''}
                     onChange={(e) => handleVariableChange(variable, e.target.value)}
-                    helperText={`变量格式：{{${variable}}}`}
+                    helperText={tPrompt('variables.helperText', { variable })}
                   />
                 ))}
               </div>
@@ -233,7 +236,7 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
 
           {/* 预览区域 */}
           <div className="mb-6">
-            <h4 className="text-md font-medium text-gray-900 mb-3">内容预览：</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-3">{tPrompt('sections.preview')}</h4>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono leading-relaxed">
                 {finalContent}
@@ -249,14 +252,14 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
               onClick={() => onOpenChange(false)}
               disabled={isProcessing}
             >
-              取消
+              {tPrompt('buttons.cancel')}
             </Button>
             <Button
               onClick={handleUsePrompt}
               disabled={!canUsePrompt || isProcessing}
               isLoading={isProcessing}
             >
-              {isProcessing ? '处理中...' : '复制使用'}
+              {isProcessing ? tPrompt('buttons.processing') : tPrompt('buttons.use')}
             </Button>
           </div>
         </ModalFooter>
