@@ -5,7 +5,7 @@
 ## 🎯 项目特性
 
 ### 核心功能
-- **🔐 安全认证**: JWT + OAuth (Google/GitHub) 双重认证
+- **🔐 安全认证**: Better Auth + OAuth (Google/GitHub) 双重认证
 - **📝 提示词管理**: 创建、编辑、删除、标签管理
 - **🏢 空间中心化**: 支持个人空间，为未来团队版本做好准备
 - **⚡ 实时同步**: SSE 长连接实现实时更新
@@ -23,20 +23,21 @@
 ### 后端核心
 - **框架**: Next.js 14 (App Router)
 - **语言**: TypeScript
-- **数据库**: SQLite + Drizzle ORM
-- **认证**: JWT + Better Auth
+- **数据库**: SQLite/libSQL + Drizzle ORM
+- **认证**: Better Auth
 - **支付**: Stripe
 - **实时通信**: Server-Sent Events (SSE)
 
 ### 关键依赖
 ```json
 {
-  "jsonwebtoken": "^9.0.2",
-  "bcryptjs": "^2.4.3",
-  "cuid": "^3.0.0",
+  "better-auth": "^1.3.6",
+  "drizzle-orm": "^0.44.4",
+  "@libsql/client": "^0.10.0",
+  "better-sqlite3": "^12.2.0",
   "stripe": "^14.12.0",
   "zod": "^3.22.4",
-  "drizzle-orm": "^0.29.4"
+  "next": "14.2.3"
 }
 ```
 
@@ -78,31 +79,44 @@ yarn install
 编辑 `.env` 文件，填入必要的配置：
 
 ```env
-# 数据库
-DB_FILE_NAME=sqlite.db
+# 数据库配置
+DB_FILE_NAME=file:sqlite.db
 
-# JWT 密钥
-JWT_SECRET=your-super-secret-jwt-key
+# Better Auth 配置
+BETTER_AUTH_SECRET=your-better-auth-secret-key
+BETTER_AUTH_URL=http://localhost:3000
 
 # OAuth 配置
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
+
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 
 # Stripe 配置
 STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-publishable-key
 STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+
+# 产品价格 ID
+STRIPE_PRO_PRICE_ID=price_pro_monthly
+STRIPE_TEAM_PRICE_ID=price_team_monthly
+
+# 前端 URL
+FRONTEND_URL=http://localhost:3000
+
+# 开发环境标识
+NODE_ENV=development
 ```
 
 ### 3. 数据库初始化
 
 ```bash
 # 生成数据库迁移
-npm run db:generate
+npx drizzle-kit generate
 
 # 执行迁移
-npm run db:migrate
+npx drizzle-kit migrate
 ```
 
 ### 4. 启动开发服务器
@@ -194,12 +208,16 @@ erDiagram
 - `POST /api/auth/login` - 用户登录
 - `GET /api/auth/oauth/google` - Google OAuth
 - `GET /api/auth/oauth/github` - GitHub OAuth
+- `GET /api/auth/me` - 获取当前用户信息
+- `POST /api/auth/newuser` - 创建新用户
 
 ### 提示词管理
 - `POST /api/prompts/create` - 创建提示词
 - `GET /api/prompts/list` - 获取提示词列表
 - `POST /api/prompts/update` - 更新提示词
 - `POST /api/prompts/delete` - 删除提示词
+- `POST /api/prompts/use` - 使用提示词
+- `GET /api/prompts/stats` - 提示词统计
 
 ### 实时通信
 - `GET /api/sse` - 建立 SSE 连接
@@ -208,16 +226,25 @@ erDiagram
 - `POST /api/billing/create-checkout-session` - 创建支付会话
 - `POST /api/billing/webhook` - Stripe Webhook
 
+### 用户管理
+- `GET /api/user/subscription` - 获取用户订阅信息
+- `POST /api/user/update` - 更新用户信息
+- `GET /api/user/ai-points` - 获取AI点数
+- `POST /api/user/purchase-ai-points` - 购买AI点数
+
 ### 管理后台
 - `GET /api/admin/users/list` - 用户列表
 - `POST /api/admin/users/update` - 更新用户
 - `GET /api/admin/stats/get` - 平台统计
+- `GET /api/admin/prompts/list` - 管理员提示词列表
+- `GET /api/admin/prompts/popular` - 热门提示词
+- `GET /api/admin/logs/list` - 系统日志
 
 ## 🔒 安全设计
 
 ### 认证流程
 1. 用户注册时自动创建个人空间
-2. JWT 包含用户ID、角色、个人空间ID
+2. Better Auth 处理用户认证和会话管理
 3. 中间件验证所有API请求
 4. 管理员路由需要 ADMIN 角色
 
@@ -271,12 +298,23 @@ src/
 
 | 变量名 | 说明 | 必需 |
 |--------|------|------|
-| `DB_FILE_NAME` | SQLite 数据库文件路径 | ✅ |
-| `JWT_SECRET` | JWT 签名密钥 | ✅ |
+| `DB_FILE_NAME` | SQLite/libSQL 数据库文件路径 | ✅ |
+| `BETTER_AUTH_SECRET` | Better Auth 签名密钥 | ✅ |
+| `BETTER_AUTH_URL` | Better Auth 基础URL | ✅ |
 | `GOOGLE_CLIENT_ID` | Google OAuth 客户端ID | ❌ |
 | `GITHUB_CLIENT_ID` | GitHub OAuth 客户端ID | ❌ |
 | `STRIPE_SECRET_KEY` | Stripe 私钥 | ❌ |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe 公钥 | ❌ |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 密钥 | ❌ |
+| `STRIPE_PRO_PRICE_ID` | Pro订阅价格ID | ❌ |
+| `STRIPE_TEAM_PRICE_ID` | Team订阅价格ID | ❌ |
+| `FRONTEND_URL` | 前端URL | ✅ |
+
+## 📚 文档导航
+
+- [安装指南](./docs/INSTALL.md)
+- [部署指南](./docs/DEPLOYMENT.md)
+- [项目概述](./docs/PROJECT_SUMMARY.md)
 
 ## 🤝 贡献指南
 

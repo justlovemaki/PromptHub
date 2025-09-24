@@ -4,7 +4,7 @@
 
 ### 前置要求
 
-- Node.js 18+ 
+- Node.js 18+
 - Git
 - Windows 10/11 (本指南针对Windows环境优化)
 
@@ -17,28 +17,26 @@ cd prompt-manager
 
 ### 2. 依赖安装 (重要)
 
-由于 Windows 环境下 `better-sqlite3` 的原生模块编译问题，我们提供了以下解决方案：
+由于 Windows 环境下 `@libsql/client` 的原生模块编译问题，我们提供了以下解决方案：
 
-#### 🎯 推荐方案：使用 Bun
+#### 🎯 推荐方案：使用 pnpm
 
-Bun 具有更好的原生模块处理能力，可以避免编译问题：
+pnpm 具有更好的原生模块处理能力，可以避免编译问题：
 
 ```bash
-# 安装 Bun 包管理器
-npm install -g bun
+# 安装 pnpm 包管理器
+npm install -g pnpm
 
-# 使用 Bun 安装依赖
-bun install
-
-# 信任并运行必要的后安装脚本
-bun pm trust --all
+# 使用 pnpm 安装依赖
+pnpm install
 ```
 
 **优势**：
 - ✅ 避开 node-gyp 编译问题
 - ✅ 更快的安装速度
 - ✅ 内置更好的二进制文件处理
-- ✅ 完美支持 better-sqlite3
+- ✅ 完美支持 @libsql/client
+- ✅ 更节省磁盘空间
 
 #### 🔄 备用方案1：配置npm镜像源
 
@@ -51,11 +49,8 @@ npm cache clean --force
 # 配置国内镜像源
 npm config set registry https://registry.npmmirror.com
 
-# 设置 better-sqlite3 二进制文件镜像
-$env:BETTER_SQLITE3_BINARY_HOST="https://npmmirror.com/mirrors/better-sqlite3"
-
-# 重新安装
-npm install
+# 设置 @libsql/client 二进制文件镜像 (如果需要)
+npm install @libsql/client
 ```
 
 #### 🔄 备用方案2：使用 Yarn
@@ -79,38 +74,38 @@ cp .env.example .env
 
 ```env
 # 数据库配置
-DB_FILE_NAME=sqlite.db
+DB_FILE_NAME=file:sqlite.db
 
-# JWT 密钥 (必须)
-JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters
+# Better Auth 配置
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=your-super-secret-better-auth-key-at-least-32-characters
 
 # OAuth 配置 (可选)
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GITHUB_CLIENT_ID=your-github-client-id  
+GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 
 # Stripe 配置 (可选)
 STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
 STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
 
-# Next.js 配置
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-nextauth-secret
+# 前端 URL 配置
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### 4. 数据库初始化
 
 ```bash
-# 生成数据库迁移文件
-npm run db:generate
-# 或使用 Bun
-bun run db:generate
+# 生成数据库迁移文件 (使用 drizzle-kit)
+npx drizzle-kit generate
+# 或使用 pnpm
+pnpm dlx drizzle-kit generate
 
 # 执行数据库迁移
-npm run db:migrate  
-# 或使用 Bun
-bun run db:migrate
+npx drizzle-kit migrate
+# 或使用 pnpm
+pnpm dlx drizzle-kit migrate
 ```
 
 ### 5. 启动开发服务器
@@ -119,15 +114,15 @@ bun run db:migrate
 # 使用 npm
 npm run dev
 
-# 或使用 Bun (推荐)
-bun run dev
+# 或使用 pnpm (推荐)
+pnpm run dev
 ```
 
 🎉 现在访问 http://localhost:3000 即可开始使用！
 
 ## ❌ 常见问题解决
 
-### better-sqlite3 安装失败
+### @libsql/client 或 better-sqlite3 安装失败
 
 **错误信息**：
 ```
@@ -136,9 +131,16 @@ subprocess.CalledProcessError: Command returned non-zero exit status 1
 ```
 
 **解决方案**：
-1. **首选**：切换到 Bun - `npm install -g bun && bun install`
+1. **首选**：切换到 pnpm - `npm install -g pnpm && pnpm install`
 2. **备选**：使用镜像源和环境变量配置
 3. **最后**：切换到 Yarn - `yarn install`
+
+### Better Auth 配置问题
+
+如果遇到认证相关错误，请确保：
+- `BETTER_AUTH_SECRET` 设置正确
+- `BETTER_AUTH_URL` 与实际访问URL一致
+- 数据库连接配置正确
 
 ### Node.js 版本问题
 
@@ -169,7 +171,7 @@ npm run dev -- -p 3001
 
 确保 `.env` 文件：
 - 位于项目根目录
-- 包含必需的 `JWT_SECRET` 和 `DB_FILE_NAME`
+- 包含必需的 `BETTER_AUTH_SECRET` 和 `DB_FILE_NAME`
 - 没有多余的引号或空格
 
 ### 数据库权限问题
@@ -189,7 +191,7 @@ Windows 下确保：
 # 健康检查
 curl http://localhost:3000/api/health
 
-# 应返回 {"status": "ok"}
+# 应返回 {"success": true, "message": "Health check passed"}
 ```
 
 ### 2. 数据库连接测试
@@ -203,12 +205,21 @@ dir *.db
 # 应显示 sqlite.db 文件
 ```
 
-### 3. 页面访问测试
+### 3. 认证功能测试
+
+验证认证系统是否正常工作：
+- 访问 http://localhost:3000 - 主页
+- 尝试注册新用户
+- 测试登录功能
+- 验证API端点需要认证
+
+### 4. 页面访问测试
 
 访问以下URL确认工作正常：
 - http://localhost:3000 - 主页
 - http://localhost:3000/en - 英文版
 - http://localhost:3000/zh-CN - 中文版
+- http://localhost:3000/api/health - 健康检查API
 
 ## 🚀 生产环境部署
 
@@ -229,15 +240,16 @@ vercel --prod
 docker build -t prompt-manager .
 
 # 运行容器
-docker run -p 3000:3000 -e JWT_SECRET=your-secret prompt-manager
+docker run -p 3000:3000 -e BETTER_AUTH_SECRET=your-secret -e DB_FILE_NAME=file:sqlite.db prompt-manager
 ```
 
 ### 环境变量配置
 
 生产环境必须配置：
-- `JWT_SECRET` - 随机生成的强密钥
-- `DB_FILE_NAME` - 生产数据库路径
-- `NEXTAUTH_URL` - 生产域名
+- `BETTER_AUTH_SECRET` - 随机生成的强密钥
+- `DB_FILE_NAME` - 生产数据库路径 (例如: file:sqlite.db)
+- `BETTER_AUTH_URL` - 生产域名
+- `FRONTEND_URL` - 前端访问URL
 - 其他第三方服务密钥
 
 ## 📞 获取帮助
@@ -247,7 +259,9 @@ docker run -p 3000:3000 -e JWT_SECRET=your-secret prompt-manager
 1. **检查错误日志**：查看终端输出的详细错误信息
 2. **清理重装**：删除 `node_modules` 和 lock 文件，重新安装
 3. **环境检查**：确认 Node.js 版本和环境变量配置
-4. **切换工具**：尝试不同的包管理器 (npm → Bun → yarn)
+4. **切换工具**：尝试不同的包管理器 (npm → pnpm → yarn)
+5. **认证问题**：检查 Better Auth 配置是否正确
+6. **数据库问题**：验证数据库连接字符串格式是否正确
 
 ---
 
@@ -255,12 +269,13 @@ docker run -p 3000:3000 -e JWT_SECRET=your-secret prompt-manager
 
 - [ ] Node.js 18+ 已安装
 - [ ] 项目代码已克隆
-- [ ] 依赖包安装成功 (推荐使用 Bun)
-- [ ] `.env` 文件已配置
+- [ ] 依赖包安装成功 (推荐使用 pnpm)
+- [ ] `.env` 文件已配置 (包含BETTER_AUTH_SECRET等)
 - [ ] 数据库迁移已执行
 - [ ] 开发服务器启动成功
 - [ ] 能够访问 http://localhost:3000
 - [ ] API 健康检查通过
 - [ ] 数据库文件正确创建
+- [ ] 认证功能正常工作
 
 恭喜！您的 AI 提示词管理平台已经准备就绪！🎉

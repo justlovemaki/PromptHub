@@ -24,12 +24,8 @@
 在 Vercel 项目设置中添加以下环境变量：
 
 ```env
-# 数据库（Vercel 使用 PostgreSQL 或其他云数据库）
-DATABASE_URL=postgresql://username:password@host:port/database
-
-# JWT 配置
-JWT_SECRET=your-super-secret-jwt-key-production
-JWT_EXPIRATION=7d
+# 数据库配置（使用 SQLite 文件或 libSQL）
+DB_FILE_NAME=file:sqlite.db
 
 # Better Auth 配置
 BETTER_AUTH_SECRET=your-better-auth-secret-production
@@ -38,7 +34,6 @@ BETTER_AUTH_URL=https://your-domain.vercel.app
 # OAuth 配置
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_REDIRECT_URI=https://your-domain.vercel.app/api/auth/oauth/google/callback
 
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
@@ -61,11 +56,17 @@ NODE_ENV=production
 
 ### 4. 数据库迁移
 
-由于 Vercel 是无服务器环境，SQLite 不适用。推荐使用：
+项目使用 SQLite 数据库，适合小型到中型应用。对于 Vercel 部署，推荐使用：
 
-- **Neon** (PostgreSQL)
-- **PlanetScale** (MySQL)
-- **Supabase** (PostgreSQL)
+- **libSQL** (推荐) - 由 Turso 提供的 SQLite 兼容数据库，支持同步
+- **PlanetScale** (MySQL) - 适用于需要 MySQL 的场景
+- **SQLite 文件** - 适用于简单的只读场景
+
+如果使用 libSQL，请将环境变量更新为：
+```env
+DB_FILE_NAME=libsql://your-db-name.turso.io
+TURSO_AUTH_TOKEN=your-turso-auth-token
+```
 
 ## 🐳 Docker 部署
 
@@ -136,33 +137,33 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:password@db:5432/promptmanager
-      - JWT_SECRET=your-jwt-secret
-      - BETTER_AUTH_SECRET=your-auth-secret
+      - DB_FILE_NAME=file:/data/sqlite.db
+      - BETTER_AUTH_SECRET=your-better-auth-secret
       - BETTER_AUTH_URL=http://localhost:3000
+      - FRONTEND_URL=http://localhost:3000
+      - STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+      - STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+      - STRIPE_PRO_PRICE_ID=price_pro_monthly
+      - STRIPE_TEAM_PRICE_ID=price_team_monthly
+    volumes:
+      - ./data:/data  # SQLite 数据库文件存储位置
     depends_on:
       - db
-    volumes:
-      - ./data:/app/data
+    restart: unless-stopped
 
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=promptmanager
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
+  # 如果需要 libSQL 数据库，可以取消注释以下部分
+  # db:
+  #   image: ghcr.io/tursodatabase/libsql-server:latest
+  #   environment:
+  #     - LIBSQL_ROOT_PASSWORD=your-db-password
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - libsql_data:/var/lib/libsql
+  #   restart: unless-stopped
 
 volumes:
-  postgres_data:
+  libsql_data:
 ```
 
 ### 3. 构建和运行
@@ -176,6 +177,9 @@ docker-compose up -d
 
 # 查看日志
 docker-compose logs -f app
+
+# 停止容器
+docker-compose down
 ```
 
 ## ☁️ AWS 部署
@@ -193,6 +197,9 @@ sudo apt-get install -y nodejs
 # 安装 PM2
 sudo npm install -g pm2
 
+# 安装 Git
+sudo apt-get update && sudo apt-get install -y git
+
 # 克隆项目
 git clone your-repo.git
 cd prompt-manager
@@ -205,22 +212,34 @@ npm run build
 
 # 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件
+# 编辑 .env 文件，设置正确的环境变量
 
 # 启动应用
 pm2 start npm --name "prompt-manager" -- start
+
+# 保存 PM2 配置
 pm2 save
+
+# 设置 PM2 开机自启
 pm2 startup
+
+# 查看应用状态
+pm2 status
 ```
 
-### 2. 使用 AWS Lambda + API Gateway
+### 2. 使用 AWS Lambda + API Gateway (Serverless)
 
 1. 安装 Serverless Framework：
 ```bash
 npm install -g serverless
 ```
 
-2. 创建 `serverless.yml`：
+2. 安装 Next.js 插件：
+```bash
+npm install --save-dev serverless-next.js
+```
+
+3. 创建 `serverless.yml`：
 ```yaml
 service: prompt-manager
 
@@ -230,24 +249,29 @@ provider:
   region: us-east-1
   environment:
     NODE_ENV: production
-    DATABASE_URL: ${env:DATABASE_URL}
-    JWT_SECRET: ${env:JWT_SECRET}
-
-functions:
-  app:
-    handler: lambda.handler
-    events:
-      - http:
-          path: /{proxy+}
-          method: ANY
-          cors: true
-      - http:
-          path: /
-          method: ANY
-          cors: true
+    DB_FILE_NAME: ${env:DB_FILE_NAME}
+    BETTER_AUTH_SECRET: ${env:BETTER_AUTH_SECRET}
+    BETTER_AUTH_URL: ${env:BETTER_AUTH_URL}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
+    STRIPE_PRO_PRICE_ID: ${env:STRIPE_PRO_PRICE_ID}
+    STRIPE_TEAM_PRICE_ID: ${env:STRIPE_TEAM_PRICE_ID}
 
 plugins:
-  - serverless-nextjs-plugin
+  - serverless-next.js
+
+custom:
+  next:
+    build:
+      env:
+        NODE_ENV: production
+        DB_FILE_NAME: ${env:DB_FILE_NAME}
+        BETTER_AUTH_SECRET: ${env:BETTER_AUTH_SECRET}
+        BETTER_AUTH_URL: ${env:BETTER_AUTH_URL}
+        STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+        STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
+        STRIPE_PRO_PRICE_ID: ${env:STRIPE_PRO_PRICE_ID}
+        STRIPE_TEAM_PRICE_ID: ${env:STRIPE_TEAM_PRICE_ID}
 ```
 
 ## 🔧 生产环境优化
@@ -258,6 +282,7 @@ plugins:
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone', // 生成独立的构建
   experimental: {
     appDir: true,
   },
@@ -271,142 +296,20 @@ const nextConfig = {
   swcMinify: true,
   // 优化图片
   images: {
-    domains: ['your-domain.com'],
+    domains: ['localhost', 'your-domain.com'],
     formats: ['image/webp', 'image/avif'],
+  },
+  // 添加安全头
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
+    ];
   },
 }
 
-module.exports = nextConfig
-```
-
-### 2. 缓存策略
-
-```typescript
-// lib/cache.ts
-import { Redis } from 'ioredis';
-
-const redis = new Redis(process.env.REDIS_URL);
-
-export class CacheService {
-  static async get<T>(key: string): Promise<T | null> {
-    const cached = await redis.get(key);
-    return cached ? JSON.parse(cached) : null;
-  }
-  
-  static async set(key: string, value: any, ttl = 3600): Promise<void> {
-    await redis.setex(key, ttl, JSON.stringify(value));
-  }
-  
-  static async del(key: string): Promise<void> {
-    await redis.del(key);
-  }
-}
-```
-
-### 3. 数据库连接池
-
-```typescript
-// lib/database.ts
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-
-const connectionString = process.env.DATABASE_URL!;
-
-const client = postgres(connectionString, {
-  max: 10, // 连接池大小
-  idle_timeout: 20,
-  connect_timeout: 10,
-});
-
-export const db = drizzle(client);
-```
-
-## 📊 监控和日志
-
-### 1. 添加健康检查端点
-
-```typescript
-// app/api/health/route.ts
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/database';
-
-export async function GET() {
-  try {
-    // 检查数据库连接
-    await db.select().from(user).limit(1);
-    
-    return NextResponse.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        error: 'Database connection failed',
-        timestamp: new Date().toISOString(),
-      },
-      { status: 503 }
-    );
-  }
-}
-```
-
-### 2. 错误监控
-
-建议集成以下服务：
-- **Sentry** - 错误追踪
-- **LogRocket** - 用户会话录制
-- **DataDog** - 应用性能监控
-
-### 3. 日志记录
-
-```typescript
-// lib/logger.ts
-import winston from 'winston';
-
-export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' }),
-  ],
-});
-```
-
-## 🔐 安全配置
-
-### 1. HTTPS 配置
-
-确保在生产环境中启用 HTTPS：
-
-```typescript
-// middleware.ts
-export function middleware(request: NextRequest) {
-  // 强制 HTTPS
-  if (process.env.NODE_ENV === 'production' && 
-      request.headers.get('x-forwarded-proto') !== 'https') {
-    return NextResponse.redirect(
-      `https://${request.headers.get('host')}${request.nextUrl.pathname}`,
-      301
-    );
-  }
-  
-  // ... 其他中间件逻辑
-}
-```
-
-### 2. 安全头配置
-
-```typescript
-// next.config.js
 const securityHeaders = [
   {
     key: 'X-DNS-Prefetch-Control',
@@ -434,73 +337,140 @@ const securityHeaders = [
   }
 ];
 
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: securityHeaders,
-      },
-    ];
-  },
-};
+module.exports = nextConfig
 ```
 
-## 📱 移动端优化
+### 2. 数据库优化
 
-### 1. PWA 配置
+```typescript
+// lib/database.ts
+import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
+import * as schema from '../drizzle-schema';
 
-```json
-// public/manifest.json
-{
-  "name": "AI 提示词管理平台",
-  "short_name": "PromptManager",
-  "description": "高效的AI提示词管理平台",
-  "start_url": "/",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "icons": [
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+// 使用环境变量中的数据库配置
+const dbUrl = process.env.DB_FILE_NAME || 'file:sqlite.db';
+
+const client = createClient({ url: dbUrl });
+export const db = drizzle(client, { schema, logger: false });
+```
+
+### 3. 缓存策略
+
+```typescript
+// lib/cache.ts
+// 由于使用 SQLite，可以利用数据库的内置缓存机制
+// 对于更高级的缓存需求，可以使用以下配置
+export class CacheService {
+  // 使用内存缓存或 Redis（如果需要分布式缓存）
+  private static cache = new Map();
+  private static ttl = new Map();
+
+  static async get<T>(key: string): Promise<T | null> {
+    const now = Date.now();
+    if (this.ttl.has(key) && this.ttl.get(key) < now) {
+      // TTL 过期，删除缓存
+      this.cache.delete(key);
+      this.ttl.delete(key);
+      return null;
     }
-  ]
+    return this.cache.get(key) || null;
+  }
+
+  static async set(key: string, value: any, ttlSeconds = 3600): Promise<void> {
+    this.cache.set(key, value);
+    this.ttl.set(key, Date.now() + (ttlSeconds * 1000));
+  }
+
+  static async del(key: string): Promise<void> {
+    this.cache.delete(key);
+    this.ttl.delete(key);
+  }
+
+  static async clear(): Promise<void> {
+    this.cache.clear();
+    this.ttl.clear();
+  }
 }
 ```
 
-### 2. Service Worker
+### 4. 安全头配置
 
 ```typescript
-// public/sw.js
-const CACHE_NAME = 'prompt-manager-v1';
-const urlsToCache = [
-  '/',
-  '/static/css/',
-  '/static/js/',
+// next.config.js (已在上面的配置中包含)
+const securityHeaders = [
+  {
+    key: 'X-DNS-Prefetch-Control',
+    value: 'on'
+  },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload'
+  },
+  {
+    key: 'X-XSS-Protection',
+    value: '1; mode=block'
+  },
+  {
+    key: 'X-Frame-Options',
+    value: 'DENY'
+  },
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff'
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'origin-when-cross-origin'
+  },
+  {
+    key: 'Permissions-Policy',
+    value: 'geolocation=(), microphone=(), camera=()'
+  }
 ];
+```
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-  );
-});
+## 🏗️ Windows 部署注意事项
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        return response || fetch(event.request);
-      })
-  );
-});
+由于项目使用 SQLite，Windows 部署可能会遇到一些问题。请遵循以下步骤：
+
+### 1. 安装依赖
+
+在 Windows 上推荐使用 Bun 或 Yarn 来避免 better-sqlite3 的编译问题：
+
+```bash
+# 使用 Bun (推荐)
+npm install -g bun
+bun install
+bun pm trust --all
+
+# 或使用 Yarn
+npm install -g yarn
+yarn install
+
+# 如果必须使用 npm，配置镜像源
+npm config set registry https://registry.npmmirror.com
+$env:BETTER_SQLITE3_BINARY_HOST="https://npmmirror.com/mirrors/better-sqlite3"
+npm install
+```
+
+### 2. 数据库配置
+
+在 Windows 环境下，SQLite 文件路径应使用绝对路径：
+
+```env
+# Windows 环境下的数据库配置
+DB_FILE_NAME=file:C:\path\to\your\project\sqlite.db
+```
+
+### 3. 构建配置
+
+Windows 用户可能需要在构建时设置额外的环境变量：
+
+```bash
+# 设置环境变量后构建
+set NODE_ENV=production && npm run build
 ```
 
 ## 🚀 自动化部署
@@ -516,34 +486,91 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        node-version: [18.x]
     steps:
     - uses: actions/checkout@v3
-    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run tests
+      run: npm test
+    - name: Run build
+      run: npm run build
+      env:
+        NODE_ENV: production
+        DB_FILE_NAME: file:sqlite.db
+        BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+        BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+        STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        STRIPE_PRO_PRICE_ID: ${{ secrets.STRIPE_PRO_PRICE_ID }}
+        STRIPE_TEAM_PRICE_ID: ${{ secrets.STRIPE_TEAM_PRICE_ID }}
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
         cache: 'npm'
-    
     - name: Install dependencies
       run: npm ci
-    
-    - name: Run tests
-      run: npm test
-    
     - name: Build application
       run: npm run build
-    
+      env:
+        NODE_ENV: production
+        DB_FILE_NAME: file:sqlite.db
+        BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+        BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+        STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        STRIPE_PRO_PRICE_ID: ${{ secrets.STRIPE_PRO_PRICE_ID }}
+        STRIPE_TEAM_PRICE_ID: ${{ secrets.STRIPE_TEAM_PRICE_ID }}
     - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v20
+      uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.ORG_ID }}
         vercel-project-id: ${{ secrets.PROJECT_ID }}
         vercel-args: '--prod'
+        github-comment: false
+```
+
+## 📁 项目结构说明
+
+```
+prompt-manager/
+├── src/
+│   ├── app/                 # Next.js App Router 页面
+│   ├── components/         # React 组件
+│   ├── lib/               # 工具函数和配置
+│   │   ├── auth.ts        # 认证配置
+│   │   ├── database.ts    # 数据库连接
+│   │   └── server-actions.ts # 服务端操作
+│   ├── drizzle-schema.ts  # 数据库模型定义
+│   └── middleware.ts      # 中间件配置
+├── drizzle/              # 数据库迁移文件
+├── packages/             # Monorepo 包
+│   ├── core-logic/       # 核心逻辑
+│   └── ui-components/    # UI 组件
+├── public/               # 静态资源
+├── docs/                 # 文档
+├── .env.example          # 环境变量示例
+├── package.json
+├── next.config.js        # Next.js 配置
+├── drizzle.config.ts     # Drizzle ORM 配置
+└── Dockerfile            # Docker 配置
 ```
 
 通过以上配置，你的 AI 提示词管理平台就可以在生产环境中稳定运行了。记住在部署前充分测试所有功能，并确保所有敏感信息都通过环境变量安全管理。

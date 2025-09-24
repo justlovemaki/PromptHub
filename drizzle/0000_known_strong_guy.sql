@@ -15,6 +15,19 @@ CREATE TABLE `account` (
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `ai_point_transaction` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`amount` integer NOT NULL,
+	`balance` integer NOT NULL,
+	`type` text NOT NULL,
+	`description` text,
+	`related_id` text,
+	`created_at` integer NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `ai_point_transaction_user_id_idx` ON `ai_point_transaction` (`user_id`);--> statement-breakpoint
 CREATE TABLE `membership` (
 	`id` text PRIMARY KEY NOT NULL,
 	`role` text DEFAULT 'MEMBER' NOT NULL,
@@ -78,6 +91,25 @@ CREATE TABLE `space` (
 	FOREIGN KEY (`owner_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
+CREATE TABLE `system_logs` (
+	`id` text PRIMARY KEY NOT NULL,
+	`level` text NOT NULL,
+	`category` text NOT NULL,
+	`message` text NOT NULL,
+	`details` text,
+	`user_id` text,
+	`user_email` text,
+	`ip` text,
+	`user_agent` text,
+	`timestamp` integer NOT NULL,
+	`status_code` integer,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
+);
+--> statement-breakpoint
+CREATE INDEX `system_logs_timestamp_idx` ON `system_logs` (`timestamp`);--> statement-breakpoint
+CREATE INDEX `system_logs_level_idx` ON `system_logs` (`level`);--> statement-breakpoint
+CREATE INDEX `system_logs_category_idx` ON `system_logs` (`category`);--> statement-breakpoint
+CREATE INDEX `system_logs_user_id_idx` ON `system_logs` (`user_id`);--> statement-breakpoint
 CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text,
@@ -92,7 +124,8 @@ CREATE TABLE `user` (
 	`subscription_status` text DEFAULT 'FREE' NOT NULL,
 	`stripe_customer_id` text,
 	`subscription_id` text,
-	`subscription_end_date` integer
+	`subscription_end_date` integer,
+	`subscription_ai_points` integer DEFAULT 0
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
