@@ -91,5 +91,9 @@
     "message": "Are you sure you want to delete the prompt \"{{title}}\"? This action cannot be undone.",
     "cancel": "Cancel",
     "confirm": "Confirm Delete"
+  },
+  "createModal": {
+    "title": "Create New Prompt",
+    "description": "Create a new AI prompt template for quick use when needed"
   }
 }
