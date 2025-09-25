@@ -35,6 +35,7 @@
     "useCountUpdated": "使用回数が正常に更新されました",
     "promptStatsRetrieved": "プロンプト統計情報が正常に取得されました",
     "promptsRetrieved": "プロンプトリストが正常に取得されました",
+    "tagsRetrieved": "タグリストが正常に取得されました",
     "promptDeletedSuccessfully": "プロンプトが正常に削除されました",
     "promptUpdatedSuccessfully": "プロンプトが正常に更新されました",
     "promptCreatedSuccessfully": "プロンプトが正常に作成されました",

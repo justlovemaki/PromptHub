@@ -9,7 +9,7 @@
     "description": "最近更新した5つのプロンプトを表示"
   },
   "refresh": "更新",
-  "noPromptsYet": "まだプロンプトを作成していません",
+  "noPromptsYet": "まだデータがありません",
   "createFirstPrompt": "最初のプロンプトを作成",
   "totalPrompts": "合計プロンプト",
   "publicPrompts": "公開プロンプト",
@@ -75,6 +75,11 @@
     "description": "このプロンプトの用途と使用シーンを簡単に説明してください",
     "content": "プロンプトの具体的な内容を入力してください...\n\nヒント: {ユーザー入力}、{トピック} などの変数プレースホルダーを使用できます"
   },
+  "templateVariableExample": {
+    "title": "テンプレート変数使用例",
+    "description": "プロンプトで以下の変数形式を使用でき、使用時に実際の内容に置き換えられます：",
+    "format": "形式: {{変数名}} - ユーザーの実際の入力内容に置き換えられます"
+  },
   "table":{
     "title": "タイトル",
     "description": "説明",
@@ -95,5 +100,9 @@
   "createModal": {
     "title": "新しいプロンプトを作成",
     "description": "必要な時にすぐに使用できる新しいAIプロンプトテンプレートを作成する"
-  }
+  },
+  "existingTags": "既存のタグ",
+  "loadingTags": "タグを読み込み中...",
+  "noTagsAvailable": "利用可能なタグがありません",
+  "clearTagSearch": "タグ検索をクリア"
 }

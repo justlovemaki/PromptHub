@@ -15,9 +15,11 @@ export const CONFIG = {
     PROMPTS_UPDATE: '/api/prompts/update',
     PROMPTS_DELETE: '/api/prompts/delete',
     PROMPTS_USE: '/api/prompts/use',
+    PROMPTS_TAGS: '/api/prompts/tags',
     USER_STATS: '/api/dashboard/stats',
     USER_INFO: '/api/auth/me',
     USER_UPDATE: '/api/user/update',
+    
     USER_SUBSCRIPTION: '/api/user/subscription',
     USER_AI_POINTS: '/api/user/ai-points',
     USER_PURCHASE_AI_POINTS: '/api/user/purchase-ai-points'

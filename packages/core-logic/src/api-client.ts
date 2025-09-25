@@ -21,6 +21,7 @@ import type {
    User,
    SystemLogListQuery,
    SystemLogListResponse,
+   TagWithCount,
  } from './types';
 import { useAuthStore } from './stores/auth-store';
 
@@ -251,6 +252,22 @@ export class ApiClient {
 
   async getDashboardStats(lang?: string): Promise<ApiResponse<DashboardStats>> {
     return this.get<DashboardStats>('/api/dashboard/stats', true, lang);
+  }
+
+  async getPromptTags(query?: PromptStatsQuery, lang?: string): Promise<ApiResponse<TagWithCount[]>> {
+    const params = new URLSearchParams();
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString());
+        }
+      });
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/prompts/tags?${queryString}` : '/api/prompts/tags';
+
+    return this.get<TagWithCount[]>(endpoint, true, lang);
   }
 
   async incrementPromptUseCount(promptId: string, lang?: string): Promise<ApiResponse<{ id: string; useCount: number }>> {
@@ -513,6 +530,7 @@ export const api = {
   getPrompt: (id: string, lang?: string) => getApiClient().get<Prompt>(`/api/prompts/${id}`, true, lang),
   getPromptStats: (query?: PromptStatsQuery, lang?: string) => getApiClient().get<PromptStats>(createUrlWithQuery('/api/prompts/stats', query), true, lang),
   getDashboardStats: (lang?: string) => getApiClient().get<DashboardStats>('/api/dashboard/stats', true, lang),
+  getPromptTags: (query?: PromptStatsQuery, lang?: string) => getApiClient().get<TagWithCount[]>(createUrlWithQuery('/api/prompts/tags', query), true, lang),
   incrementPromptUseCount: (promptId: string, lang?: string) => getApiClient().post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang),
   getAiPointsUsage: (lang?: string) => getApiClient().get<{ totalPoints: number; usedPoints: number; remainingPoints: number; usageRecords: any[] }>('/api/user/ai-points', true, lang),
   purchaseAiPoints: (packageType: 'small' | 'medium' | 'large', lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),

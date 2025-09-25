@@ -13,6 +13,7 @@ interface TagSelectorProps {
   className?: string
   maxTags?: number
   isEditing?: boolean // 新增：用于标识是否为编辑模式
+  existingTags?: (string | { name: string; count: number })[] // 新增：支持显示已存在的标签，兼容新旧格式
 }
 
 export const TagSelector: React.FC<TagSelectorProps> = ({
@@ -22,7 +23,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   placeholder = '点击选择标签...',
   className = '',
   maxTags = 10,
-  isEditing = false
+  isEditing = false,
+  existingTags = []
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -103,22 +105,39 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
   // Filter categories and tags based on search and editing mode
   const getFilteredCategories = () => {
-    let categories = tagsByCategory
+    let categories = tagsByCategory;
 
     if (!searchQuery.trim()) {
-      return categories
+      return categories;
     }
 
     const searchResults = searchTags(searchQuery)
     const categoriesWithFilteredTags = categories.map(category => ({
       ...category,
-      tags: category.tags.filter(tag => 
+      tags: category.tags.filter(tag =>
         searchResults.some(result => result.name === tag.name)
       )
     })).filter(category => category.tags.length > 0)
 
-    return categoriesWithFilteredTags
+    return categoriesWithFilteredTags;
   }
+
+  // 获取与搜索匹配的现有标签
+  const getMatchingExistingTags = () => {
+    if (!searchQuery.trim()) {
+      return existingTags.length > 0 ? existingTags : [];
+    }
+
+    return existingTags.filter(tag => {
+      // 如果existingTags是对象数组，使用name字段；如果是字符串数组，直接使用
+      const tagName = typeof tag === 'string' ? tag : tag.name;
+      const searchTerm = searchQuery.toLowerCase();
+      return tagName.toLowerCase().includes(searchTerm);
+    });
+  }
+
+  // 检查是否在搜索模式下
+  const isSearchMode = searchQuery.trim() !== '';
 
   if (!isLoaded) {
     return (
@@ -199,7 +218,51 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
         {/* Tags content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {filteredCategories.length === 0 ? (
+          {/* 显示现有标签 - 如果有搜索匹配的现有标签 */}
+          {getMatchingExistingTags().length > 0 && (
+            <div className="mb-6 space-y-3">
+              {/* 现有标签头部 */}
+              <div className="border-b border-gray-200 pb-2">
+                <h4 className="text-base font-medium text-gray-900">现有标签</h4>
+                <p className="text-sm text-gray-500">来自您现有的提示词</p>
+              </div>
+              
+              {/* 现有标签列表 */}
+              <div className="flex flex-wrap gap-2">
+                {getMatchingExistingTags().map((tagItem, index) => {
+                  // 处理可能的字符串或对象格式
+                  const tagKey = typeof tagItem === 'string' ? tagItem : tagItem.name;
+                  const tagName = keyToNameMap.get(tagKey) || tagKey;
+                  const isSelected = selectedKeys.includes(tagKey);
+                  const isDisabled = !isSelected && selectedKeys.length >= maxTags;
+                  
+                  return (
+                    <button
+                      key={`existing-${tagKey}-${index}`}
+                      onClick={() => !isDisabled && handleTagToggle(tagKey)}
+                      disabled={isDisabled}
+                      className={`
+                        px-4 py-2 text-sm rounded-lg border transition-all duration-200
+                        ${isSelected
+                          ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+                          : isDisabled
+                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                        }
+                      `}
+                      title={`现有标签: ${typeof tagItem === 'string' ? tagName : `${tagName} (使用次数: ${tagItem.count})`}`}
+                      type="button"
+                    >
+                      {tagName}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          
+          {/* 原始分类标签 */}
+          {filteredCategories.length === 0 && getMatchingExistingTags().length === 0 ? (
             <div className="text-center text-gray-500 py-12">
               {searchQuery ? '未找到匹配的标签' : '暂无可用标签'}
             </div>

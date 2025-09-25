@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyUserInApiRoute } from '@/lib/auth-helpers'
-import { PromptService } from '@/lib/services'
+import { DashboardService } from '@/lib/services'
 import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils'
 import { getTranslation } from '@/i18n'
 
@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
       )
     }
  
-    // 使用PromptService获取统计数据
-    const responseData = await PromptService.getPromptStats(spaceId)
+    // 使用DashboardService获取统计数据
+    const responseData = await DashboardService.getPromptStats(spaceId)
  
     return NextResponse.json(
       successResponse(responseData, t('success.promptStatsRetrieved')),

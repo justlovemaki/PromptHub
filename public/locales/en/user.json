@@ -35,6 +35,7 @@
     "useCountUpdated": "Usage count updated successfully",
     "promptStatsRetrieved": "Prompt statistics retrieved successfully",
     "promptsRetrieved": "Prompt list retrieved successfully",
+    "tagsRetrieved": "Tag list retrieved successfully",
     "promptDeletedSuccessfully": "Prompt deleted successfully",
     "promptUpdatedSuccessfully": "Prompt updated successfully",
     "promptCreatedSuccessfully": "Prompt created successfully",

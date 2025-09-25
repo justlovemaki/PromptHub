@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal } from './ui';
-import { useTranslation } from 'react-i18next';
 import { Prompt } from '../types';
 import { copyToClipboard, processPromptWithVariables, extractVariables } from '../utils/helpers';
 import { incrementPromptUsage } from '../utils/api';
@@ -12,13 +11,17 @@ interface PromptCardProps {
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
-  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [variableValues, setVariableValues] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   
   // 检查提示词是否包含变量
   const hasVariables = prompt.content.includes('{{') && prompt.content.includes('}}');
+
+  // 使用 chrome.i18n 替代 react-i18next 的 t 函数
+  const t = (key: string): string => {
+    return chrome.i18n.getMessage(key) || key;
+  };
 
   // 自动填充提示词到网页输入框的函数
   const fillPromptToInput = async (content: string) => {
@@ -178,7 +181,14 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
   const handleEdit = () => {
     // 打开 Web 应用中的编辑页面
     if (chrome && chrome.tabs && chrome.tabs.create) {
-      chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/prompts/edit/${prompt.id}` }); // 使用配置中的基础URL
+        console.log('Opening web app...',chrome.i18n.getUILanguage());
+        if(chrome.i18n.getUILanguage().startsWith('zh')){
+          chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/zh-CN/dashboard?editid=${prompt.id}` });
+        } else if(chrome.i18n.getUILanguage() === 'ja'){
+          chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/ja/dashboard?editid=${prompt.id}` });
+        } else {
+          chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/dashboard?editid=${prompt.id}` }); // 使用配置中的基础URL
+        }
     } else {
       console.error('Chrome API not available');
     }
@@ -225,7 +235,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={hasVariables && extractVariables(prompt.content).length > 0 ? `${t('enterVariableValue')}: ${extractVariables(prompt.content)[0]}` : t('fillPromptVariables')}
+        title={t('fillPromptVariables')}
       >
         <div className="space-y-6 p-2">
           {hasVariables && extractVariables(prompt.content).map((variable, index) => (

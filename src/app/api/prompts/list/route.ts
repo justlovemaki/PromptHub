@@ -26,7 +26,9 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const search = searchParams.get('search') || undefined;
+    const id = searchParams.get('id') || undefined;
     const isPublic = searchParams.get('isPublic');
+    const tag = searchParams.get('tag') || undefined;  // 添加tag参数
     const sortBy = searchParams.get('sortBy') || 'updatedAt'; // 默认按更新时间排序
     const sortOrder = searchParams.get('sortOrder') || 'desc'; // 默认降序
     
@@ -44,12 +46,15 @@ export async function GET(request: NextRequest) {
     // 处理isPublic参数
     const isPublicBool = isPublic === 'true' ? true : isPublic === 'false' ? false : undefined;
     
+    const spaceId = searchParams.get('spaceId') || user.personalSpaceId
     // 使用PromptService进行数据库层面的查询、过滤、排序和分页
-    const result = await PromptService.getPromptsBySpace(user.personalSpaceId, {
+    const result = await PromptService.getPromptsBySpace(spaceId, {
       page: validatedPage,
       limit: validatedLimit,
       search,
+      id,
       isPublic: isPublicBool,
+      tag,  // 添加tag参数
       sortBy: finalSortBy,
       sortOrder: finalSortOrder
     });

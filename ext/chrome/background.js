@@ -240,7 +240,7 @@ async function quickImportPrompt(content) {
         'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        title: `Quick Import - ${new Date().toLocaleString()}`,
+        title: 'Quickly: '+content.trim().substring(0, 15),
         content: content,
         description: 'Quickly imported from browser selection'
       })

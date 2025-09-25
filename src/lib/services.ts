@@ -1,6 +1,7 @@
-import { eq, and, desc, asc, like, or, sql } from 'drizzle-orm';
+import { eq, and, desc, asc, like, or, sql, gte, lte } from 'drizzle-orm';
+
 import { db } from './database';
-import { user, space, membership, prompt, systemLogs, NewSystemLogs } from '../drizzle-schema';
+import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-schema';
 import { generateId } from './utils';
 
 // 由于当前依赖包还未安装，这里先创建服务层的结构
@@ -115,7 +116,9 @@ export class PromptService {
       page?: number;
       limit?: number;
       search?: string;
+      id?: string;
       isPublic?: boolean;
+      tag?: string;  // 添加tag参数
       sortBy?: 'title' | 'createdAt' | 'updatedAt' | 'useCount';
       sortOrder?: 'asc' | 'desc';
     }
@@ -124,13 +127,20 @@ export class PromptService {
       page = 1,
       limit = 10,
       search,
+      id,
       isPublic,
+      tag,  // 获取tag参数
       sortBy = 'updatedAt',
       sortOrder = 'desc'
     } = options || {};
 
     // 构建查询条件
     const conditions = [eq(prompt.spaceId, spaceId)];
+    
+    // 添加ID条件
+    if (id) {
+      conditions.push(eq(prompt.id, id));
+    }
     
     // 添加搜索条件
     if (search) {
@@ -140,6 +150,15 @@ export class PromptService {
           like(prompt.description, `%${search}%`),
           like(prompt.tags, `%${search}%`)
         )!
+      );
+    }
+    
+    // 添加标签过滤条件 - 检查JSON数组中是否包含指定标签
+    if (tag) {
+      // 使用 JSON 函数检查 tags 字段的 JSON 数组中是否包含指定的标签
+      // SQLite 中使用 JSON 查询语法
+      conditions.push(
+        like(prompt.tags, `%${tag}%`)
       );
     }
     
@@ -168,10 +187,7 @@ export class PromptService {
     });
 
     // 获取总数
-    const totalPrompts = await db.query.prompt.findMany({
-      where: and(...conditions),
-    });
-    const total = totalPrompts.length;
+    const total = await db.$count(prompt, and(...conditions));
 
     return {
       prompts,
@@ -247,43 +263,49 @@ export class PromptService {
     return updatedPrompt;
   }
 
-  static async getPromptStats(spaceId: string) {
-    // 计算本月开始时间
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    // 查询统计数据
-    const [stats] = await db
+  // 通过SQL查询空间ID获取所有提示词的标签
+  static async getTagsBySpaceId(spaceId: string, search?: string) {
+    // 查询指定空间的所有提示词的标签
+    const prompts = await db
       .select({
-        totalPrompts: sql<number>`count(*)`,
-        publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
-        privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.getTime()} then 1 else 0 end)`,
+        tags: prompt.tags,
       })
       .from(prompt)
-      .where(eq(prompt.spaceId, spaceId));
+      .where(
+        and(
+          eq(prompt.spaceId, spaceId),
+          search ? like(prompt.tags, `%${search}%`) : undefined
+        )
+      )
+      .all();
 
-    // 查询最近创建的提示词（用于统计卡片中显示）
-    const recentPrompts = await db
-      .select({
-        id: prompt.id,
-        title: prompt.title,
-        createdAt: prompt.createdAt,
-        isPublic: prompt.isPublic,
-      })
-      .from(prompt)
-      .where(eq(prompt.spaceId, spaceId))
-      .orderBy(sql`${prompt.createdAt} DESC`)
-      .limit(5);
+    // 解析标签字符串并统计出现次数
+    const tagCount = new Map<string, number>();
+    prompts.forEach(p => {
+      if (p.tags) {
+        try {
+          const tags = JSON.parse(p.tags) as string[];
+          if (Array.isArray(tags)) {
+            tags.forEach(tag => {
+              if (tag && typeof tag === 'string') {
+                const trimmedTag = tag.trim();
+                tagCount.set(trimmedTag, (tagCount.get(trimmedTag) || 0) + 1);
+              }
+            });
+          }
+        } catch (error) {
+          // 忽略无效的 JSON 数据，继续处理其他提示词
+          console.error('解析标签JSON时出错:', error);
+        }
+      }
+    });
 
-    return {
-      totalPrompts: Number(stats.totalPrompts) || 0,
-      publicPrompts: Number(stats.publicPrompts) || 0,
-      privatePrompts: Number(stats.privatePrompts) || 0,
-      monthlyCreated: Number(stats.monthlyCreated) || 0,
-      recentPrompts: recentPrompts || [],
-    };
+    // 将Map转换为对象数组并按出现次数降序排序
+    return Array.from(tagCount.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
   }
+
 }
 
 // ============== 系统日志服务 ==============
@@ -326,35 +348,22 @@ export class LogService {
 // ============== 仪表盘统计服务 ==============
 
 export class DashboardService {
-  static async getDashboardStats(userId: string, spaceId: string) {
+  static async getDashboardStats(userId: string, spaceId: string, includeUsageRecords: boolean = false) {
     try {
       // 计算本月开始时间
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthStartMs = monthStart.getTime();
 
-      // 1. 获取用户订阅信息来计算点数
-      const userData = await db
-        .select({
-          subscriptionStatus: user.subscriptionStatus,
-        })
-        .from(user)
-        .where(eq(user.id, userId))
-        .limit(1);
+      // 1. 获取用户AI点数使用情况（根据参数决定是否包含使用记录）
+      const aiPointsUsage = await AIPointsService.getUserAIPointsUsage(userId, null, null, 'USE', false)
 
-      // 根据订阅状态计算剩余点数（模拟数据）
-      const userInfo = userData[0];
-      let remainingCredits = 1000; // 默认 Free 版
-      if (userInfo?.subscriptionStatus === 'PRO') {
-        remainingCredits = 5000;
-      } else if (userInfo?.subscriptionStatus === 'TEAM') {
-        remainingCredits = 10000;
-      }
-
-      // 2. 获取提示词统计数据
-      const [promptStats] = await db
+      // 2. 获取提示词统计数据（合并 PromptService.getPromptStats 的逻辑）
+      const [stats] = await db
         .select({
           totalPrompts: sql<number>`count(*)`,
+          publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
+          privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
           monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStartMs} then 1 else 0 end)`,
         })
         .from(prompt)
@@ -387,52 +396,125 @@ export class DashboardService {
         }
       });
 
-      // 4. 获取最近更新的提示词（用于在仪表盘显示）
-      const recentPrompts = await db
-        .select({
-          id: prompt.id,
-          title: prompt.title,
-          content: prompt.content, // 添加 content 字段！
-          description: prompt.description,
-          createdAt: prompt.createdAt,
-          updatedAt: prompt.updatedAt,
-          isPublic: prompt.isPublic,
-          useCount: prompt.useCount,
-          tags: prompt.tags,
-        })
-        .from(prompt)
-        .where(eq(prompt.spaceId, spaceId))
-        .orderBy(sql`${prompt.updatedAt} DESC`)
-        .limit(5);
-
-      // 处理最近提示词数据，解析 tags 字段
-      const processedRecentPrompts = recentPrompts.map(p => ({
-        ...p,
-        content: p.content || '', // 确保 content 字段存在
-        description: p.description || '',
-        useCount: p.useCount || 0,
-        createdAt: new Date(p.createdAt),
-        updatedAt: new Date(p.updatedAt),
-        tags: p.tags ? (() => {
-          try {
-            const parsedTags = JSON.parse(p.tags);
-            return Array.isArray(parsedTags) ? parsedTags : [];
-          } catch {
-            return [];
-          }
-        })() : [],
-      }));
-
       return {
-        totalPrompts: Number(promptStats?.totalPrompts) || 0,
-        monthlyCreated: Number(promptStats?.monthlyCreated) || 0,
-        remainingCredits,
-        tagsCount: uniqueTags.size,
-        recentPrompts: processedRecentPrompts,
+        totalPrompts: Number(stats.totalPrompts) || 0,
+        publicPrompts: Number(stats.publicPrompts) || 0,
+        privatePrompts: Number(stats.privatePrompts) || 0,
+        monthlyCreated: Number(stats.monthlyCreated) || 0,
+        remainingCredits: aiPointsUsage.remainingPoints,
+        tagsCount: uniqueTags.size
       };
     } catch (error) {
       console.error('DashboardService.getDashboardStats 错误:', error);
-      throw new Error('获取仪表盘统计数据失败');
+      throw error;
     }
   }
+
+  static async getPromptStats(spaceId: string) {
+    // 计算本月开始时间
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // 查询统计数据
+    const [stats] = await db
+      .select({
+        totalPrompts: sql<number>`count(*)`,
+        publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
+        privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
+        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.getTime()} then 1 else 0 end)`,
+      })
+      .from(prompt)
+      .where(eq(prompt.spaceId, spaceId));
+
+    // 查询最近创建的提示词（用于统计卡片中显示）
+    const recentPrompts = await db
+      .select({
+        id: prompt.id,
+        title: prompt.title,
+        createdAt: prompt.createdAt,
+        isPublic: prompt.isPublic,
+      })
+      .from(prompt)
+      .where(eq(prompt.spaceId, spaceId))
+      .orderBy(desc(prompt.createdAt))
+      .limit(5);
+
+    return {
+      totalPrompts: Number(stats.totalPrompts) || 0,
+      publicPrompts: Number(stats.publicPrompts) || 0,
+      privatePrompts: Number(stats.privatePrompts) || 0,
+      monthlyCreated: Number(stats.monthlyCreated) || 0,
+      recentPrompts: recentPrompts || [],
+    };
+  }
+}
+
+export class AIPointsService {
+  static async getUserAIPointsUsage(userId: string, startDate?: string, endDate?: string, type?: 'EARN' | 'USE' | 'ADMIN' , includeUsageRecords: boolean = false) {
+    // 计算日期范围
+    const now = new Date();
+    const monthStart = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    // 构建查询条件
+    const conditions = [
+      eq(aiPointTransaction.userId, userId),
+      gte(aiPointTransaction.createdAt, monthStart),
+      lte(aiPointTransaction.createdAt, monthEnd)
+    ];
+    
+    // 如果提供了type参数，则添加对type字段的过滤条件
+    if (type && (type === 'EARN' || type === 'USE' || type === 'ADMIN')) {
+      conditions.push(
+        eq(aiPointTransaction.type, type)
+      );
+    }
+    
+    // 查询用户本月的AI点数流水记录
+    const usageRecords = includeUsageRecords ? await db
+      .select({
+        id: aiPointTransaction.id,
+        userId: aiPointTransaction.userId,
+        amount: aiPointTransaction.amount,
+        balance: aiPointTransaction.balance,
+        type: aiPointTransaction.type,
+        description: aiPointTransaction.description,
+        relatedId: aiPointTransaction.relatedId,
+        createdAt: aiPointTransaction.createdAt,
+      })
+      .from(aiPointTransaction)
+      .where(and(...conditions))
+      .orderBy(aiPointTransaction.createdAt) : [];
+    
+    // 计算总使用点数（只统计类型为"USE"的记录，且amount为负数）
+    const totalUsedPoints = usageRecords
+      .filter(record => record.type === 'USE' && record.amount < 0)
+      .reduce((sum, record) => sum + Math.abs(record.amount), 0);
+    
+    // 获取用户的订阅信息以获取总点数
+    const userDetails = await db
+      .select({
+        subscriptionStatus: user.subscriptionStatus,
+        subscriptionAiPoints: user.subscriptionAiPoints,
+      })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+    
+    const userInfo = userDetails[0];
+    
+    // 使用数据库中的subscriptionAiPoints作为总点数
+    let totalPoints = userInfo?.subscriptionAiPoints || 0;
+    
+    // 计算剩余点数
+    const remainingPoints = Math.max(0, totalPoints - totalUsedPoints);
+    
+    return {
+      totalPoints,
+      usedPoints: totalUsedPoints,
+      remainingPoints,
+      usageRecords,
+    };
+  }
+  
 }

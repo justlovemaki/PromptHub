@@ -35,6 +35,7 @@
     "useCountUpdated": "使用次数更新成功",
     "promptStatsRetrieved": "提示词统计数据获取成功",
     "promptsRetrieved": "提示词列表获取成功",
+    "tagsRetrieved": "标签列表获取成功",
     "promptDeletedSuccessfully": "提示词删除成功",
     "promptUpdatedSuccessfully": "提示词更新成功",
     "promptCreatedSuccessfully": "提示词创建成功",

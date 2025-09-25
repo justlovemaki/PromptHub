@@ -43,6 +43,11 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   const keyToNameMap = useMemo(() => new Map(allTags.map(t => [t.key, t.name])), [allTags])
   const getName = (key: string) => keyToNameMap.get(key) || key
 
+  // 标签状态
+  const [existingTags, setExistingTags] = useState<string[]>([])
+  const [existingTagsLoading, setExistingTagsLoading] = useState(false)
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)  // 新增：当前选中的标签
+
 
   // 最近更新的提示词状态
   const [recentPrompts, setRecentPrompts] = useState<Prompt[]>([])
@@ -76,9 +81,20 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   useEffect(() => {
     if (user && user.personalSpaceId && !hasInitialized) {
       setHasInitialized(true)
-      fetchPrompts()
+      // 检查URL参数中是否有editid
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = urlParams.get('editid');
+      
+      if (editId) {
+        // 如果有editid参数，先查询特定ID的提示词
+        fetchPromptById(editId);
+      } else {
+        // 否则正常获取提示词列表
+        fetchPrompts()
+      }
       fetchStats()
       fetchRecentPrompts()
+      fetchExistingTags()
     }
   }, [user?.personalSpaceId])
 
@@ -130,6 +146,27 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     }
   }
 
+  // 获取已存在的标签列表
+  const fetchExistingTags = async () => {
+    try {
+      setExistingTagsLoading(true)
+      const response = await api.getPromptTags({ spaceId: user?.personalSpaceId, search: '' }, params.lang)
+      if (response.success) {
+        // 将API返回的标签对象数组转换为字符串数组，以便现有代码继续工作
+        const tagStrings = (response.data || []).map(tagObj => tagObj.name);
+        setExistingTags(tagStrings)
+      } else {
+        console.error(tDashboard('errors.fetchTags'), (response as any).error?.message || tDashboard('error.unknown'))
+        setExistingTags([])
+      }
+    } catch (error) {
+      console.error(tDashboard('errors.fetchTags'), error)
+      setExistingTags([])
+    } finally {
+      setExistingTagsLoading(false)
+    }
+  }
+
   // 获取提示词列表
   const fetchPrompts = async () => {
     try {
@@ -137,7 +174,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       
       const query: PromptListQuery = {
         spaceId: user?.personalSpaceId,
-        search: searchQuery || undefined,
+        search: searchQuery,
+        tag: selectedTag ,
         isPublic: filterStatus === 'all' ? undefined : filterStatus === 'public',
         page: pagination.page,
         limit: pagination.limit,
@@ -166,6 +204,53 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     }
   }
 
+  // 根据ID获取单个提示词
+  const fetchPromptById = async (promptId: string) => {
+    try {
+      setPromptsLoading(true)
+      
+      const query: PromptListQuery = {
+        spaceId: user?.personalSpaceId,
+        id: promptId, // 使用ID查询参数
+        page: 1,
+        limit: 1, // 只查询一个提示词，提高效率
+        sortBy,
+        sortOrder
+      }
+      
+      const response = await api.getPrompts(query, params.lang)
+      
+      if (response.success) {
+        const data = response.data as PromptListResponse
+        if (data.prompts && data.prompts.length > 0) {
+          // 找到了提示词，打开编辑对话框
+          setPrompts(data.prompts || [])
+          const promptToEdit = data.prompts[0]
+          openEditModal(promptToEdit)
+        } else {
+          // 如果没有找到提示词，仍然显示正常的提示词列表
+          setPrompts([])
+          setPagination({
+            page: 1,
+            limit: 8,
+            total: 0,
+            totalPages: 0
+          })
+        }
+      } else {
+        console.error(tDashboard('errors.fetchPrompts'), (response as any).error?.message || tDashboard('error.unknown'))
+        // 出错时也显示正常列表
+        fetchPrompts()
+      }
+    } catch (error) {
+      console.error(tDashboard('errors.fetchPrompts'), error)
+      // 出错时也显示正常列表
+      fetchPrompts()
+    } finally {
+      setPromptsLoading(false)
+    }
+  }
+
   // 搜索和筛选变化时重新获取数据，重置到第一页
   useEffect(() => {
     if (hasInitialized) {
@@ -175,11 +260,13 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         } else {
           fetchPrompts()
         }
+        // 同时获取更新后的标签列表
+        // fetchExistingTags()
       }, 300)
       
       return () => clearTimeout(debounceTimer)
     }
-  }, [searchQuery, filterStatus, sortBy, sortOrder])
+  }, [searchQuery, filterStatus, sortBy, sortOrder, selectedTag])  // 添加selectedTag到依赖数组
 
   // 分页变化时获取数据
   useEffect(() => {
@@ -220,6 +307,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         fetchPrompts()
         fetchStats()
         fetchRecentPrompts()
+        fetchExistingTags()
         setShowCreateModal(false)
         resetForm()
       } else {
@@ -259,6 +347,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         fetchPrompts()
         fetchStats()
         fetchRecentPrompts()
+        fetchExistingTags()
         setShowEditModal(false)
         resetForm()
         setEditingPrompt(null)
@@ -454,6 +543,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             onRefreshPrompts={() => {
               fetchPrompts()
               fetchStats()
+              fetchRecentPrompts()
             }}
           >
             {tDashboard('use')}
@@ -507,7 +597,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
               </div>
               <div className="flex space-x-3">
                 <button
-                  onClick={fetchRecentPrompts}
+                  onClick={() => {
+                            fetchPrompts()
+                            fetchStats()
+                            fetchRecentPrompts()
+                            fetchExistingTags()
+                          }}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -526,7 +621,11 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                 <div className="text-red-500 mb-2">{tDashboard('loadingFailed')}</div>
                 <p className="text-gray-600 text-sm mb-4">{recentPromptsError}</p>
                 <button
-                  onClick={fetchRecentPrompts}
+                  onClick={() => {
+                            fetchPrompts()
+                            fetchStats()
+                            fetchRecentPrompts()
+                          }}
                   className="text-brand-blue hover:text-brand-blue/80 font-medium text-sm"
                 >
                   {tDashboard('retry')}
@@ -615,12 +714,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                       </svg>
                     </div>
                     <p className="text-gray-600 mb-4">{tDashboard('noPromptsYet')}</p>
-                    <button
+                    {/* <button
                       onClick={() => setShowCreateModal(true)}
                       className="bg-brand-blue hover:bg-brand-blue/90 text-white px-4 py-2 rounded font-medium transition-colors"
                     >
                       {tDashboard('createFirstPrompt')}
-                    </button>
+                    </button> */}
                   </div>
                 )}
               </div>
@@ -695,6 +794,60 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
           </Card>
         </div>
 
+        {/* 已存在的标签列表 */}
+        {existingTags.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-medium text-gray-900">{tDashboard('existingTags')}</h3>
+              {existingTagsLoading && (
+                <div className="flex items-center text-sm text-gray-500">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {tDashboard('loadingTags')}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              {existingTags.map((tag, index) => (
+                <span
+                  key={index}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition-colors ${
+                    selectedTag === tag
+                      ? 'bg-blue-600 text-white'  // 选中状态
+                      : 'bg-blue-100 text-blue-800 hover:bg-blue-200'  // 未选中状态
+                  }`}
+                  onClick={() => {
+                    // 切换标签选择，如果已选中则清除
+                    const newSelectedTag = selectedTag === tag ? null : tag;
+                    setSelectedTag(newSelectedTag);
+                    // 清除文本搜索框中的内容，只保留标签搜索
+                    setSearchQuery('');
+                  }}
+                >
+                  {getName(tag) || tag}
+                </span>
+              ))}
+              {/* 清除标签搜索按钮 */}
+              {selectedTag && (
+                <button
+                  onClick={() => {
+                    setSelectedTag(null);
+                    setSearchQuery('');
+                  }}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  {tDashboard('clearTagSearch')}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* 搜索和筛选 */}
         <SearchToolbar
           searchQuery={searchQuery}
@@ -721,11 +874,11 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                 <div className="text-gray-500 mb-4">
                   {searchQuery || filterStatus !== 'all' ? tDashboard('noPromptsFound') : tDashboard('noPromptsYet')}
                 </div>
-                {!searchQuery && filterStatus === 'all' && (
+                {/* {!searchQuery && filterStatus === 'all' && (
                   <Button onClick={() => setShowCreateModal(true)}>
                     {tDashboard('createFirstPrompt')}
                   </Button>
-                )}
+                )} */}
               </div>
             }
             onSort={(key, direction) => {
@@ -837,6 +990,22 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                       </svg>
                       {tDashboard('characterCount')}{formData.content.length}
                     </div>
+                    
+                    {/* 模板变量使用示例 */}
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                      <div className="flex items-center gap-2 text-sm font-medium text-blue-700 mb-2">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        {tDashboard('templateVariableExample.title')}
+                      </div>
+                      <p className="text-xs text-gray-600 mb-2">{tDashboard('templateVariableExample.description')}</p>
+                      <div className="text-xs text-gray-700 space-y-1">
+                        <div className="mt-2 text-blue-600 font-mono bg-blue-100 px-2 py-1 rounded inline-block">
+                          {tDashboard('templateVariableExample.format')}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -883,6 +1052,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                         placeholder={tDashboard('tagSelectorPlaceholder')}
                         className=""
                         isEditing={!!editingPrompt}
+                        existingTags={existingTags}
                       />
                     </div>
                   </div>
@@ -1020,6 +1190,22 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                       </svg>
                       {tDashboard('characterCount')}{formData.content.length}
                     </div>
+                    
+                    {/* 模板变量使用示例 */}
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                      <div className="flex items-center gap-2 text-sm font-medium text-blue-700 mb-2">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        {tDashboard('templateVariableExample.title')}
+                      </div>
+                      <p className="text-xs text-gray-600 mb-2">{tDashboard('templateVariableExample.description')}</p>
+                      <div className="text-xs text-gray-700 space-y-1">
+                        <div className="mt-2 text-blue-600 font-mono bg-blue-100 px-2 py-1 rounded inline-block">
+                          {tDashboard('templateVariableExample.format')}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1066,6 +1252,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                         placeholder={tDashboard('tagSelectorPlaceholder')}
                         className=""
                         isEditing={!!editingPrompt}
+                        existingTags={existingTags}
                       />
                     </div>
                   </div>

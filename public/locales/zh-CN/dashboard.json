@@ -9,7 +9,7 @@
     "description": "查看您最近更新的5个提示词"
   },
   "refresh": "刷新",
-  "noPromptsYet": "您还没有创建任何提示词",
+  "noPromptsYet": "暂无任何数据",
   "createFirstPrompt": "创建第一个提示词",
   "totalPrompts": "总提示词",
   "publicPrompts": "公开提示词",
@@ -75,6 +75,11 @@
     "description": "简短描述这个提示词的用途和场景",
     "content": "输入提示词的具体内容...\n\n提示：你可以使用变量占位符，如 {用户输入}、{主题} 等"
   },
+  "templateVariableExample": {
+    "title": "模板变量使用示例",
+    "description": "你可以在提示词中使用以下变量格式，使用时会被实际内容替换：",
+    "format": "格式: {{用户输入}} - 将被替换为用户实际输入的内容"
+  },
   "table":{
     "title": "标题",
     "description": "描述",
@@ -95,5 +100,9 @@
   "createModal": {
     "title": "创建新提示词",
     "description": "创建一个新的AI提示词模板，以便在需要时快速使用"
-  }
+  },
+  "existingTags": "已存在标签",
+  "loadingTags": "标签加载中...",
+  "noTagsAvailable": "暂无可用标签",
+  "clearTagSearch": "清除标签搜索"
 }

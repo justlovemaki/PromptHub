@@ -128,8 +128,9 @@ export type DeletePromptRequest = z.infer<typeof DeletePromptRequestSchema>;
 // 提示词列表查询参数
 export const PromptListQuerySchema = z.object({
   spaceId: z.string().optional(),
+  id: z.string().optional(), // 添加ID查询参数
   search: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  tag: z.string().optional(),
   isPublic: z.boolean().optional(),
   page: z.number().min(1).default(1),
   limit: z.number().min(1).max(100).default(20),
@@ -302,6 +303,7 @@ export type PromptStats = z.infer<typeof PromptStatsSchema>;
 // 提示词统计查询参数
 export const PromptStatsQuerySchema = z.object({
   spaceId: z.string(),
+  search: z.string().optional(),
 });
 
 export type PromptStatsQuery = z.infer<typeof PromptStatsQuerySchema>;
@@ -310,26 +312,18 @@ export type PromptStatsQuery = z.infer<typeof PromptStatsQuerySchema>;
 
 // 仪表盘统计响应
 export const DashboardStatsSchema = z.object({
-  // 我的提示词
+  // 我的提示词总数
   totalPrompts: z.number(),
+  // 公开提示词数量
+  publicPrompts: z.number(),
+  // 私有提示词数量
+  privatePrompts: z.number(),
   // 本月创建
   monthlyCreated: z.number(),
   // 剩余点数（从用户订阅状态计算）
   remainingCredits: z.number(),
   // 标签数量
   tagsCount: z.number(),
-  // 最近提示词列表
-  recentPrompts: z.array(z.object({
-    id: z.string(),
-    title: z.string(),
-    content: z.string(), // 添加 content 字段
-    description: z.string().optional(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    isPublic: z.boolean(),
-    useCount: z.number(),
-    tags: z.array(z.string()).optional(),
-  })),
 });
 
 export type DashboardStats = z.infer<typeof DashboardStatsSchema>;
@@ -415,3 +409,11 @@ export type SystemLogListResponse = z.infer<typeof SystemLogListResponseSchema>;
 
 export * from './api-client';
 export * from './stores';
+
+// 标签相关类型
+export interface TagWithCount {
+  name: string;
+  count: number;
+}
+
+export type GetPromptTagsResponse = TagWithCount[];

@@ -24,34 +24,63 @@ const sendApiRequest = async (url: string, method: string, token: string, data?:
   });
 };
 
-// 获取提示词列表
-export const fetchPrompts = async (token: string): Promise<Prompt[]> => {
+// 获取提示词列表 - 支持分页参数
+export interface FetchPromptsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  tag?: string; // 添加标签过滤参数
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface FetchPromptsResponse {
+  prompts: Prompt[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export const fetchPrompts = async (
+  token: string,
+  params?: FetchPromptsParams
+): Promise<FetchPromptsResponse> => {
   try {
-    const data = await sendApiRequest(CONFIG.ENDPOINTS.PROMPTS_LIST, 'GET', token);
-    return data.data.prompts || [];
+    // 构建查询参数
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+    if (params?.tag) queryParams.append('tag', params.tag); // 添加标签参数
+    
+    const url = CONFIG.ENDPOINTS.PROMPTS_LIST + (queryParams.toString() ? '?' + queryParams.toString() : '');
+    const data = await sendApiRequest(url, 'GET', token);
+    
+    return {
+      prompts: data.data.prompts || [],
+      total: data.data.total || 0,
+      page: data.data.page || 1,
+      limit: data.data.limit || 10,
+      totalPages: data.data.totalPages || 1
+    };
   } catch (error) {
     throw new Error(`Failed to fetch prompts: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
 // 获取用户统计信息 - 使用仪表盘统计端点
-export const fetchUserStats = async (token: string): Promise<UserStats> => {
+export const fetchUserStats = async (token: string, withStats: boolean = true): Promise<UserStats> => {
   try {
+    if(!withStats){
+      return {} as UserStats;
+    }
     const data = await sendApiRequest(CONFIG.ENDPOINTS.USER_STATS, 'GET', token);
     // 将仪表盘数据转换为UserStats格式
     if (data.success && data.data) {
-      const dashboardData = data.data;
-      return {
-        subscriptionStatus: dashboardData.subscriptionStatus || dashboardData.subscriptionStatus || 'FREE',
-        subscriptionAiPoints: dashboardData.subscriptionAiPoints || dashboardData.remainingCredits || 0,
-        promptCount: dashboardData.totalPrompts || 0,
-        monthlyUsageCount: dashboardData.monthlyCreated || 0,
-        totalPrompts: dashboardData.totalPrompts,
-        monthlyCreated: dashboardData.monthlyCreated,
-        remainingCredits: dashboardData.remainingCredits,
-        tagsCount: dashboardData.tagsCount,
-        recentPrompts: dashboardData.recentPrompts
-      };
+      return data.data;
     } else {
       throw new Error(data.message || 'Invalid response format');
     }
@@ -172,5 +201,54 @@ export const deletePrompt = async (token: string, promptId: string): Promise<voi
     }
   } catch (error) {
     throw new Error(`Failed to delete prompt: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+// 获取用户信息
+export const fetchUserInfo = async (token: string): Promise<any> => {
+  try {
+    const data = await sendApiRequest(CONFIG.ENDPOINTS.USER_INFO, 'GET', token);
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      throw new Error(data.message || 'Invalid response format');
+    }
+  } catch (error) {
+    throw new Error(`Failed to fetch user info: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+// 获取提示词标签列表
+export interface PromptTag {
+  name: string;
+  count: number;
+}
+
+export interface FetchPromptTagsResponse {
+  tags: PromptTag[];
+  message?: string;
+}
+
+export const fetchPromptTags = async (token: string): Promise<FetchPromptTagsResponse> => {
+  try {
+    const data = await sendApiRequest(CONFIG.ENDPOINTS.PROMPTS_TAGS, 'GET', token);
+    if (data.success && data.data) {
+      // 处理返回的标签数据 - 接口返回的是对象数组，每个对象包含 name 和 count
+      const tags = Array.isArray(data.data)
+        ? data.data.map((tag: any) => ({
+            name: tag.name,
+            count: tag.count
+          }))
+        : [];
+      
+      return {
+        tags: tags,
+        message: data.message
+      };
+    } else {
+      throw new Error(data.message || 'Invalid response format');
+    }
+  } catch (error) {
+    throw new Error(`Failed to fetch prompt tags: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

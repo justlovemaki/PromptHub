@@ -9,7 +9,7 @@
     "description": "View your 5 most recently updated prompts"
   },
   "refresh": "Refresh",
-  "noPromptsYet": "You haven't created any prompts yet",
+  "noPromptsYet": "No data yet",
   "createFirstPrompt": "Create your first prompt",
   "totalPrompts": "Total Prompts",
   "publicPrompts": "Public Prompts",
@@ -75,6 +75,11 @@
     "description": "Briefly describe the purpose and usage of this prompt",
     "content": "Enter the specific content of the prompt...\n\nHint: You can use variable placeholders like {user_input}, {topic}, etc."
   },
+  "templateVariableExample": {
+    "title": "Template Variable Usage Example",
+    "description": "You can use the following variable format in prompts, which will be replaced with actual content when used:",
+    "format": "Format: {{user_input}} - Will be replaced with the user's actual input content"
+  },
   "table":{
     "title": "Title",
     "description": "Description",
@@ -95,5 +100,9 @@
   "createModal": {
     "title": "Create New Prompt",
     "description": "Create a new AI prompt template for quick use when needed"
-  }
+  },
+  "existingTags": "Existing Tags",
+  "loadingTags": "Loading tags...",
+  "noTagsAvailable": "No tags available",
+  "clearTagSearch": "Clear tag search"
 }

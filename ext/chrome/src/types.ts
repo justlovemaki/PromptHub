@@ -17,15 +17,12 @@ export interface Prompt {
 
 // 用户统计信息类型
 export interface UserStats {
-  subscriptionStatus: string;
-  subscriptionAiPoints: number;
-  promptCount: number;
-  monthlyUsageCount: number;
   totalPrompts?: number;
+  publicPrompts?: number;
+  privatePrompts?: number;
   monthlyCreated?: number;
   remainingCredits?: number;
   tagsCount?: number;
-  recentPrompts?: Prompt[];
 }
 
 // 用户类型
