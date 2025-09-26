@@ -39,5 +39,18 @@
   "updateUsernameSuccess": "Username has been updated",
   "fetchAiPointsError": "Failed to fetch AI points data:",
   "colon": ":",
-  "professionalPackageOriginalPrice": "$100"
+  "professionalPackageOriginalPrice": "$100",
+  "importExportSection": "Import & Export",
+  "importExportDescription": "Backup and restore your prompts",
+  "exportPromptsButton": "Export Prompts",
+  "importPromptsButton": "Import Prompts",
+  "selectPromptFile": "Select Prompt File",
+  "importSuccess": "Prompts imported successfully!",
+  "importError": "Prompt import failed: ",
+  "exportError": "Prompt export failed: ",
+  "importPrompt": "Please select a JSON file to import",
+  "fileImportedSuccessfully": "File imported successfully, {{count}} prompts imported",
+  "importInProgress": "Importing...",
+  "exportInProgress": "Exporting...",
+  "invalidTagsInImport": "Invalid tags found in import file"
 }

@@ -1,6 +1,6 @@
 {
   "title": "Privacy Policy",
-  "welcomeMessage": "Prompt Manager respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, store, and share your information.",
+  "welcomeMessage": "PromptHub respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, store, and share your information.",
   "section1": {
     "title": "1. Information We Collect",
     "content": "We may collect information you directly provide to us (e.g., when you create an account, subscribe to services, or contact us), including your name, email address, payment information, etc. Additionally, when you use our services, we automatically collect certain information such as IP address, device information, browser type, access times, and data on how you use our services."
@@ -39,6 +39,6 @@
   },
   "section10": {
     "title": "10. Contact Us",
-    "content": "If you have any questions about this Privacy Policy, please contact us at [Your contact email/method]."
+    "content": "If you have any questions about this Privacy Policy, please contact us at justlikemaki@foxmail.com."
   }
 }

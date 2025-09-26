@@ -11,7 +11,8 @@
     "personalSpaceNotFound": "个人空间不存在",
     "failedToCreatePrompt": "创建提示词失败",
     "failedToUpdatePrompt": "更新提示词失败",
-    "tooManyRequests": "请求过于频繁，请稍后再试"
+    "tooManyRequests": "请求过于频繁，请稍后再试",
+    "invalidPromptData": "提示词数据格式无效"
   },
   "validation": {
     "nameRequired": "姓名为必填项",
@@ -47,7 +48,8 @@
     "logsRetrieved": "日志记录获取成功",
     "usersRetrieved": "用户列表获取成功",
     "statsRetrieved": "统计信息获取成功",
-    "operationCompleted": "操作完成"
+    "operationCompleted": "操作完成",
+    "promptsImported": "提示词导入成功"
   },
   "log": {
     "promptCreatedSuccessfully": "提示词创建成功",
@@ -66,6 +68,8 @@
     "privacy": "隐私政策",
     "terms": "服务条款",
     "contact": "联系我们",
-    "copyright": "© 2025 提示词管理后台. All Rights Reserved."
+    "copyright": "© 2025 PromptHub用户后台. 保留所有权利。",
+    "sidebar.expand": "展开侧边栏",
+    "sidebar.collapse": "折叠侧边栏"
   }
 }

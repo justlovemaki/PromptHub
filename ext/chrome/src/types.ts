@@ -73,3 +73,28 @@ export interface UserStatsResponse {
   prompt_count: number;
   monthly_usage_count: number;
 }
+
+// 标签配置类型
+export interface TagLabel {
+  name: string;
+  key: string;
+  description: string;
+}
+
+export interface TagCategory {
+  category_name: string;
+  labels: TagLabel[];
+}
+
+export interface TagClassification {
+  title: string;
+  description: string;
+  categories: Record<string, TagCategory>;
+}
+
+export interface TagsConfig {
+  prompt_tags_classification: {
+    scenario_tags: TagClassification;
+    intent_tags: TagClassification;
+  };
+}

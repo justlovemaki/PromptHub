@@ -1,13 +1,13 @@
 {
   "title": "Terms of Service",
-  "welcomeMessage": "Welcome to Prompt Manager. By accessing or using our services, you agree to be bound by these terms. Please read the following carefully.",
+  "welcomeMessage": "Welcome to PromptHub. By accessing or using our services, you agree to be bound by these terms. Please read the following carefully.",
   "section1": {
     "title": "1. Acceptance of Terms",
-    "content": "By accessing and using Prompt Manager services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services."
+    "content": "By accessing and using PromptHub services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services."
   },
   "section2": {
     "title": "2. Service Description",
-    "content": "Prompt Manager provides a platform that allows users to manage, create, and share AI prompts. We are committed to providing a stable, secure, and efficient service, but we make no guarantees regarding the continuous availability, accuracy, or completeness of the service."
+    "content": "PromptHub provides a platform that allows users to manage, create, and share AI prompts. We are committed to providing a stable, secure, and efficient service, but we make no guarantees regarding the continuous availability, accuracy, or completeness of the service."
   },
   "section3": {
     "title": "3. User Account",
@@ -19,7 +19,7 @@
   },
   "section5": {
     "title": "5. Intellectual Property",
-    "content": "All content on the Prompt Manager platform, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, is the property of Prompt Manager or its content suppliers and is protected by international copyright laws. The copyright for user-submitted prompt content belongs to the user, but you grant Prompt Manager a free, perpetual, irrevocable right to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, and display such content worldwide."
+    "content": "All content on the PromptHub platform, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, is the property of PromptHub or its content suppliers and is protected by international copyright laws. The copyright for user-submitted prompt content belongs to the user, but you grant PromptHub a free, perpetual, irrevocable right to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, and display such content worldwide."
   },
   "section6": {
     "title": "6. Privacy Policy",
@@ -35,7 +35,7 @@
   },
   "section9": {
     "title": "9. Limitation of Liability",
-    "content": "To the maximum extent permitted by applicable law, Prompt Manager shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of or in connection with your use or inability to use our services, even if we have been advised of the possibility of such damages."
+    "content": "To the maximum extent permitted by applicable law, PromptHub shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of or in connection with your use or inability to use our services, even if we have been advised of the possibility of such damages."
   },
   "section10": {
     "title": "10. Governing Law",
@@ -47,6 +47,6 @@
   },
   "section12": {
     "title": "12. Contact Us",
-    "content": "If you have any questions about these Terms of Service, please contact us at [Your contact email/method]."
+    "content": "If you have any questions about these Terms of Service, please contact us at justlikemaki@foxmail.com."
   }
 }

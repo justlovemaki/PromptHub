@@ -1,6 +1,6 @@
 // 内容脚本 - 用于与网页交互，目前主要用于支持未来的扩展功能
 
-console.log('AI Prompt Manager content script loaded');
+console.log('AI PromptHub content script loaded');
 
 // 监听来自 background 或 side panel 的消息
 if (chrome && chrome.runtime && chrome.runtime.onMessage) {

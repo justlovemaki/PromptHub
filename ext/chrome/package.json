@@ -1,11 +1,12 @@
 {
-  "name": "ai-prompt-manager-chrome-extension",
+  "name": "ai-prompt-hub-chrome-extension",
   "version": "1.0.0",
-  "description": "Chrome extension for AI Prompt Manager",
+  "description": "Chrome extension for AI PromptHub",
   "type": "module",
   "main": "background.js",
   "scripts": {
     "build": "vite build",
+    "build:staging": "vite build --mode staging",
     "dev": "vite serve",
     "type-check": "tsc --noEmit",
     "preview": "vite preview"

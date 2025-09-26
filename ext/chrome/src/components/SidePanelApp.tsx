@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Input } from './ui';
+import { DropdownMenu } from './ui';
+import { Card } from './ui';
 import PromptCard from './PromptCard';
-import { fetchPrompts, fetchUserStats, fetchUserInfo, getAuthToken, setAuthToken, apiRequest, FetchPromptsResponse, fetchPromptTags, PromptTag } from '../utils/api';
+import { fetchPrompts, fetchUserStats, fetchUserInfo, setAuthToken, fetchPromptTags, PromptTag, findTagByKey } from '../utils/api';
 import { Prompt, UserStats, User } from '../types';
 import { CONFIG } from '../config';
+
+const API_BASE_URL = import.meta.env.VITE_WEB_APP_BASE_URL || ''
 
 const SidePanelApp: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -13,6 +16,7 @@ const SidePanelApp: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [allTags, setAllTags] = useState<PromptTag[]>([]);
+  const [localizedTags, setLocalizedTags] = useState<Record<string, string>>({});
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -43,16 +47,41 @@ const SidePanelApp: React.FC = () => {
     loadAuthToken();
   }, []);
 
+  // 加载标签本地化映射
+  const loadTagLocalizations = async () => {
+    if (token) {
+      try {
+        const promptTagsResponse = await fetchPromptTags(token);
+        const fetchedTags = Array.isArray(promptTagsResponse.tags) ? promptTagsResponse.tags : [];
+        setAllTags(fetchedTags);
+        
+        // 预加载这些标签的本地化文本
+        const localizedTagsMap: Record<string, string> = {};
+        for (const tag of fetchedTags) {
+          const tagInfo = await findTagByKey(tag.name);
+          localizedTagsMap[tag.name] = tagInfo?.name || tag.name;
+        }
+        setLocalizedTags(localizedTagsMap);
+      } catch (error) {
+        console.error('Error loading tag localizations:', error);
+      }
+    }
+  };
+
   // 加载 token 后获取数据
   useEffect(() => {
     if (token && searchTerm === '') {
       loadData();
+      // 同时加载标签本地化映射
+      loadTagLocalizations();
     }
     
     // 监听来自 background script 的消息
     const messageListener = (message: any, sender: any, sendResponse: any) => {
       if (message.action === 'dataUpdated' && message.type === 'prompts') {
         loadData(); // 重新加载提示词数据
+        // 同时重新加载标签本地化映射
+        loadTagLocalizations();
       }
     };
     
@@ -139,6 +168,8 @@ const SidePanelApp: React.FC = () => {
                 setToken(response.token);
                 // 获取数据
                 loadData();
+                // 同时重新加载标签本地化映射
+                loadTagLocalizations();
               } else {
                 setError('No authentication token found. Please log in to the web app first.');
               }
@@ -169,17 +200,14 @@ const SidePanelApp: React.FC = () => {
         setLoadingMore(true);
       }
   
-      const [promptsData, statsData] = await Promise.all([
-        fetchPrompts(token, {
-          page: reset ? 1 : page,
-          limit: 10, // 每页加载10个提示词
-          search: searchTerm,
-          tag: selectedTag || '', // 添加标签过滤，如果为null则转换为undefined
-          sortBy: 'useCount', // 默认按使用次数倒序查询
-          sortOrder: 'desc'
-        }),
-        fetchUserStats(token, withStats)
-      ]);
+      const promptsData = await fetchPrompts(token, {
+        page: reset ? 1 : page,
+        limit: 10, // 每页加载10个提示词
+        search: searchTerm,
+        tag: selectedTag || '', // 添加标签过滤，如果为null则转换为undefined
+        sortBy: 'useCount', // 默认按使用次数倒序查询
+        sortOrder: 'desc'
+      });
       
       if (reset) {
         setPrompts(promptsData.prompts);
@@ -190,8 +218,10 @@ const SidePanelApp: React.FC = () => {
       }
       
       if(withStats){
+        const statsData = await fetchUserStats(token, withStats);
         setUserStats(statsData);
       }
+      
     } catch (err: any) {
       setError('Failed to load data');
       console.error('Error loading data:', err);
@@ -233,11 +263,11 @@ const SidePanelApp: React.FC = () => {
     if (chrome && chrome.tabs && chrome.tabs.create) {
       console.log('Opening web app...',chrome.i18n.getUILanguage());
       if(chrome.i18n.getUILanguage().startsWith('zh')){
-        chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/zh-CN/dashboard` });
+        chrome.tabs.create({ url: `${API_BASE_URL}/zh-CN/dashboard` });
       } else if(chrome.i18n.getUILanguage() === 'ja'){
-        chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/ja/dashboard` });
+        chrome.tabs.create({ url: `${API_BASE_URL}/ja/dashboard` });
       } else {
-        chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/dashboard` }); // 使用配置中的基础URL
+        chrome.tabs.create({ url: `${API_BASE_URL}/dashboard` }); // 使用配置中的基础URL
       }
     } else {
       console.error('Chrome API not available');
@@ -262,7 +292,7 @@ const SidePanelApp: React.FC = () => {
       }
       
       // 打开目标网页
-      const tab = await chrome.tabs.create({ url: CONFIG.WEB_APP_BASE_URL });
+      const tab = await chrome.tabs.create({ url: API_BASE_URL });
       console.log('Tab created:', tab.id);
       
       // 等待页面加载完成
@@ -426,29 +456,20 @@ const SidePanelApp: React.FC = () => {
   
   // 刷新数据的函数
   const handleRefresh = async () => {
-    // 同时加载提示词数据、用户统计信息和用户信息
+    // 同时加载提示词数据、用户统计信息、用户信息和标签数据
     if (token) {
       setLoading(true); // 开始加载时设置loading状态
       try {
+
         // 并行加载所有数据
-        const [promptsData, statsData, userInfoData] = await Promise.all([
-          fetchPrompts(token, {
-            page: 1, // 重置到第一页
-            limit: 10, // 每页加载10个提示词
-            search: searchTerm, // 使用当前搜索词
-            sortBy: 'useCount', // 默认按使用次数倒序查询
-            sortOrder: 'desc'
-          }),
-          fetchUserStats(token),
-          fetchUserInfo(token) // 同时获取用户信息
+        const [userInfoData] = await Promise.all([
+          fetchUserInfo(token), // 同时获取用户信息
+          loadData(true, true),
+          loadTagLocalizations(),
         ]);
         
         // 更新所有状态
-        setPrompts(promptsData.prompts);
-        setUserStats(statsData);
         setUserInfo(userInfoData);
-        setPage(1); // 重置页码
-        setHasMore(1 < promptsData.totalPages); // 更新是否有更多数据
       } catch (err: any) {
         setError('Failed to refresh data');
         console.error('Error refreshing data:', err);
@@ -459,19 +480,14 @@ const SidePanelApp: React.FC = () => {
     }
   };
 
-  // 获取所有标签
+  // 显示自己所有标签
   const handleGetTags = async () => {
-    if (!token) return;
-    
-    try {
-      const response = await fetchPromptTags(token);
-      // 根据API响应结构调整数据获取方式
-      setAllTags(Array.isArray(response.tags) ? response.tags : []);
-      setShowTagDropdown(true);
-    } catch (err) {
-      console.error('Error fetching tags:', err);
-      setError('Failed to load tags');
+    if(showTagDropdown){
+      setShowTagDropdown(false);
+      return;
     }
+    setShowTagDropdown(true);
+    return;
   };
 
   // 选择标签
@@ -495,7 +511,7 @@ const SidePanelApp: React.FC = () => {
           <div className="text-center bg-white rounded-xl shadow-sm p-6 max-w-sm w-full">
             <div className="text-gray-500 mb-6">{t('authenticationRequired')}</div>
             <button
-              className="px-5 py-3 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-lg shadow-sm transition-all duration-200 font-medium w-full"
+              className="px-5 py-3 bg-[var(--primary-100)] hover:bg-[var(--primary-100)]/90 text-white rounded-lg shadow-sm transition-all duration-200 font-medium w-full"
               onClick={getAuthFromLocalStorage}
             >
               {t('openWebApp')}
@@ -511,9 +527,9 @@ const SidePanelApp: React.FC = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-brand-blue to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+          {/* <div className="w-10 h-10 bg-gradient-to-r from-brand-blue to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
             <span className="text-white font-bold">P</span>
-          </div>
+          </div> */}
           <h1 className="text-xl font-bold text-gray-900">{t('appName')}</h1>
         </div>
         
@@ -536,13 +552,7 @@ const SidePanelApp: React.FC = () => {
             <option value="zh">中文</option>
           </select> */}
           
-          <div className="relative group">
-            <div className="w-9 h-9 bg-gradient-to-r from-gray-500 to-gray-700 rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-shadow duration-200">
-              <span className="text-white font-medium text-sm">
-                {userInfo?.name ? userInfo.name.charAt(0).toUpperCase() : 'U'}
-              </span>
-            </div>
-            
+          <DropdownMenu user={userInfo}>
             {/* Dropdown Menu */}
             <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 transform origin-top-right scale-95 group-hover:scale-100">
               <div className="p-3 border-b border-gray-100 bg-gray-50 rounded-t-xl">
@@ -566,7 +576,7 @@ const SidePanelApp: React.FC = () => {
                 {t('logout')}
               </button>
             </div>
-          </div>
+          </DropdownMenu>
         </div>
       </header>
 
@@ -603,12 +613,12 @@ const SidePanelApp: React.FC = () => {
       {/* Search */}
       <div className="p-4 pb-2">
         <div className="relative">
-          <Input
+          <input
             type="text"
             placeholder={t('searchPrompts')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border-gray-300 focus:border-brand-blue focus:ring-brand-blue text-base py-3 px-4 shadow-sm pr-24" // 增加右侧内边距为按钮留出空间
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:border-[var(--primary-100)] transition-all duration-200 text-base pr-24" // 增加右侧内边距为按钮留出空间
           />
           
           {/* 标签选择按钮 */}
@@ -618,7 +628,7 @@ const SidePanelApp: React.FC = () => {
             title={t('selectTag')}
           >
             {selectedTag ? (
-              <span className="text-brand-blue font-medium">{selectedTag}</span>
+              <span className="text-[var(--primary-100)] font-medium">{localizedTags[selectedTag] || selectedTag}</span>
             ) : (
               <span className="text-gray-600">#</span>
             )}
@@ -654,7 +664,7 @@ const SidePanelApp: React.FC = () => {
                         : 'hover:bg-gray-100 text-gray-700'
                     }`}
                   >
-                    {tag.name}
+                    {localizedTags[tag.name] || tag.name}
                   </div>
                 ))
               ) : (
@@ -670,7 +680,7 @@ const SidePanelApp: React.FC = () => {
         {loading && !error ? (
           <div className="flex items-center justify-center h-32">
             <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-blue mb-2"></div>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--primary-100)] mb-2"></div>
               <p className="text-gray-600">{t('loading')}...</p>
             </div>
           </div>
@@ -682,11 +692,11 @@ const SidePanelApp: React.FC = () => {
                 if (index === displayedPrompts.length - 1) {
                   return (
                     <div ref={lastPromptRef} key={prompt.id}>
-                      <PromptCard prompt={prompt} token={token} />
+                      <PromptCard prompt={prompt} token={token} localizedTagsMap={localizedTags} />
                     </div>
                   );
                 } else {
-                  return <PromptCard key={prompt.id} prompt={prompt} token={token} />;
+                  return <PromptCard key={prompt.id} prompt={prompt} token={token} localizedTagsMap={localizedTags} />;
                 }
               })
             )}
@@ -699,7 +709,7 @@ const SidePanelApp: React.FC = () => {
         {/* 加载更多指示器 */}
         {loadingMore && (
           <div className="flex items-center justify-center mt-4 py-4">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-brand-blue mr-3"></div>
+            <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--primary-100)] mr-3"></div>
             <span className="text-gray-600">{t('loadingMore')}...</span>
           </div>
         )}

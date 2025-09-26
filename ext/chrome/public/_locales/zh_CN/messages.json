@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "AI 提示词管理器",
+    "message": "PromptHub",
     "description": "The title of the application"
   },
   "appDesc": {
@@ -222,5 +222,9 @@
   "noTagsAvailable": {
     "message": "暂无可用标签",
     "description": "Message when no tags are available"
+  },
+  "tags": {
+    "message": "标签",
+    "description": "Label for tags"
   }
 }

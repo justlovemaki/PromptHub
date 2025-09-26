@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal } from './ui';
+import { Card, Button, Modal, Tag } from './ui';
 import { Prompt } from '../types';
 import { copyToClipboard, processPromptWithVariables, extractVariables } from '../utils/helpers';
 import { incrementPromptUsage } from '../utils/api';
@@ -8,9 +8,12 @@ import { CONFIG } from '../config';
 interface PromptCardProps {
   prompt: Prompt;
   token: string;
+  localizedTagsMap: Record<string, string>
 }
 
-const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
+const API_BASE_URL = import.meta.env.VITE_WEB_APP_BASE_URL || ''
+
+const PromptCard: React.FC<PromptCardProps> = ({ prompt, token, localizedTagsMap }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [variableValues, setVariableValues] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
@@ -148,8 +151,8 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
       const notificationId = `prompt-manager-${Date.now()}`;
       chrome.notifications.create(notificationId, {
         type: 'basic',
-        iconUrl: chrome.runtime.getURL('icons/icon128.png'),
-        title: type === 'success' ? 'AI Prompt Manager' : 'AI Prompt Manager Error',
+        iconUrl: chrome.runtime.getURL('icons/logo_128x128'),
+        title: type === 'success' ? 'PromptHub' : 'PromptHub Error',
         message: message,
         priority: 1
       });
@@ -161,16 +164,16 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
     } else {
       // 降级方案：使用浏览器内置的通知
       if (Notification.permission === 'granted') {
-        new Notification(type === 'success' ? 'AI Prompt Manager' : 'AI Prompt Manager Error', {
+        new Notification(type === 'success' ? 'PromptHub' : 'PromptHub Error', {
           body: message,
-          icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/icon128.png') : undefined
+          icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/logo_128x128') : undefined
         });
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then(permission => {
           if (permission === 'granted') {
-            new Notification(type === 'success' ? 'AI Prompt Manager' : 'AI Prompt Manager Error', {
+            new Notification(type === 'success' ? 'PromptHub' : 'PromptHub Error', {
               body: message,
-              icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/icon128.png') : undefined
+              icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/logo_128x128') : undefined
             });
           }
         });
@@ -183,11 +186,11 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
     if (chrome && chrome.tabs && chrome.tabs.create) {
         console.log('Opening web app...',chrome.i18n.getUILanguage());
         if(chrome.i18n.getUILanguage().startsWith('zh')){
-          chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/zh-CN/dashboard?editid=${prompt.id}` });
+          chrome.tabs.create({ url: `${API_BASE_URL}/zh-CN/dashboard?editid=${prompt.id}` });
         } else if(chrome.i18n.getUILanguage() === 'ja'){
-          chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/ja/dashboard?editid=${prompt.id}` });
+          chrome.tabs.create({ url: `${API_BASE_URL}/ja/dashboard?editid=${prompt.id}` });
         } else {
-          chrome.tabs.create({ url: `${CONFIG.WEB_APP_BASE_URL}/dashboard?editid=${prompt.id}` }); // 使用配置中的基础URL
+          chrome.tabs.create({ url: `${API_BASE_URL}/dashboard?editid=${prompt.id}` }); // 使用配置中的基础URL
         }
     } else {
       console.error('Chrome API not available');
@@ -230,6 +233,16 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
           </Button>
         </div>
       </div>
+      {/* 标签显示区域 */}
+      {prompt.tags && prompt.tags.length > 0 && (
+        <div className="mt-2 flex flex-row flex-wrap gap-1 items-center min-h-[22px]">
+          {prompt.tags.map((tag, index) => (
+            <Tag key={index} className="bg-[var(--primary-100)]/[0.1] text-[var(--primary-100)] hover:bg-[var(--primary-100)]/[0.2] transition-colors duration-200">
+              {localizedTagsMap[tag]}
+            </Tag>
+          ))}
+        </div>
+      )}
 
       {/* 变量输入模态框 */}
       <Modal
@@ -247,7 +260,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
                 type="text"
                 value={variableValues[variable] || ''}
                 onChange={(e) => handleVariableChange(variable, e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:border-[var(--primary-100)] transition-all duration-200 text-base"
                 placeholder={`${t('enterVariableValue')}: ${variable}`}
               />
             </div>
@@ -268,7 +281,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
                       // 如果变量有值，则显示值；否则显示原始变量标记但保持高亮
                       const displayValue = variableValue !== '' ? variableValue : part;
                       return (
-                        <span key={index} className="font-bold text-brand-blue bg-blue-50 px-1 rounded">
+                        <span key={index} className="font-bold text-[var(--primary-100)] bg-[var(--primary-300)] px-1 rounded">
                           {displayValue}
                         </span>
                       );
@@ -291,7 +304,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token }) => {
           <Button
             onClick={handleModalConfirm}
             disabled={isProcessing}
-            className="px-5 bg-brand-blue hover:bg-brand-blue/90 text-white"
+            className="px-5 bg-[var(--primary-100)] hover:bg-[var(--primary-200)]/90 text-white"
           >
             {isProcessing ? t('processing') : t('apply')}
           </Button>

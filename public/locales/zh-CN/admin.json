@@ -18,7 +18,9 @@
     "privacy": "隐私政策",
     "terms": "服务条款",
     "contact": "联系我们",
-    "copyright": "© 2025 提示词管理后台. All Rights Reserved."
+    "copyright": "© 2025 PromptHub管理后台. 保留所有权利。",
+    "sidebar.expand": "展开侧边栏",
+    "sidebar.collapse": "折叠侧边栏"
   },
   "navigation": {
     "overview": "概览仪表盘",

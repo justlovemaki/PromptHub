@@ -48,7 +48,7 @@
 ```bash
 # 克隆项目
 git clone <your-repo>
-cd prompt-manager
+cd prompt-hub
 
 # 复制环境变量配置
 cp .env.example .env

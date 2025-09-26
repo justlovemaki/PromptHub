@@ -1,8 +1,19 @@
 // API 工具函数
-import { Prompt, UserStats } from '../types';
+import { Prompt, UserStats, TagLabel, TagCategory, TagClassification, TagsConfig } from '../types';
 import { CONFIG } from '../config';
+import { 
+  loadTagsConfig, 
+  getAllTagClassifications, 
+  getScenarioTags, 
+  getIntentTags, 
+  getAllTagCategories, 
+  getAllTags, 
+  findTagByKey, 
+  findTagByName,
+  getCurrentLocale
+} from './tags';
 
-const API_BASE_URL = CONFIG.WEB_APP_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_WEB_APP_BASE_URL || '';
 
 // 通过后台服务工作线程发送API请求
 const sendApiRequest = async (url: string, method: string, token: string, data?: any): Promise<any> => {
@@ -251,4 +262,24 @@ export const fetchPromptTags = async (token: string): Promise<FetchPromptTagsRes
   } catch (error) {
     throw new Error(`Failed to fetch prompt tags: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+};
+
+// 导出标签配置相关的工具函数
+export {
+  loadTagsConfig,
+  getAllTagClassifications,
+  getScenarioTags,
+  getIntentTags,
+  getAllTagCategories,
+  getAllTags,
+  findTagByKey,
+  findTagByName,
+  getCurrentLocale,
+};
+
+export type {
+  TagLabel,
+  TagCategory,
+  TagClassification,
+  TagsConfig
 };

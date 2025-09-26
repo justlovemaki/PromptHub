@@ -11,7 +11,8 @@
     "personalSpaceNotFound": "Personal space does not exist",
     "failedToCreatePrompt": "Failed to create prompt",
     "failedToUpdatePrompt": "Failed to update prompt",
-    "tooManyRequests": "Too many requests, please try again later"
+    "tooManyRequests": "Too many requests, please try again later",
+    "invalidPromptData": "Invalid prompt data format"
   },
   "validation": {
     "nameRequired": "Name is required",
@@ -47,7 +48,8 @@
     "logsRetrieved": "Log records retrieved successfully",
     "usersRetrieved": "User list retrieved successfully",
     "statsRetrieved": "Statistics retrieved successfully",
-    "operationCompleted": "Operation completed"
+    "operationCompleted": "Operation completed",
+    "promptsImported": "Prompts imported successfully"
   },
   "log": {
     "promptCreatedSuccessfully": "Prompt created successfully",
@@ -66,6 +68,8 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "contact": "Contact Us",
-    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
+    "copyright": "© 2025 PromptHub User Panel. All Rights Reserved.",
+    "sidebar.expand": "Expand sidebar",
+    "sidebar.collapse": "Collapse sidebar"
   }
 }

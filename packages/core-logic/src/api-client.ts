@@ -274,6 +274,37 @@ export class ApiClient {
     return this.post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang);
   }
 
+  async importPrompts(data: any[], spaceId?: string, lang?: string): Promise<ApiResponse<{ importedCount: number }>> {
+    return this.post<{ importedCount: number }>('/api/prompts/import', { prompts: data, spaceId }, true, lang);
+  }
+
+  async exportPrompts(spaceId?: string, lang?: string): Promise<Blob> {
+
+    const url = spaceId
+      ? `${this.config.baseURL}/api/prompts/export?spaceId=${encodeURIComponent(spaceId)}`
+      : `${this.config.baseURL}/api/prompts/export`;
+      
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.config.getToken() || ''}`,
+    };
+        // 添加语言header
+    if (lang) {
+      headers['x-next-locale'] = lang;
+    }
+  
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    return await response.blob();
+  }
+
   async getAiPointsUsage(lang?: string): Promise<ApiResponse<{
     totalPoints: number;
     usedPoints: number;
@@ -532,6 +563,8 @@ export const api = {
   getDashboardStats: (lang?: string) => getApiClient().get<DashboardStats>('/api/dashboard/stats', true, lang),
   getPromptTags: (query?: PromptStatsQuery, lang?: string) => getApiClient().get<TagWithCount[]>(createUrlWithQuery('/api/prompts/tags', query), true, lang),
   incrementPromptUseCount: (promptId: string, lang?: string) => getApiClient().post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang),
+  importPrompts: (data: any[], spaceId?: string, lang?: string) => getApiClient().importPrompts(data, spaceId, lang),
+  exportPrompts: (spaceId?: string, lang?: string) => getApiClient().exportPrompts(spaceId, lang),
   getAiPointsUsage: (lang?: string) => getApiClient().get<{ totalPoints: number; usedPoints: number; remainingPoints: number; usageRecords: any[] }>('/api/user/ai-points', true, lang),
   purchaseAiPoints: (packageType: 'small' | 'medium' | 'large', lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),
   manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel', lang?: string) => getApiClient().post<{ userId: string; subscriptionStatus: string }>('/api/user/subscription', { action }, true, lang),

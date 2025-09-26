@@ -18,7 +18,9 @@
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "contact": "お問い合わせ",
-    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
+    "copyright": "© 2025 PromptHub Admin Panel. All Rights Reserved.",
+    "sidebar.expand": "サイドバーを展開",
+    "sidebar.collapse": "サイドバーを折りたたむ"
   },
   "navigation": {
     "overview": "概要ダッシュボード",

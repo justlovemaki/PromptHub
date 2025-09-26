@@ -11,7 +11,8 @@
     "personalSpaceNotFound": "個人スペースが存在しません",
     "failedToCreatePrompt": "プロンプトの作成に失敗しました",
     "failedToUpdatePrompt": "プロンプトの更新に失敗しました",
-    "tooManyRequests": "リクエストが多すぎます。しばらくしてから再試行してください"
+    "tooManyRequests": "リクエストが多すぎます。しばらくしてから再試行してください",
+    "invalidPromptData": "プロンプトデータ形式が無効です"
   },
   "validation": {
     "nameRequired": "名前は必須です",
@@ -47,7 +48,8 @@
     "logsRetrieved": "ログ記録が正常に取得されました",
     "usersRetrieved": "ユーザーリストが正常に取得されました",
     "statsRetrieved": "統計情報が正常に取得されました",
-    "operationCompleted": "操作が完了しました"
+    "operationCompleted": "操作が完了しました",
+    "promptsImported": "プロンプトのインポートに成功しました"
   },
   "log": {
     "promptCreatedSuccessfully": "プロンプトが正常に作成されました",
@@ -66,6 +68,8 @@
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "contact": "お問い合わせ",
-    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
+    "copyright": "© 2025 PromptHub User Panel. All Rights Reserved.",
+    "sidebar.expand": "サイドバーを展開",
+    "sidebar.collapse": "サイドバーを折りたたむ"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "ai-prompt-manager",
+  "name": "ai-prompt-hub",
   "version": "0.1.0",
   "description": "AI提示词管理平台 - 支持个人和团队协作的高效提示词管理系统",
   "private": true,
@@ -94,6 +94,6 @@
     "sqlite",
     "collaboration"
   ],
-  "author": "AI Prompt Manager Team",
+  "author": "AI PromptHub Team",
   "license": "MIT"
 }

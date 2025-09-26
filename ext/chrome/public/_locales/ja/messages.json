@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "AIプロンプトマネージャー",
+    "message": "PromptHub",
     "description": "The title of the application"
   },
   "appDesc": {
@@ -222,5 +222,9 @@
   "noTagsAvailable": {
     "message": "利用可能なタグがありません",
     "description": "Message when no tags are available"
+  },
+  "tags": {
+    "message": "タグ",
+    "description": "Label for tags"
   }
 }

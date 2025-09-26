@@ -78,7 +78,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
           <div className="flex flex-col space-y-3 px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-transparent rounded-t-2xl">
             {title && <h2 className="text-xl font-bold text-gray-900 leading-tight tracking-tight">{title}</h2>}
             <button
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2"
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:ring-offset-2"
               onClick={onClose}
             >
               <svg
@@ -191,7 +191,7 @@ const ModalClose = React.forwardRef<HTMLButtonElement, ModalCloseProps>(
     <button
       ref={ref}
       className={cn(
-        "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2",
+        "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:ring-offset-2",
         className
       )}
       {...props}

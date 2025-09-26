@@ -20,6 +20,20 @@ export async function generateMetadata({ params }: { params: { lang: string } })
   return {
     title: t('title'),
     description: t('description'),
+    authors: [{ name: 'PodcastHub Team' }],
+    icons: {
+      icon: '/logo.png',
+      apple: '/logo.png',
+    },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+    },
     alternates: { canonical: canonicalUrl },
   }
 }

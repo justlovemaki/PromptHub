@@ -5,17 +5,57 @@
 
 /* 自定义样式 */
 :root {
-  --brand-blue: #3b82f6;
-  --brand-blue-dark: #2563eb;
+  /* 主色调 - 蓝色系 */
+  --primary-100: #3F51B5;
+  --primary-200: #757de8;
+  --primary-300: #dedeff;
+
+  /* 强调色 - 蓝色系 */
+  --accent-100: #2196F3;
+  --accent-200: #003f8f;
+
+  /* 文字色 */
+  --text-100: #333333;
+  --text-200: #5c5c5c;
+  --text-300: #777777;
+
+  /* 背景色系列 */
+  --bg-100: #FFFFFF;
+  --bg-200: #f5f5f5;
+  --bg-300: #cccccc;
+  --bg-400: #999999;
+  --bg-500: #777777;
+  --bg-600: #555555;
+  --bg-700: #333333;
+  --bg-800: #1a1a1a;
+  --bg-900: #000000;
+  --bg-1000: #000000;
+
+  /* 次要色 - 紫色系 */
+  --secondary-400: #9c27b0;
+  --secondary-500: #6a1b9a;
+
+  /* 状态色 */
+  --error-400: #ff5722;
+  --error-500: #d32f2f;
+
+  --success-400: #4caf50;
+  --success-500: #2e7d32;
+
+  --warning-400: #ff9800;
+  --warning-500: #f57c00;
+
+  --info-400: #2196f3;
+  --info-500: #1976d2;
 }
 
-/* 品牌颜色变量 */
-.brand-blue {
-  background-color: var(--brand-blue);
+/* 主题颜色变量 */
+.primary-100 {
+  background-color: var(--primary-100);
 }
 
-.brand-blue:hover {
-  background-color: var(--brand-blue-dark);
+.primary-100:hover {
+  background-color: var(--primary-200);
 }
 
 /* 滚动条样式 */

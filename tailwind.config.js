@@ -10,7 +10,7 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          blue: '#0D6EFD',      // 科技蓝
+          blue: '#3F51B5',      // 蓝紫色
           navy: '#1A2C4A',      // 深海军蓝
           'navy-light': '#334155', // 深海军蓝-浅色变体
         },

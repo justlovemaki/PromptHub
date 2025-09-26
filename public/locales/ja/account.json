@@ -44,5 +44,18 @@
   "savingText": "保存中...",
   "fetchAiPointsError": "AIポイントデータの取得に失敗しました:",
   "colon": ":",
-  "professionalPackageOriginalPrice": "¥100"
+  "professionalPackageOriginalPrice": "¥100",
+  "importExportSection": "インポート・エクスポート",
+  "importExportDescription": "プロンプトのバックアップと復元",
+  "exportPromptsButton": "プロンプトをエクスポート",
+  "importPromptsButton": "プロンプトをインポート",
+  "selectPromptFile": "プロンプトファイルを選択",
+  "importSuccess": "プロンプトのインポートが成功しました！",
+  "importError": "プロンプトのインポートに失敗しました: ",
+  "exportError": "プロンプトのエクスポートに失敗しました: ",
+  "importPrompt": "インポートするJSONファイルを選択してください",
+  "fileImportedSuccessfully": "ファイルが正常にインポートされました、{{count}} 件のプロンプトがインポートされました",
+  "importInProgress": "インポート中...",
+  "exportInProgress": "エクスポート中...",
+  "invalidTagsInImport": "インポートファイルに無効なタグが含まれています"
 }

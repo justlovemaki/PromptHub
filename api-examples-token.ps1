@@ -1,4 +1,4 @@
-# Prompt Manager API 接口测试示例 (PowerShell + Token认证)
+# PromptHub API 接口测试示例 (PowerShell + Token认证)
 # 基础URL配置
 $baseUrl = "http://localhost:3000"
 $apiUrl = "$baseUrl/api"
@@ -14,7 +14,7 @@ try {
     Write-Host "警告: 无法加载System.Web程序集，将使用替代方法进行URL解码" -ForegroundColor Yellow
 }
 
-Write-Host "=== Prompt Manager API 接口测试示例 (Token认证) ===" -ForegroundColor Green
+Write-Host "=== PromptHub API 接口测试示例 (Token认证) ===" -ForegroundColor Green
 
 # Token文件路径 - 用于存储登录后的JWT Token
 $tokenFile = "$env:TEMP\prompt-manager-token.txt"

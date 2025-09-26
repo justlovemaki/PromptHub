@@ -102,7 +102,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
           <Link href={`/${params.lang}`} className="flex items-center space-x-2">
             <Sparkles className="w-8 h-8 text-purple-500" />
             <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Prompt Manager
+              PromptHub
             </span>
           </Link>
           
@@ -292,7 +292,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Sparkles className="w-6 h-6 text-purple-500" />
-              <span className="text-lg font-semibold">Prompt Manager</span>
+              <span className="text-lg font-semibold">PromptHub</span>
             </div>
             
             <div className="flex space-x-6 mb-4 md:mb-0">

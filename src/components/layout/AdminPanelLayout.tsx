@@ -118,10 +118,10 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
                 onClick={() => handleNavigation(`${truePath}`)}
                 className="flex items-center ml-4 lg:ml-0 hover:opacity-80 transition-opacity"
               >
-                <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">PM</span>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                  <img src="/logo.png" alt="PromptHub" className="w-8 h-8" />
                 </div>
-                <span className="ml-2 text-lg font-semibold text-gray-900">Prompt Manager</span>
+                <span className="ml-2 text-lg font-semibold text-gray-900">PromptHub</span>
               </button>
               {/* 管理后台标识 */}
               <div className="ml-4 flex items-center">
@@ -169,7 +169,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
                         ? 'p-2 flex items-center justify-center w-8 h-8'  // 折叠状态下确保完全居中
                         : 'p-2'
                     } text-gray-400 hover:text-white hover:bg-brand-navy-light rounded-lg transition-colors`}
-                    title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+                    title={sidebarCollapsed ? t('common.sidebar.expand') : t('common.sidebar.collapse')}
                   >
                     {sidebarCollapsed ? (
                       // 折叠状态显示展开图标（向右箭头）
@@ -214,7 +214,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
 
         {/* 主内容区 */}
         <main className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-48'
         }`}>
           <div className="flex-1 p-6">
             {children}
@@ -224,7 +224,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
 
       {/* 页脚 Footer - 固定在底部 */}
       <footer className={`bg-white border-t border-gray-200 transition-all duration-300 ${
-        sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+        sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-48'
       }`}>
         <div className="px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center">

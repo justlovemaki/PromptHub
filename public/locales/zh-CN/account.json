@@ -39,5 +39,18 @@
   "updateUsernameSuccess": "用户名已更新",
   "fetchAiPointsError": "获取AI点数数据失败:",
   "colon": "：",
-  "professionalPackageOriginalPrice": "¥100"
+  "professionalPackageOriginalPrice": "¥100",
+  "importExportSection": "导入导出",
+  "importExportDescription": "备份和恢复您的提示词",
+  "exportPromptsButton": "导出提示词",
+  "importPromptsButton": "导入提示词",
+  "selectPromptFile": "选择提示词文件",
+  "importSuccess": "提示词导入成功！",
+  "importError": "提示词导入失败：",
+  "exportError": "提示词导出失败：",
+  "importPrompt": "请选择要导入的JSON文件",
+  "fileImportedSuccessfully": "文件导入成功，导入了 {{count}} 个提示词",
+  "importInProgress": "正在导入...",
+  "exportInProgress": "正在导出...",
+  "invalidTagsInImport": "导入文件中包含无效标签"
 }

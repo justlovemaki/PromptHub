@@ -223,10 +223,10 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
                         </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
                           {user.name || user.email}
                         </p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{user.email}</p>
                       </div>
                     </div>
                     <span className={`px-2 py-1 text-xs rounded ${
@@ -264,7 +264,7 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
                 {popularPrompts.length > 0 ? popularPrompts.map((prompt, index) => (
                   <div key={prompt.id} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                      <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
                         {prompt.title || tAdmin('promptManagement.unnamedPrompt')}
                       </p>
                       <p className="text-xs text-gray-500">

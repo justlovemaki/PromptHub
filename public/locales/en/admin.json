@@ -18,7 +18,9 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "contact": "Contact Us",
-    "copyright": "© 2025 Prompt Manager Admin Panel. All Rights Reserved."
+    "copyright": "© 2025 PromptHub Admin Panel. All Rights Reserved.",
+    "sidebar.expand": "Expand sidebar",
+    "sidebar.collapse": "Collapse sidebar"
   },
   "navigation": {
     "overview": "Overview Dashboard",

@@ -85,5 +85,5 @@ async function handleApiRoutes(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|favicon.webp|robots.txt|sitemap.xml).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|logo.png|robots.txt|sitemap.xml).*)'],
 };
