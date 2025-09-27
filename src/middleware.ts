@@ -61,7 +61,7 @@ async function handleApiRoutes(request: NextRequest) {
   // 将详细的用户信息验证移到各个 API 路由中处理
   const authHeader = request.headers.get('authorization');
   
-  console.log('Auth header:', authHeader);
+  // console.log('Auth header:', authHeader);
   // 基本的 session/token 存在性检查
   if (!authHeader) {
     return NextResponse.json(

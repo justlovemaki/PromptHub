@@ -5,7 +5,7 @@ import { cn } from "../lib/utils";
 
 const buttonVariants = {
   variant: {
-    default: "bg-brand-blue hover:bg-brand-blue/90 text-white",
+    default: "bg-gradient-to-r from-brand-blue-start to-brand-blue-end hover:from-brand-blue-start/90 hover:to-brand-blue-end/90 text-white",
     destructive: "bg-red-500 hover:bg-red-500/90 text-white",
     outline: "border border-gray-300 bg-white hover:bg-gray-50 text-gray-700",
     secondary: "bg-gray-100 hover:bg-gray-200 text-gray-900",

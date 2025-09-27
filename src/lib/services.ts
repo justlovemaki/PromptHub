@@ -3,6 +3,7 @@ import { eq, and, desc, asc, like, or, sql, gte, lte } from 'drizzle-orm';
 import { db } from './database';
 import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-schema';
 import { generateId } from './utils';
+import { SPACE_TYPES, USER_ROLES, LOG_LEVELS, LOG_CATEGORIES, AI_POINTS_TYPES, SORT_FIELDS, SORT_ORDERS } from './constants';
 
 // 由于当前依赖包还未安装，这里先创建服务层的结构
 // 实际运行时需要取消注释并安装相关依赖
@@ -13,7 +14,7 @@ export class UserService {
     email: string;
     name?: string;
     image?: string;
-    role?: 'USER' | 'ADMIN';
+    role?: keyof typeof USER_ROLES;
   }) {
     const userId = userData.id || generateId();
     const spaceId = generateId();
@@ -28,7 +29,7 @@ export class UserService {
       //   email: userData.email,
       //   name: userData.name,
       //   image: userData.image,
-      //   role: userData.role || 'USER',
+      //   role: userData.role || USER_ROLES.USER,
       //   emailVerified: false,
       //   updatedAt: now,
       // }).returning();
@@ -36,15 +37,15 @@ export class UserService {
       // 2. 创建个人空间
       const [newSpace] = await tx.insert(space).values({
         id: spaceId,
-        name: '个人空间',
-        type: 'PERSONAL',
+        name: userData.name || userData.email,
+        type: SPACE_TYPES.PERSONAL,
         ownerId: userId,
         updatedAt: now,
       }).returning();
     
       // 3. 创建成员关系
       // 将用户角色映射到成员关系角色：ADMIN -> ADMIN, USER -> MEMBER
-      const membershipRole = (userData.role === 'ADMIN') ? 'ADMIN' : 'MEMBER';
+      const membershipRole = (userData.role === USER_ROLES.ADMIN) ? USER_ROLES.ADMIN : USER_ROLES.MEMBER;
       await tx.insert(membership).values({
         id: membershipId,
         role: membershipRole,
@@ -75,7 +76,7 @@ export class UserService {
     return db.query.space.findFirst({
       where: and(
         eq(space.ownerId, userId),
-        eq(space.type, 'PERSONAL')
+        eq(space.type, SPACE_TYPES.PERSONAL)
       ),
     });
   }
@@ -119,8 +120,8 @@ export class PromptService {
       id?: string;
       isPublic?: boolean;
       tag?: string;  // 添加tag参数
-      sortBy?: 'title' | 'createdAt' | 'updatedAt' | 'useCount';
-      sortOrder?: 'asc' | 'desc';
+      sortBy?: typeof SORT_FIELDS.PROMPTS[number];
+      sortOrder?: typeof SORT_ORDERS[number];
     }
   ) {
     const {
@@ -130,8 +131,8 @@ export class PromptService {
       id,
       isPublic,
       tag,  // 获取tag参数
-      sortBy = 'updatedAt',
-      sortOrder = 'desc'
+      sortBy = SORT_FIELDS.PROMPTS[2], // 'updatedAt'
+      sortOrder = SORT_ORDERS[1] // 'desc'
     } = options || {};
 
     // 构建查询条件
@@ -168,11 +169,11 @@ export class PromptService {
     }
 
     // 构建排序条件
-    const orderByField = prompt[sortBy];
-    const orderByCondition = sortOrder === 'asc' ? asc(orderByField) : desc(orderByField);
+    const orderByField = prompt[sortBy as typeof SORT_FIELDS.PROMPTS[number]];
+    const orderByCondition = sortOrder === SORT_ORDERS[0] ? asc(orderByField) : desc(orderByField);
     
     // 默认子排序按 updatedAt 降序
-    const secondaryOrderBy = sortBy !== 'updatedAt' ? desc(prompt.updatedAt) : undefined;
+    const secondaryOrderBy = sortBy !== SORT_FIELDS.PROMPTS[2] ? desc(prompt.updatedAt) : undefined;
 
     // 计算偏移量
     const offset = (page - 1) * limit;
@@ -312,8 +313,8 @@ export class PromptService {
 
 export class LogService {
   static async writeLog(logData: {
-    level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
-    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE';
+    level: keyof typeof LOG_LEVELS;
+    category: keyof typeof LOG_CATEGORIES;
     message: string;
     details?: Record<string, any>;
     userId?: string;
@@ -356,7 +357,7 @@ export class DashboardService {
       const monthStartMs = monthStart.getTime();
 
       // 1. 获取用户AI点数使用情况（根据参数决定是否包含使用记录）
-      const aiPointsUsage = await AIPointsService.getUserAIPointsUsage(userId, null, null, 'USE', false)
+      const aiPointsUsage = await AIPointsService.getUserAIPointsUsage(userId, null, null, AI_POINTS_TYPES.USE, false)
 
       // 2. 获取提示词统计数据（合并 PromptService.getPromptStats 的逻辑）
       const [stats] = await db
@@ -450,7 +451,7 @@ export class DashboardService {
 }
 
 export class AIPointsService {
-  static async getUserAIPointsUsage(userId: string, startDate?: string, endDate?: string, type?: 'EARN' | 'USE' | 'ADMIN' , includeUsageRecords: boolean = false) {
+  static async getUserAIPointsUsage(userId: string, startDate?: string, endDate?: string, type?: keyof typeof AI_POINTS_TYPES, includeUsageRecords: boolean = false) {
     // 计算日期范围
     const now = new Date();
     const monthStart = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
@@ -464,7 +465,7 @@ export class AIPointsService {
     ];
     
     // 如果提供了type参数，则添加对type字段的过滤条件
-    if (type && (type === 'EARN' || type === 'USE' || type === 'ADMIN')) {
+    if (type && (type === AI_POINTS_TYPES.EARN || type === AI_POINTS_TYPES.USE || type === AI_POINTS_TYPES.ADMIN)) {
       conditions.push(
         eq(aiPointTransaction.type, type)
       );
@@ -488,7 +489,7 @@ export class AIPointsService {
     
     // 计算总使用点数（只统计类型为"USE"的记录，且amount为负数）
     const totalUsedPoints = usageRecords
-      .filter(record => record.type === 'USE' && record.amount < 0)
+      .filter(record => record.type === AI_POINTS_TYPES.USE && record.amount < 0)
       .reduce((sum, record) => sum + Math.abs(record.amount), 0);
     
     // 获取用户的订阅信息以获取总点数

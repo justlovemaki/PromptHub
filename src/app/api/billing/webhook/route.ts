@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { db } from '@/lib/database';
 import { user } from '@/drizzle-schema';
 import { eq } from 'drizzle-orm';
+import { SUBSCRIPTION_TYPES, STRIPE_SUBSCRIPTION_STATUS, SUBSCRIPTION_STATUSES_FOR_FREE, SUBSCRIPTION_STATUS } from '@/lib/constants';
 
 // Stripe 初始化
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -99,11 +100,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   
   // 确定订阅类型
-  let subscriptionStatus: 'PRO' | 'TEAM' = 'PRO';
+  let subscriptionStatus: typeof SUBSCRIPTION_TYPES[keyof typeof SUBSCRIPTION_TYPES] = SUBSCRIPTION_TYPES.PRO;
   const priceId = subscription.items.data[0]?.price.id;
   
   if (priceId === process.env.STRIPE_TEAM_PRICE_ID) {
-    subscriptionStatus = 'TEAM';
+    subscriptionStatus = SUBSCRIPTION_TYPES.TEAM;
   }
   
   // 更新用户订阅状态
@@ -132,7 +133,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   
   await db.update(user)
     .set({
-      subscriptionStatus: 'FREE',
+      subscriptionStatus: SUBSCRIPTION_STATUS.FREE,
       subscriptionId: null,
       subscriptionEndDate: null,
     })
@@ -155,11 +156,11 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 async function updateUserSubscription(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
   
-  let subscriptionStatus: 'PRO' | 'TEAM' = 'PRO';
+  let subscriptionStatus: typeof SUBSCRIPTION_TYPES[keyof typeof SUBSCRIPTION_TYPES] = SUBSCRIPTION_TYPES.PRO;
   const priceId = subscription.items.data[0]?.price.id;
   
   if (priceId === process.env.STRIPE_TEAM_PRICE_ID) {
-    subscriptionStatus = 'TEAM';
+    subscriptionStatus = SUBSCRIPTION_TYPES.TEAM;
   }
   
   const updateData: any = {
@@ -168,10 +169,10 @@ async function updateUserSubscription(subscription: Stripe.Subscription) {
   };
   
   // 根据订阅状态更新
-  if (subscription.status === 'active') {
+  if (subscription.status === STRIPE_SUBSCRIPTION_STATUS.ACTIVE) {
     updateData.subscriptionStatus = subscriptionStatus;
-  } else if (['canceled', 'unpaid', 'past_due'].includes(subscription.status)) {
-    updateData.subscriptionStatus = 'FREE';
+  } else if (SUBSCRIPTION_STATUSES_FOR_FREE.includes(subscription.status as any)) {
+    updateData.subscriptionStatus = SUBSCRIPTION_STATUS.FREE;
   }
   
   await db.update(user)

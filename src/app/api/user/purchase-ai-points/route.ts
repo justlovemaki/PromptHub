@@ -6,15 +6,10 @@ import { user, aiPointTransaction } from '@/drizzle-schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { getTranslation } from '@/i18n';
+import { AI_POINTS_PACKAGES } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
-// 购买AI点数的价格配置
-const AI_POINTS_PACKAGES = {
-  small: { points: 1000, price: 1000 }, // 1000点 = 10元
-  medium: { points: 5000, price: 4500 }, // 5000点 = 45元
-  large: { points: 10000, price: 8000 }, // 10000点 = 80元
-};
 
 export async function POST(request: NextRequest) {
   const language = getLanguageFromNextRequest(request);

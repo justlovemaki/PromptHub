@@ -6,11 +6,13 @@ import { getTranslation } from '@/i18n';
 
 export const dynamic = 'force-dynamic';
 
+import { CACHE_CONFIG } from '@/lib/constants';
+
 // 简单的内存缓存和频率限制
 const userCache = new Map<string, { data: any; timestamp: number }>()
 const requestTracker = new Map<string, number>()
-const CACHE_DURATION = 5000 // 5秒缓存
-const RATE_LIMIT_DURATION = 2000 // 2秒内最多1次请求
+const CACHE_DURATION = CACHE_CONFIG.USER_CACHE_DURATION // 5秒缓存
+const RATE_LIMIT_DURATION = CACHE_CONFIG.RATE_LIMIT_DURATION // 2秒内最多1次请求
 
 /**
  * 获取当前用户的完整信息

@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { User, LoginRequest, ApiResponse, LoginResponse } from '../types';
+import type { User, LoginRequest, ApiResponse, LoginResponse, AiPointsPackageType, SubscriptionAction, SubscriptionStatus } from '../types';
 import { api } from '../api-client';
+import { SUBSCRIPTION_STATUS, USER_ROLES } from '../types';
 
 // Token 过期时间设置（毫秒）
-const DEFAULT_TOKEN_EXPIRE_TIME = 60 * 1000; // 1 分钟
+const DEFAULT_TOKEN_EXPIRE_TIME = 10 * 60 * 1000; // 10 分钟
 
 // ============== 认证状态接口 ==============
 
@@ -24,8 +25,8 @@ export interface AuthState {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateUser: (data: { name?: string }) => Promise<boolean>;
-  purchaseAiPoints: (packageType: 'small' | 'medium' | 'large') => Promise<boolean>;
-  manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel') => Promise<boolean>;
+  purchaseAiPoints: (packageType: AiPointsPackageType) => Promise<boolean>;
+  manageSubscription: (action: SubscriptionAction) => Promise<boolean>;
   clearError: () => void;
 
   // 权限检查
@@ -246,7 +247,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         }
       },
 
-      purchaseAiPoints: async (packageType: 'small' | 'medium' | 'large'): Promise<boolean> => {
+      purchaseAiPoints: async (packageType: AiPointsPackageType): Promise<boolean> => {
         set({ isLoading: true, error: null });
 
         try {
@@ -281,7 +282,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         }
       },
 
-      manageSubscription: async (action: 'upgrade' | 'downgrade' | 'cancel'): Promise<boolean> => {
+      manageSubscription: async (action: SubscriptionAction): Promise<boolean> => {
         set({ isLoading: true, error: null });
 
         try {
@@ -293,7 +294,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             set({
               user: {
                 ...get().user,
-                subscriptionStatus: response.data.subscriptionStatus as 'FREE' | 'PRO' | 'TEAM',
+                subscriptionStatus: response.data.subscriptionStatus as SubscriptionStatus, // 保留此处类型断言，因为API返回的是string类型
               },
               isLoading: false,
               error: null,
@@ -324,19 +325,19 @@ export const useAuthStore = create<AuthState>()(  persist(
 
       isAdmin: (): boolean => {
         const { user } = get();
-        return user?.role === 'ADMIN';
+        return user?.role === USER_ROLES.ADMIN;
       },
 
       isPro: (): boolean => {
         const { user } = get();
-        return user?.subscriptionStatus === 'PRO' || user?.subscriptionStatus === 'TEAM';
+        return user?.subscriptionStatus === SUBSCRIPTION_STATUS.PRO || user?.subscriptionStatus === SUBSCRIPTION_STATUS.TEAM;
       },
 
       hasValidSubscription: (): boolean => {
         const { user } = get();
         if (!user) return false;
 
-        if (user.subscriptionStatus === 'FREE') return false;
+        if (user.subscriptionStatus === SUBSCRIPTION_STATUS.FREE) return false;
         
         // 检查订阅是否过期
         if (user.subscriptionEndDate) {
@@ -421,18 +422,11 @@ export const useAuthStore = create<AuthState>()(  persist(
         // 重新加载后，检查token是否过期
         if (state?.userDataExpireTime && Date.now() > state.userDataExpireTime) {
           console.log('onRehydrateStorage: Token已过期，清理状态');
-          // 清理过期的认证状态
-          // ({
-          //   user: null,
-          //   token: null,
-          //   userDataExpireTime: null,
-          //   isAuthenticated: false,
-          //   error: 'Token已过期，请重新登录',
-          // });
         }
         
         // 重新加载后，如果有token但没有用户信息，尝试刷新用户信息
         if (state?.token && !state?.user) {
+          console.log('onRehydrateStorage: 尝试刷新用户信息');
           // 延迟执行，确保组件已挂载
           setTimeout(() => {
             state.refreshUser?.()

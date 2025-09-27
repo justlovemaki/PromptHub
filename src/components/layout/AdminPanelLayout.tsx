@@ -99,34 +99,34 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-bg-200 flex flex-col">
       {/* 顶栏 Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+      <header className="bg-white shadow-sm border-b border-bg-300 fixed top-0 left-0 right-0 z-50">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* 左侧 - Logo */}
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-600 lg:hidden"
+                className="p-2 rounded-md text-text-300 hover:text-text-200 lg:hidden"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <button 
+              <button
                 onClick={() => handleNavigation(`${truePath}`)}
                 className="flex items-center ml-4 lg:ml-0 hover:opacity-80 transition-opacity"
               >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center">
                   <img src="/logo.png" alt="PromptHub" className="w-8 h-8" />
                 </div>
-                <span className="ml-2 text-lg font-semibold text-gray-900">PromptHub</span>
+                <span className="ml-2 text-lg font-semibold text-text-100">PromptHub</span>
               </button>
               {/* 管理后台标识 */}
               <div className="ml-4 flex items-center">
-                <span className="text-gray-400">|</span>
-                <span className="ml-3 px-2 py-1 text-xs bg-red-500 text-white rounded-full">{t('common.adminPanel')}</span>
+                <span className="text-text-300">|</span>
+                <span className="ml-3 px-2 py-1 text-xs bg-error-500 text-white rounded-full">{t('common.adminPanel')}</span>
               </div>
             </div>
 
@@ -135,7 +135,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
               {/* {t('common.returnToDashboard')} */}
               <button
                 onClick={() => handleNavigation(`${truePath}/dashboard`)}
-                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-blue transition-colors"
+                className="px-3 py-2 text-sm font-medium text-text-200 hover:text-primary-100 transition-colors"
               >
                 {t('common.returnToDashboard')}
               </button>
@@ -154,7 +154,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
 
       <div className="flex flex-1 pt-16">
         {/* 管理后台专用侧边栏 */}
-        <nav className={`fixed left-0 top-16 bottom-0 bg-brand-navy transition-all duration-300 z-40 ${
+        <nav className={`fixed left-0 top-16 bottom-0 bg-bg-900 transition-all duration-300 z-40 ${
           sidebarCollapsed ? 'w-16' : 'w-48'
         } lg:translate-x-0 ${sidebarCollapsed ? '' : 'lg:block hidden'}`}>
           <div className="flex flex-col h-full">
@@ -168,7 +168,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
                       sidebarCollapsed
                         ? 'p-2 flex items-center justify-center w-8 h-8'  // 折叠状态下确保完全居中
                         : 'p-2'
-                    } text-gray-400 hover:text-white hover:bg-brand-navy-light rounded-lg transition-colors`}
+                    } text-text-300 hover:text-white hover:bg-bg-800 rounded-lg transition-colors`}
                     title={sidebarCollapsed ? t('common.sidebar.expand') : t('common.sidebar.collapse')}
                   >
                     {sidebarCollapsed ? (
@@ -194,8 +194,8 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
                         : 'justify-start px-3 py-2 pl-4'
                     } ${
                        item.current
-                         ? 'bg-brand-blue text-white'
-                         : 'text-gray-300 hover:bg-brand-navy-light hover:text-white'
+                         ? 'bg-primary-100 text-white'
+                         : 'text-text-300 hover:bg-bg-800 hover:text-white'
                      }`}
                      title={sidebarCollapsed ? item.name : undefined}
                    >
@@ -223,30 +223,30 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
       </div>
 
       {/* 页脚 Footer - 固定在底部 */}
-      <footer className={`bg-white border-t border-gray-200 transition-all duration-300 ${
+      <footer className={`bg-white border-t border-bg-300 transition-all duration-300 ${
         sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-48'
       }`}>
         <div className="px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-text-300">
               {t('common.copyright')}
             </div>
             <div className="flex space-x-6 mt-2 sm:mt-0">
               <button
                 onClick={() => handleNavigation(`${truePath}/privacy`)}
-                className="text-sm text-gray-500 hover:text-brand-blue transition-colors"
+                className="text-sm text-text-300 hover:text-primary-100 transition-colors"
               >
                 {t('common.privacy')}
               </button>
               <button
                 onClick={() => handleNavigation(`${truePath}/terms`)}
-                className="text-sm text-gray-500 hover:text-brand-blue transition-colors"
+                className="text-sm text-text-300 hover:text-primary-100 transition-colors"
               >
                 {t('common.terms')}
               </button>
               <button
                 onClick={() => handleNavigation(`${truePath}/contact`)}
-                className="text-sm text-gray-500 hover:text-brand-blue transition-colors"
+                className="text-sm text-text-300 hover:text-primary-100 transition-colors"
               >
                 {t('common.contact')}
               </button>

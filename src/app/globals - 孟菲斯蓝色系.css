@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 主色调 - 孟菲斯蓝色系 */
+  --primary-100: #0047ff;  /* 克莱因蓝 - 主色（经典孟菲斯） */
+  --primary-200: #4d7fff;  /* 中等蓝 */
+  --primary-300: #e6ebff;  /* 极浅蓝 - 背景用 */
+
+  /* 强调色 - 孟菲斯黄色系 */
+  --accent-100: #ffd500;   /* 明黄色 - 主强调色（孟菲斯经典） */
+  --accent-200: #cc8800;   /* 深黄色 - 高对比度 */
+
+  /* 文字色 - 高对比度黑白系 */
+  --text-100: #1a1a1a;     /* 近黑色 - 主文字（对比度 > 15:1） */
+  --text-200: #4d4d4d;     /* 炭灰色 - 次要文字（对比度 > 8:1） */
+  --text-300: #737373;     /* 中灰色 - 辅助文字（对比度 > 4.5:1） */
+
+  /* 背景色系列 - 孟菲斯几何色调 */
+  --bg-100: #ffffff;       /* 纯白 */
+  --bg-200: #f5f5f5;       /* 浅灰白 */
+  --bg-300: #ebebeb;       /* 浅灰 */
+  --bg-400: #d9d9d9;       /* 中浅灰 */
+  --bg-500: #bfbfbf;       /* 中灰 */
+  --bg-600: #8c8c8c;       /* 深中灰 */
+  --bg-700: #595959;       /* 深灰 */
+  --bg-800: #262626;       /* 极深灰 */
+  --bg-900: #1a1a1a;       /* 近黑 */
+  --bg-1000: #000000;      /* 纯黑 */
+
+  /* 次要色 - 孟菲斯粉色系 */
+  --secondary-400: #ff69b4; /* 热粉色（孟菲斯经典） */
+  --secondary-500: #ffe4f1; /* 浅粉色 - 背景用 */
+
+  /* 状态色 - 孟菲斯风格（400背景色，500文字色） */
+  --error-400: #ffcdd2;    /* 浅红背景 */
+  --error-500: #b71c1c;    /* 深红文字 - 高对比度 */
+
+  --success-400: #c8e6c9;  /* 浅绿背景 */
+  --success-500: #1b5e20;  /* 深绿文字 - 高对比度 */
+
+  --warning-400: #fff3e0;  /* 浅橙背景 */
+  --warning-500: #e65100;  /* 深橙文字 - 高对比度 */
+
+  --info-400: #e1f5fe;     /* 浅蓝背景 */
+  --info-500: #01579b;     /* 深蓝文字 - 高对比度 */
+
+  /* 基础前景色 - 高对比黑白 */
+  --foreground-rgb: 26, 26, 26;          /* 对应 --text-100 */
+  --background-start-rgb: 245, 245, 245; /* 对应 --bg-200 */
+  --background-end-rgb: 255, 255, 255;   /* 对应 --bg-100 */
+}
+
+/* 无障碍增强 - 焦点样式 */
+*:focus-visible {
+  outline: 3px solid var(--accent-100);
+  outline-offset: 2px;
+  border-radius: 0; /* 孟菲斯风格 - 无圆角 */
+}
+
+/* 隐藏滚动条的类 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-end-rgb));
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 孟菲斯风格的几何装饰背景 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    /* 蓝色圆形 */
+    radial-gradient(circle at 85% 15%, rgba(0, 71, 255, 0.08) 0%, transparent 25%),
+    /* 黄色三角形效果 */
+    linear-gradient(135deg, transparent 48%, rgba(255, 213, 0, 0.05) 48%, rgba(255, 213, 0, 0.05) 52%, transparent 52%),
+    /* 粉色方块 */
+    linear-gradient(45deg, transparent 0%, transparent 44%, rgba(255, 105, 180, 0.04) 44%, rgba(255, 105, 180, 0.04) 56%, transparent 56%, transparent 100%),
+    /* 网格纹理 */
+    repeating-linear-gradient(0deg, transparent, transparent 100px, rgba(0, 0, 0, 0.01) 100px, rgba(0, 0, 0, 0.01) 101px),
+    repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(0, 0, 0, 0.01) 100px, rgba(0, 0, 0, 0.01) 101px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 选中文本的孟菲斯风格 */
+::selection {
+  background-color: var(--accent-100);
+  color: var(--bg-900);
+}
+
+/* 孟菲斯风格的滚动条（如果显示） */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-200);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-100);
+  border: 2px solid var(--bg-100);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-100);
+}
+
+/* 针对 WebKit 浏览器 (Chrome, Safari) 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* 针对 Firefox 隐藏滚动条 */
+html {
+    scrollbar-width: none;
+}
+
+/* 针对 IE 和 Edge 隐藏滚动条 */
+body {
+    -ms-overflow-style: none;
+}

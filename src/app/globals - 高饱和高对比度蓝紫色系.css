@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 主色调 - 高饱和高对比度蓝紫色系 */
+  --primary-100: #8B5FBF;  /* 高饱和蓝紫 - 主色 */
+  --primary-200: #61398F;  /* 深蓝紫 */
+  --primary-300: #FFFFFF;  /* 纯白 - 背景用 */
+
+  /* 强调色 - 高饱和蓝紫色系 */
+  --accent-100: #D6C6E1;   /* 浅灰紫 - 主强调色 */
+  --accent-200: #9A73B5;   /* 中蓝紫 - 高对比度 */
+
+  /* 文字色 - 深色系保证高对比度 */
+  --text-100: #4A4A4A;     /* 深灰 - 主文字 */
+  --text-200: #878787;     /* 中灰 - 次要文字 */
+  --text-300: #B0B0B0;     /* 浅灰 - 辅助文字 */
+
+  /* 背景色系列 - 蓝紫浅色系 */
+  --bg-100: #F5F3F7;       /* 浅紫灰 */
+  --bg-200: #E9E4ED;       /* 中浅紫灰 */
+  --bg-300: #FFFFFF;       /* 纯白 */
+  --bg-400: #D9D2E0;       /* 中紫灰 */
+  --bg-500: #C4BBC8;       /* 中深紫灰 */
+  --bg-600: #AE9FAB;       /* 深紫灰 */
+  --bg-700: #93838F;       /* 深紫褐 */
+  --bg-800: #72636F;       /* 深紫褐 */
+  --bg-900: #524650;       /* 炭紫灰 */
+  --bg-1000: #332C32;      /* 深炭紫 */
+
+  /* 次要色 - 高饱和蓝紫色系 */
+  --secondary-400: #9A73B5; /* 中蓝紫 */
+  --secondary-500: #D6C6E1; /* 浅灰紫 - 背景用 */
+
+  /* 状态色 - 高饱和蓝紫风格 */
+  --error-400: #F4B4C4;    /* 粉红背景 */
+  --error-500: #E91E63;    /* 红色文字 */
+
+  --success-400: #A4D9B0;  /* 绿色背景 */
+  --success-500: #4CAF50;  /* 绿色文字 */
+
+  --warning-400: #F9D8A6;  /* 黄橙背景 */
+  --warning-500: #FF9800;  /* 橙色文字 */
+
+  --info-400: #A2C4E0;     /* 蓝色背景 */
+  --info-500: #2196F3;     /* 蓝色文字 */
+
+  /* 基础前景色 */
+  --foreground-rgb: 74, 74, 74;          /* 对应 --text-100 */
+  --background-start-rgb: 245, 243, 247; /* 对应 --bg-100 */
+  --background-end-rgb: 255, 255, 255;   /* 对应 --bg-100 */
+}
+
+/* 无障碍增强 - 焦点样式 */
+*:focus-visible {
+  outline: 2px solid var(--primary-100);
+  outline-offset: 2px;
+  border-radius: 4px; /* 柔和圆角 */
+}
+
+/* 隐藏滚动条的类 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(135deg, rgb(var(--background-start-rgb)), rgb(var(--background-end-rgb)));
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 高饱和蓝紫风格的装饰背景 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    /* 蓝紫晕染 */
+    radial-gradient(ellipse at 15% 30%, rgba(139, 95, 191, 0.15) 0%, transparent 50%),
+    /* 紫灰装饰 */
+    radial-gradient(circle at 85% 80%, rgba(154, 115, 181, 0.12) 0%, transparent 40%),
+    /* 蓝紫点缀 */
+    radial-gradient(ellipse at 50% 5%, rgba(214, 198, 225, 0.1) 0%, transparent 60%),
+    /* 细腻纹理 */
+    linear-gradient(0deg, transparent 0%, rgba(245, 243, 247, 0.8) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 选中文本的高饱和蓝紫风格 */
+::selection {
+  background-color: rgba(139, 95, 191, 0.3);
+  color: var(--text-100);
+}
+
+/* 高饱和蓝紫风格滚动条（如果显示） */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-200);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-200);
+  border-radius: 4px;
+  border: 1px solid var(--accent-100);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-200);
+}
+
+/* 高饱和蓝紫风格分割线 */
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--accent-200) 10%,
+    var(--accent-200) 90%,
+    transparent
+  );
+  margin: 2rem 0;
+}
+
+/* 增强对比度的辅助类 */
+.high-contrast {
+  filter: contrast(1.1);
+}

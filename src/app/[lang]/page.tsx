@@ -4,22 +4,27 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import ParticlesBackground from '@/components/landing/ParticlesBackground';
-import { ChevronDown, Check, X, Globe, Zap, Shield, Users, Sparkles, Search, Tag, Folder, Rocket } from 'lucide-react';
+import { ChevronDown, Check, X, Globe, Zap, Shield, Users, Sparkles, Search, Tag, Folder, Rocket, Menu, X as XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LoginButton from '@/components/LoginButton';
 import { useTranslation } from '@/i18n/client';
 import PricingSection from '@/components/landing/PricingSection';
+import { useSession } from '@/lib/auth-client';
+import LoginModal from '@/components/LoginModal';
 
 const LandingPage = ({ params }: { params: { lang: string } }) => {
   const [currentSection, setCurrentSection] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const [showNav, setShowNav] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { scrollYProgress } = useScroll();
   const { t } = useTranslation(params.lang, 'landing');
+  const { data: session, isPending } = useSession();
   
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
@@ -33,53 +38,156 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
     'footer'
   ];
 
-  // 平滑滚动到指定部分
+  // 优化后的平滑滚动到指定部分
   const scrollToSection = (index: number) => {
     if (isScrolling) return;
-    setIsScrolling(true);
+    
     const section = document.getElementById(sections[index]);
     if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+      setIsScrolling(true);
+      const navbarHeight = 80;
+      const targetPosition = section.offsetTop - navbarHeight;
+      
+      // 使用 CSS 滚动行为而不是 scrollIntoView
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
+      
       setCurrentSection(index);
-      setTimeout(() => setIsScrolling(false), 1000);
+      
+      // 缩短锁定时间以提升响应性
+      setTimeout(() => {
+        setIsScrolling(false);
+      }, 600);
     }
   };
 
-  // 处理滚轮事件
+  // 优化后的滚轮和触摸事件处理
   useEffect(() => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let lastWheelTime = 0;
+    let scrollRafId: number | null = null;
+    
+    const TOUCH_THRESHOLD = 50;
+    const WHEEL_DEBOUNCE = 500; // 缩短防抖时间
+    
+    // 优化的滚轮处理
     const handleWheel = (e: WheelEvent) => {
-      if (isScrolling) return;
+      if (isScrolling) {
+        e.preventDefault();
+        return;
+      }
+      
+      // 检查是否应该触发切换
+      const now = Date.now();
+      const timeDiff = now - lastWheelTime;
+      
+      // 如果在防抖时间内，阻止默认行为但不切换
+      if (timeDiff < WHEEL_DEBOUNCE) {
+        e.preventDefault();
+        return;
+      }
+      
+      // 检测滚动方向和强度
+      const deltaY = Math.abs(e.deltaY);
+      const isMobile = window.innerWidth <= 768;
+      
+      // 移动端需要更大的滚动幅度
+      if (isMobile && deltaY < 20) return;
+      if (!isMobile && deltaY < 5) return;
+      
       e.preventDefault();
       
       const direction = e.deltaY > 0 ? 1 : -1;
       const nextSection = currentSection + direction;
       
       if (nextSection >= 0 && nextSection < sections.length) {
+        lastWheelTime = now;
         scrollToSection(nextSection);
       }
     };
-
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setShowNav(scrollPosition > 100);
+    
+    // 触摸事件处理
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStartY) return;
+      touchEndY = e.touches[0].clientY;
+    };
+    
+    const handleTouchEnd = () => {
+      if (!touchStartY || !touchEndY) {
+        touchStartY = 0;
+        touchEndY = 0;
+        return;
+      }
       
-      // 检测当前所在部分
-      sections.forEach((sectionId, index) => {
-        const section = document.getElementById(sectionId);
-        if (section) {
-          const rect = section.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setCurrentSection(index);
+      const distance = touchStartY - touchEndY;
+      const isValidSwipe = Math.abs(distance) > TOUCH_THRESHOLD;
+      
+      if (isValidSwipe && !isScrolling) {
+        const direction = distance > 0 ? 1 : -1;
+        const nextSection = currentSection + direction;
+        
+        if (nextSection >= 0 && nextSection < sections.length) {
+          scrollToSection(nextSection);
+        }
+      }
+      
+      touchStartY = 0;
+      touchEndY = 0;
+    };
+    
+    // 普通滚动监听（用于更新UI状态）
+    const handleScroll = () => {
+      if (scrollRafId !== null) {
+        cancelAnimationFrame(scrollRafId);
+      }
+      
+      scrollRafId = requestAnimationFrame(() => {
+        const scrollPosition = window.scrollY;
+        setShowNav(scrollPosition > 100);
+        
+        // 更新当前部分指示器
+        const viewportHeight = window.innerHeight;
+        const scrollCenter = scrollPosition + viewportHeight * 0.3;
+        
+        for (let i = 0; i < sections.length; i++) {
+          const section = document.getElementById(sections[i]);
+          if (section) {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            
+            if (scrollCenter >= sectionTop && scrollCenter < sectionTop + sectionHeight) {
+              if (currentSection !== i) {
+                setCurrentSection(i);
+              }
+              break;
+            }
           }
         }
       });
     };
-
+    
+    // 添加事件监听
     window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
+      if (scrollRafId !== null) {
+        cancelAnimationFrame(scrollRafId);
+      }
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('scroll', handleScroll);
     };
   }, [currentSection, isScrolling]);
@@ -98,84 +206,144 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href={`/${params.lang}`} className="flex items-center space-x-2">
-            <Sparkles className="w-8 h-8 text-purple-500" />
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              PromptHub
-            </span>
-          </Link>
-          
-          <div className="flex items-center space-x-6">
-            <Link href="#features" className="hover:text-purple-400 transition-colors">
-              {t('nav.features')}
+        <nav className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link href={`/${params.lang}`} className="flex items-center space-x-2">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                PromptHub
+              </span>
             </Link>
-            <Link href="#pricing" className="hover:text-purple-400 transition-colors">
-              {t('nav.pricing')}
-            </Link>
-            <LanguageSwitcher lang={params.lang} />
-            <LoginButton lng={params.lang} />
+
+            {/* 桌面端导航 */}
+            <div className="hidden md:flex items-center space-x-6">
+              <Link href="#features" className="hover:text-purple-400 transition-colors">
+                {t('nav.features')}
+              </Link>
+              <Link href="#pricing" className="hover:text-purple-400 transition-colors">
+                {t('nav.pricing')}
+              </Link>
+              <LanguageSwitcher lang={params.lang} textClassName="text-white" />
+              <LoginButton lng={params.lang} textClassName="text-white" />
+            </div>
+
+            {/* 移动端汉堡菜单按钮 */}
+            <button
+              className="md:hidden text-white hover:text-purple-400 transition-colors p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="切换菜单"
+            >
+              {isMobileMenuOpen ? (
+                <XIcon className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
           </div>
+
+          {/* 移动端菜单 */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div
+                className="md:hidden mt-4 py-4 border-t border-gray-700 bg-gray-900/95 backdrop-blur-md"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex flex-col space-y-4 px-2">
+                  <Link
+                    href="#features"
+                    className="hover:text-purple-400 transition-colors py-2 px-4 rounded-lg hover:bg-gray-800/50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('nav.features')}
+                  </Link>
+                  <Link
+                    href="#pricing"
+                    className="hover:text-purple-400 transition-colors py-2 px-4 rounded-lg hover:bg-gray-800/50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('nav.pricing')}
+                  </Link>
+                  <div className="flex flex-col space-y-3 py-2">
+                    <LanguageSwitcher lang={params.lang} textClassName="text-white" />
+                    <LoginButton lng={params.lang} textClassName="text-white w-full" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </nav>
       </motion.header>
 
       {/* 主视觉区 Hero Section */}
-      <section id="hero" className="min-h-screen flex items-center justify-center relative">
-        <div className="container mx-auto px-6 text-center z-10">
+      <section id="hero" className="min-h-screen flex items-center justify-center relative px-4 sm:px-6">
+        <div className="container mx-auto text-center z-10 max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             style={{ opacity, scale }}
           >
-            <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-gradient">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-gradient leading-tight">
               {t('hero.title')}
             </h1>
-            <p className="text-2xl md:text-3xl text-gray-300 mb-10 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
               {t('hero.subtitle')}
             </p>
             <motion.button
-              className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105"
+              className="px-6 sm:px-8 md:px-10 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-base sm:text-lg md:text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => router.push(`/${params.lang}/dashboard`)}
+              onClick={() => {
+                if (session) {
+                  // 用户已登录，直接跳转到仪表板
+                  router.push(`/${params.lang}/dashboard`);
+                } else {
+                  // 用户未登录，打开登录模态框
+                  setIsLoginModalOpen(true);
+                }
+              }}
             >
               {t('hero.cta')} →
             </motion.button>
           </motion.div>
           
           <motion.div
-            className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+            className="absolute bottom-6 sm:bottom-10 left-1/2 transform -translate-x-1/2"
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <ChevronDown className="w-8 h-8 text-gray-400" />
+            <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
           </motion.div>
         </div>
       </section>
 
       {/* 痛点展示区 */}
-      <section id="problem" className="min-h-screen flex items-center justify-center py-20">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section id="problem" className="min-h-screen flex items-center justify-center py-12 sm:py-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
+              className="text-center md:text-left"
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
                 {t('problem.title')}
                 <span className="text-red-400"> {t('problem.highlight')} </span>
                 {t('problem.title2')}
               </h2>
-              <p className="text-xl text-gray-400 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
                 {t('problem.description')}
               </p>
             </motion.div>
             
             <motion.div
-              className="relative h-96"
+              className="relative h-64 sm:h-80 md:h-96"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -188,9 +356,9 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       </section>
 
       {/* 核心功能一：管理 */}
-      <section id="management" className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-gray-900 to-gray-800">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section id="management" className="min-h-screen flex items-center justify-center py-12 sm:py-20 bg-gradient-to-b from-gray-900 to-gray-800">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div
               className="order-2 md:order-1"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -198,44 +366,44 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/20">
-                <div className="flex items-center gap-4 mb-6">
-                  <Folder className="w-10 h-10 text-purple-400" />
-                  <Tag className="w-8 h-8 text-blue-400" />
-                  <Search className="w-9 h-9 text-green-400" />
+              <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-4 sm:p-6 md:p-8 border border-purple-500/20">
+                <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <Folder className="w-8 h-8 sm:w-10 sm:h-10 text-purple-400" />
+                  <Tag className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
+                  <Search className="w-7 h-7 sm:w-9 sm:h-9 text-green-400" />
                 </div>
-                <div className="space-y-4">
-                  <div className="bg-gray-700/50 rounded-lg p-4 border-l-4 border-purple-500">
-                    <p className="text-sm text-gray-400">📁 {t('management.demo.folder')}</p>
-                    <p className="text-white">{t('management.demo.folderContent')}</p>
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="bg-gray-700/50 rounded-lg p-3 sm:p-4 border-l-4 border-purple-500">
+                    <p className="text-xs sm:text-sm text-gray-400">📁 {t('management.demo.folder')}</p>
+                    <p className="text-sm sm:text-base text-white">{t('management.demo.folderContent')}</p>
                   </div>
-                  <div className="bg-gray-700/50 rounded-lg p-4 border-l-4 border-blue-500">
-                    <p className="text-sm text-gray-400">🏷️ {t('management.demo.tags')}</p>
-                    <p className="text-white">{t('management.demo.tagsContent')}</p>
+                  <div className="bg-gray-700/50 rounded-lg p-3 sm:p-4 border-l-4 border-blue-500">
+                    <p className="text-xs sm:text-sm text-gray-400">🏷️ {t('management.demo.tags')}</p>
+                    <p className="text-sm sm:text-base text-white">{t('management.demo.tagsContent')}</p>
                   </div>
-                  <div className="bg-gray-700/50 rounded-lg p-4 border-l-4 border-green-500">
-                    <p className="text-sm text-gray-400">🔍 {t('management.demo.search')}</p>
-                    <p className="text-white">{t('management.demo.searchResult')}</p>
+                  <div className="bg-gray-700/50 rounded-lg p-3 sm:p-4 border-l-4 border-green-500">
+                    <p className="text-xs sm:text-sm text-gray-400">🔍 {t('management.demo.search')}</p>
+                    <p className="text-sm sm:text-base text-white">{t('management.demo.searchResult')}</p>
                   </div>
                 </div>
               </div>
             </motion.div>
             
             <motion.div
-              className="order-1 md:order-2"
+              className="order-1 md:order-2 text-center md:text-left"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
                 {t('management.title')}
                 <span className="text-gradient bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">{t('management.highlight')}</span>
               </h2>
-              <p className="text-xl text-gray-400 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed mb-6 sm:mb-8">
                 {t('management.description')}
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
+              <div className="mt-6 sm:mt-8 flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4">
                 <FeatureBadge icon={<Folder className="w-4 h-4" />} text={t('management.features.smartCategory')} />
                 <FeatureBadge icon={<Tag className="w-4 h-4" />} text={t('management.features.multiTag')} />
                 <FeatureBadge icon={<Search className="w-4 h-4" />} text={t('management.features.instantSearch')} />
@@ -246,23 +414,24 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       </section>
 
       {/* 核心功能二：优化 */}
-      <section id="optimization" className="min-h-screen flex items-center justify-center py-20">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section id="optimization" className="min-h-screen flex items-center justify-center py-12 sm:py-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div
+              className="text-center md:text-left"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
                 {t('optimization.title')}
                 <span className="text-gradient bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">{t('optimization.highlight')}</span>
               </h2>
-              <p className="text-xl text-gray-400 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed mb-6 sm:mb-8">
                 {t('optimization.description')}
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
+              <div className="mt-6 sm:mt-8 flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4">
                 <FeatureBadge icon={<Zap className="w-4 h-4" />} text={t('optimization.features.aiOptimize')} />
                 <FeatureBadge icon={<Rocket className="w-4 h-4" />} text={t('optimization.features.quickAccess')} />
                 <FeatureBadge icon={<Globe className="w-4 h-4" />} text={t('optimization.features.globalAccess')} />
@@ -282,14 +451,16 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       </section>
 
       {/* 价格区 */}
-      <section id="pricing" className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-gray-900 to-black">
-        <PricingSection params={params} />
+      <section id="pricing" className="min-h-screen flex items-center justify-center py-12 sm:py-20 bg-gradient-to-b from-gray-900 to-black">
+        <div className="w-full">
+          <PricingSection params={params} />
+        </div>
       </section>
 
       {/* 底部信息区 */}
-      <footer id="footer" className="bg-gray-900 border-t border-gray-800 py-12">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+      <footer id="footer" className="bg-gray-900 border-t border-gray-800 py-8 sm:py-12">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-0">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Sparkles className="w-6 h-6 text-purple-500" />
               <span className="text-lg font-semibold">PromptHub</span>
@@ -318,7 +489,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       </footer>
 
       {/* 页面指示器 */}
-      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden md:block">
+      <div className="fixed right-4 sm:right-8 top-1/2 transform -translate-y-1/2 z-40 hidden md:block">
         <div className="flex flex-col items-center gap-3">
           {sections.map((_, index) => (
             <button
@@ -334,6 +505,33 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
           ))}
         </div>
       </div>
+
+      {/* 移动端底部导航器 */}
+      <div className="md:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+        <div className="bg-gray-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-gray-700">
+          <div className="flex items-center gap-2">
+            {sections.map((sectionName, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  currentSection === index
+                    ? 'bg-purple-500'
+                    : 'bg-gray-600 hover:bg-gray-400'
+                }`}
+                onClick={() => scrollToSection(index)}
+                aria-label={`跳转到${sectionName}部分`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* 登录模态框 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        lng={params.lang}
+      />
     </div>
   );
 };
@@ -374,7 +572,7 @@ const AnimatedCards = ({ lang }: { lang: string }) => {
       {cards.map((card, index) => (
         <motion.div
           key={index}
-          className={`absolute w-64 h-32 bg-gradient-to-br ${card.color} rounded-xl p-4 shadow-2xl flex items-center justify-center text-white font-semibold`}
+          className={`absolute w-48 h-24 sm:w-64 sm:h-32 bg-gradient-to-br ${card.color} rounded-xl p-3 sm:p-4 shadow-2xl flex items-center justify-center text-white font-semibold`}
           initial={randomValues.length > 0 ? {
             x: randomValues[index]?.x || 0,
             y: randomValues[index]?.y || 0,
@@ -383,7 +581,7 @@ const AnimatedCards = ({ lang }: { lang: string }) => {
           } : {}}
           animate={organized ? {
             x: 0,
-            y: index * 35 - 70,
+            y: index * 25 - 50,
             rotate: 0,
             opacity: 1
           } : {}}

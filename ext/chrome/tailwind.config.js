@@ -7,8 +7,8 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          100: 'var(--primary-100, #3F51B5)',
-          200: 'var(--primary-200, #757de8)',
+          100: 'var(--primary-100, #6A5ACD)',
+          200: 'var(--primary-200, #3F51B5)',
           300: 'var(--primary-300, #dedeff)',
         },
         accent: {

@@ -3,6 +3,7 @@ import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { getTranslation } from '@/i18n';
 import { AIPointsService } from '@/lib/services';
+import { AiPointsType } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
       authenticatedUser.id,
       startDate,
       endDate,
-      type as 'EARN' | 'USE' | 'ADMIN'
+      type as AiPointsType
     );
     
     return NextResponse.json(

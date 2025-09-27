@@ -9,6 +9,7 @@ import { PromptUseButton } from '../../../components/PromptUseButton'
 import TagSelector from '../../../components/TagSelector'
 import { useTranslation } from '@/i18n/client'
 import { useTags } from '../../../hooks/useTags'
+import { PromptSortField } from '@/lib/constants'
 
 // 添加样式
 const styles = `
@@ -60,7 +61,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     total: 0,
     totalPages: 0
   })
-  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt' | 'title' | 'useCount'>('updatedAt')
+  const [sortBy, setSortBy] = useState<PromptSortField>('updatedAt')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   
   // 新建/编辑表单状态
@@ -436,8 +437,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       sortable: true,
       render: (prompt: string, record: Prompt) => (
         <div>
-          <div className="font-medium text-gray-900">{record.title}</div>
-          <div className="text-sm text-gray-500">{record.description}</div>
+          <div className="font-medium text-text-100">{record.title}</div>
+          <div className="text-sm text-text-300">{record.description}</div>
         </div>
       )
     },
@@ -447,8 +448,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       width: 150,
       sortable: true,
       render: (prompt: number) => (
-        <div className="text-sm text-gray-900 font-medium flex items-center gap-1">
-          <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-sm text-text-100 font-medium flex items-center gap-1">
+          <svg className="h-4 w-4 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           {prompt || 0}
@@ -461,9 +462,9 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       width: 80,
       render: (prompt: boolean) => (
         <span className={`px-2 py-1 text-xs rounded-full ${
-          prompt 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-blue-100 text-blue-800'
+          prompt
+            ? 'bg-success-300 text-success-500'
+            : 'bg-primary-300 text-primary-100'
         }`}>
           {prompt ? tDashboard('public') : tDashboard('private')}
         </span>
@@ -480,12 +481,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         return (
           <div className="flex flex-wrap gap-1">
             {tagsToDisplay.map((tagName, index) => (
-              <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+              <span key={index} className="px-2 py-1 text-xs bg-bg-200 text-text-200 rounded">
                 {tagName}
               </span>
             ))}
             {remainingCount > 0 && (
-              <span className="px-2 py-1 text-xs text-gray-500">+{remainingCount}</span>
+              <span className="px-2 py-1 text-xs text-text-300">+{remainingCount}</span>
             )}
           </div>
         )
@@ -497,7 +498,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       width: 140,
       sortable: true,
       render: (prompt: string) => (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-text-300">
           {prompt ? new Date(prompt).toLocaleString(params.lang, {
             year: 'numeric',
             month: '2-digit',
@@ -516,7 +517,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       width: 140,
       sortable: true,
       render: (prompt: string) => (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-text-300">
           {prompt ? new Date(prompt).toLocaleString(params.lang, {
             year: 'numeric',
             month: '2-digit',
@@ -532,39 +533,43 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     {
       key: 'thisObj-action',
       title: tDashboard('table.actions'),
-      width: 180,
+      width: 120,
       render: (prompt: Prompt) => (
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-1">
           <PromptUseButton
             prompt={prompt}
-            variant="outline"
+            variant="ghost"
             size="sm"
             lang={params.lang}
+            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
             onRefreshPrompts={() => {
               fetchPrompts()
               fetchStats()
               fetchRecentPrompts()
             }}
           >
-            {tDashboard('use')}
+            <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </PromptUseButton>
-          <Button
-            size="sm"
-            variant="outline"
+          <button
             onClick={() => openEditModal(prompt)}
             disabled={operationLoading}
+            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
           >
-            {tDashboard('edit')}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-red-600 border-red-200 hover:bg-red-50"
+            <svg className="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+          <button
             onClick={() => openDeleteConfirmModal(prompt)}
             disabled={operationLoading}
+            className="p-2 hover:bg-red-50 rounded-md transition-colors"
           >
-            {tDashboard('delete')}
-          </Button>
+            <svg className="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
         </div>
       )
     }
@@ -575,11 +580,11 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         <style dangerouslySetInnerHTML={{ __html: styles }} />
         <div className="space-y-6">
         {/* 页面标题 */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-[var(--bg-100)] rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{tDashboard('pageTitle')}</h1>
-              <p className="text-gray-600 mt-1">{tDashboard('pageDescription')}</p>
+              <h1 className="text-2xl font-bold text-[var(--text-100)]">{tDashboard('pageTitle')}</h1>
+              <p className="text-[var(--text-200)] mt-1">{tDashboard('pageDescription')}</p>
             </div>
             <Button onClick={() => setShowCreateModal(true)}>
               {tDashboard('createNewPrompt')}
@@ -588,12 +593,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         </div>
 
         {/* 最近更新的提示词 */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-[var(--bg-100)] rounded-lg shadow-sm border">
+          <div className="p-6 border-b border-[var(--bg-300)]">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">{tDashboard('recentPrompts.title')}</h2>
-                <p className="text-gray-600 text-sm mt-1">{tDashboard('recentPrompts.description')}</p>
+                <h2 className="text-lg font-semibold text-[var(--text-100)]">{tDashboard('recentPrompts.title')}</h2>
+                <p className="text-[var(--text-200)] text-sm mt-1">{tDashboard('recentPrompts.description')}</p>
               </div>
               <div className="flex space-x-3">
                 <button
@@ -603,7 +608,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                             fetchRecentPrompts()
                             fetchExistingTags()
                           }}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+                  className="bg-[var(--bg-200)] hover:bg-[var(--bg-300)] text-[var(--text-100)] px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -618,15 +623,15 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             {/* 错误状态 */}
             {recentPromptsError && (
               <div className="text-center py-12">
-                <div className="text-red-500 mb-2">{tDashboard('loadingFailed')}</div>
-                <p className="text-gray-600 text-sm mb-4">{recentPromptsError}</p>
+                <div className="text-error-500 mb-2">{tDashboard('loadingFailed')}</div>
+                <p className="text-text-200 text-sm mb-4">{recentPromptsError}</p>
                 <button
                   onClick={() => {
                             fetchPrompts()
                             fetchStats()
                             fetchRecentPrompts()
                           }}
-                  className="text-brand-blue hover:text-brand-blue/80 font-medium text-sm"
+                  className="text-primary-100 hover:text-primary-200 font-medium text-sm"
                 >
                   {tDashboard('retry')}
                 </button>
@@ -641,21 +646,21 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     // 获取可见性标签样式和文本
                     const visibilityBadge = {
                       className: prompt.isPublic
-                        ? 'text-xs bg-green-100 text-green-800 px-2 py-1 rounded'
-                        : 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded',
+                        ? 'text-xs bg-success-400 text-success-500 px-2 py-1 rounded'
+                        : 'text-xs bg-primary-300 text-primary-100 px-2 py-1 rounded',
                       text: prompt.isPublic ? tDashboard('public') : tDashboard('private')
                     }
 
                     return (
                       <div key={prompt.id} className="bg-gray-50 rounded-lg border hover:shadow-md transition-shadow p-4 flex flex-col h-68">
                         <div className="flex justify-between items-start mb-2 flex-shrink-0">
-                          <h3 className="text-lg font-semibold text-gray-900 truncate" title={prompt.title}>
+                          <h3 className="text-lg font-semibold text-text-100 truncate" title={prompt.title}>
                             {prompt.title}
                           </h3>
                           <span className={`${visibilityBadge.className} ml-2 flex-shrink-0`}>{visibilityBadge.text}</span>
                         </div>
 
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow" title={prompt.description || tDashboard('noDescription')}>
+                        <p className="text-text-200 text-sm mb-3 line-clamp-2 flex-grow" title={prompt.description || tDashboard('noDescription')}>
                           {prompt.description || tDashboard('noDescription')}
                         </p>
 
@@ -663,17 +668,17 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                         {prompt.tags && prompt.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-3 flex-shrink-0">
                             {prompt.tags.slice(0, 3).map((key, index) => (
-                              <span key={index} className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                              <span key={index} className="text-xs bg-bg-300 text-text-200 px-2 py-1 rounded">
                                 {getName(key)}
                               </span>
                             ))}
                             {prompt.tags.length > 3 && (
-                              <span className="text-xs text-gray-500">+{prompt.tags.length - 3}</span>
+                              <span className="text-xs text-text-300">+{prompt.tags.length - 3}</span>
                             )}
                           </div>
                         )}
 
-                        <div className="text-xs text-gray-500 mb-3 flex-shrink-0">
+                        <div className="text-xs text-text-300 mb-3 flex-shrink-0">
                           <div className="truncate">{tDashboard('table.updatedAt')}：{prompt.updatedAt ? new Date(prompt.updatedAt).toLocaleString(params.lang, {
                             year: 'numeric',
                             month: '2-digit',
@@ -708,12 +713,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                 ) : (
                   // 空状态
                   <div className="col-span-full text-center py-12">
-                    <div className="text-gray-500 mb-4">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="text-text-300 mb-4">
+                      <svg className="mx-auto h-12 w-12 text-text-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
-                    <p className="text-gray-600 mb-4">{tDashboard('noPromptsYet')}</p>
+                    <p className="text-text-200 mb-4">{tDashboard('noPromptsYet')}</p>
                     {/* <button
                       onClick={() => setShowCreateModal(true)}
                       className="bg-brand-blue hover:bg-brand-blue/90 text-white px-4 py-2 rounded font-medium transition-colors"
@@ -732,13 +737,13 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
           <Card className="p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tDashboard('totalPrompts')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tDashboard('totalPrompts')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {statsLoading ? '-' : (stats?.totalPrompts || 0)}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-primary-300 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
@@ -748,13 +753,13 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
           <Card className="p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tDashboard('publicPrompts')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tDashboard('publicPrompts')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {statsLoading ? '-' : (stats?.publicPrompts || 0)}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-success-400 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-success-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 104 0 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -764,13 +769,13 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
           <Card className="p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tDashboard('privatePrompts')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tDashboard('privatePrompts')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {statsLoading ? '-' : (stats?.privatePrompts || 0)}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-primary-300 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
@@ -780,13 +785,13 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
           <Card className="p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tDashboard('monthlyCreated')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tDashboard('monthlyCreated')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {statsLoading ? '-' : (stats?.monthlyCreated || 0)}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-warning-400 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-warning-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </div>
@@ -798,10 +803,10 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         {existingTags.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium text-gray-900">{tDashboard('existingTags')}</h3>
+              <h3 className="text-lg font-medium text-text-100">{tDashboard('existingTags')}</h3>
               {existingTagsLoading && (
-                <div className="flex items-center text-sm text-gray-500">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+                <div className="flex items-center text-sm text-text-300">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-text-300" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -815,8 +820,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                   key={index}
                   className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition-colors ${
                     selectedTag === tag
-                      ? 'bg-blue-600 text-white'  // 选中状态
-                      : 'bg-blue-100 text-blue-800 hover:bg-blue-200'  // 未选中状态
+                      ? 'bg-primary-100 text-white'  // 选中状态
+                      : 'bg-primary-300 text-primary-100 hover:bg-primary-200'  // 未选中状态
                   }`}
                   onClick={() => {
                     // 切换标签选择，如果已选中则清除
@@ -836,7 +841,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     setSelectedTag(null);
                     setSearchQuery('');
                   }}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-bg-200 text-text-200 hover:bg-bg-300 transition-colors"
                 >
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -871,7 +876,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             loading={promptsLoading}
             empty={
               <div className="text-center py-8">
-                <div className="text-gray-500 mb-4">
+                <div className="text-text-300 mb-4">
                   {searchQuery || filterStatus !== 'all' ? tDashboard('noPromptsFound') : tDashboard('noPromptsYet')}
                 </div>
                 {/* {!searchQuery && filterStatus === 'all' && (
@@ -882,7 +887,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
               </div>
             }
             onSort={(key, direction) => {
-              setSortBy(key as 'createdAt' | 'updatedAt' | 'title' | 'useCount')
+              setSortBy(key as PromptSortField)
               setSortOrder(direction)
             }}
             pagination={{
@@ -913,14 +918,14 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             <ModalHeader>
               <ModalTitle>
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <div className="h-10 w-10 bg-gradient-to-br from-primary-100 to-accent-100 rounded-xl flex items-center justify-center shadow-sm">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">{tDashboard('createModal.title')}</div>
-                    <div className="text-sm text-gray-500 font-normal">{tDashboard('createModal.description')}</div>
+                    <div className="text-xl font-bold text-text-100">{tDashboard('createModal.title')}</div>
+                    <div className="text-sm text-text-300 font-normal">{tDashboard('createModal.description')}</div>
                   </div>
                 </div>
               </ModalTitle>
@@ -930,8 +935,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
               <div className="grid gap-6">
                 {/* 基本信息区域 */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
-                    <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
+                    <svg className="h-4 w-4 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     {tDashboard('basicInfo')}
@@ -939,26 +944,26 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                   
                   <div className="grid gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {tDashboard('title')} <span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-text-200 mb-2">
+                        {tDashboard('title')} <span className="text-error-500">*</span>
                       </label>
                       <Input
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         placeholder={tDashboard('placeholders.title')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-text-200 mb-2">
                         {tDashboard('description')}
                       </label>
                       <Input
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder={tDashboard('placeholders.description')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
                   </div>
@@ -966,25 +971,25 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
 
                 {/* 内容区域 */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
-                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
+                    <svg className="h-4 w-4 text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     {tDashboard('promptContent')}
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {tDashboard('content')} <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-text-200 mb-2">
+                      {tDashboard('content')} <span className="text-error-500">*</span>
                     </label>
                     <Textarea
                       value={formData.content}
                       onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                       placeholder={tDashboard('placeholders.content')}
                       rows={6}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none rounded-xl px-4 py-3"
+                      className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent resize-none rounded-xl px-4 py-3"
                     />
-                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                    <div className="mt-2 text-xs text-text-300 flex items-center gap-1">
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -992,16 +997,16 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     </div>
                     
                     {/* 模板变量使用示例 */}
-                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                      <div className="flex items-center gap-2 text-sm font-medium text-blue-700 mb-2">
+                    <div className="mt-4 p-4 bg-primary-300 rounded-lg border border-primary-300">
+                      <div className="flex items-center gap-2 text-sm font-medium text-primary-100 mb-2">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                         {tDashboard('templateVariableExample.title')}
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">{tDashboard('templateVariableExample.description')}</p>
-                      <div className="text-xs text-gray-700 space-y-1">
-                        <div className="mt-2 text-blue-600 font-mono bg-blue-100 px-2 py-1 rounded inline-block">
+                      <p className="text-xs text-text-200 mb-2">{tDashboard('templateVariableExample.description')}</p>
+                      <div className="text-xs text-text-200 space-y-1">
+                        <div className="mt-2 text-primary-100 font-mono bg-primary-300 px-2 py-1 rounded inline-block">
                           {tDashboard('templateVariableExample.format')}
                         </div>
                       </div>
@@ -1011,8 +1016,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
 
                 {/* 设置区域 */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
-                    <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
+                    <svg className="h-4 w-4 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -1021,20 +1026,20 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                   
                   <div className="grid gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-text-200 mb-2">
                         {tDashboard('visibility')}
                       </label>
                       <div className="relative">
                         <select
                           value={formData.visibility}
                           onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
+                          className="w-full px-4 py-3 border border-bg-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
                         >
                           <option value="private">{tDashboard('privateVisibility')}</option>
                           <option value="public">{tDashboard('publicVisibility')}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="h-4 w-4 text-text-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </div>
@@ -1042,7 +1047,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-text-200 mb-2">
                         {tDashboard('tags')}
                       </label>
                       <TagSelector
@@ -1061,8 +1066,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             </div>
 
             {/* 底部操作区域 */}
-            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-2xl">
-              <div className="text-sm text-gray-500">
+            <div className="px-8 py-6 bg-bg-200 border-t border-bg-200 flex justify-between items-center rounded-b-2xl">
+              <div className="text-sm text-text-300">
                 <span className="flex items-center gap-1">
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1071,10 +1076,10 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                 </span>
               </div>
               <div className="flex space-x-3">
-                <Button 
-                  onClick={handleCreatePrompt} 
+                <Button
+                  onClick={handleCreatePrompt}
                   disabled={operationLoading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+                  className="px-6 py-2 bg-gradient-to-r from-primary-100 to-accent-100 hover:from-accent-100 hover:to-primary-100 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
                 >
                   {operationLoading ? (
                     <span className="flex items-center gap-2">
@@ -1113,14 +1118,14 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             <ModalHeader>
               <ModalTitle>
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <div className="h-10 w-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center shadow-sm">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">{tDashboard('editPrompt')}</div>
-                    <div className="text-sm text-gray-500 font-normal">{tDashboard('editPromptDescription')}</div>
+                    <div className="text-xl font-bold text-text-100">{tDashboard('editPrompt')}</div>
+                    <div className="text-sm text-text-300 font-normal">{tDashboard('editPromptDescription')}</div>
                   </div>
                 </div>
               </ModalTitle>
@@ -1130,8 +1135,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
               <div className="grid gap-6">
                 {/* 基本信息区域 */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
-                    <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
+                    <svg className="h-4 w-4 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     {tDashboard('basicInfo')}
@@ -1139,26 +1144,26 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                   
                   <div className="grid gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {tDashboard('title')} <span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-text-200 mb-2">
+                        {tDashboard('title')} <span className="text-error-500">*</span>
                       </label>
                       <Input
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         placeholder={tDashboard('placeholders.title')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-text-200 mb-2">
                         {tDashboard('description')}
                       </label>
                       <Input
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder={tDashboard('placeholders.description')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl px-4 py-3"
+                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
                       />
                     </div>
                   </div>
@@ -1166,25 +1171,25 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
 
                 {/* 内容区域 */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b border-gray-100 pb-3">
-                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
+                    <svg className="h-4 w-4 text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     {tDashboard('promptContent')}
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {tDashboard('content')} <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-text-200 mb-2">
+                      {tDashboard('content')} <span className="text-error-500">*</span>
                     </label>
                     <Textarea
                       value={formData.content}
                       onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                       placeholder={tDashboard('placeholders.content')}
                       rows={6}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none rounded-xl px-4 py-3"
+                      className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent resize-none rounded-xl px-4 py-3"
                     />
-                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                    <div className="mt-2 text-xs text-text-300 flex items-center gap-1">
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -1192,16 +1197,16 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     </div>
                     
                     {/* 模板变量使用示例 */}
-                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                      <div className="flex items-center gap-2 text-sm font-medium text-blue-700 mb-2">
+                    <div className="mt-4 p-4 bg-primary-300 rounded-lg border border-primary-300">
+                      <div className="flex items-center gap-2 text-sm font-medium text-primary-100 mb-2">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                         {tDashboard('templateVariableExample.title')}
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">{tDashboard('templateVariableExample.description')}</p>
-                      <div className="text-xs text-gray-700 space-y-1">
-                        <div className="mt-2 text-blue-600 font-mono bg-blue-100 px-2 py-1 rounded inline-block">
+                      <p className="text-xs text-text-200 mb-2">{tDashboard('templateVariableExample.description')}</p>
+                      <div className="text-xs text-text-200 space-y-1">
+                        <div className="mt-2 text-primary-100 font-mono bg-primary-300 px-2 py-1 rounded inline-block">
                           {tDashboard('templateVariableExample.format')}
                         </div>
                       </div>
@@ -1242,7 +1247,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-text-200 mb-2">
                         {tDashboard('tags')}
                       </label>
                       <TagSelector
@@ -1261,8 +1266,8 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             </div>
 
             {/* 底部操作区域 */}
-            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-2xl">
-              <div className="text-sm text-gray-500">
+            <div className="px-8 py-6 bg-bg-200 border-t border-bg-200 flex justify-between items-center rounded-b-2xl">
+              <div className="text-sm text-text-300">
                 <span className="flex items-center gap-1">
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1271,10 +1276,10 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                 </span>
               </div>
               <div className="flex space-x-3">
-                <Button 
-                  onClick={handleEditPrompt} 
+                <Button
+                  onClick={handleEditPrompt}
                   disabled={operationLoading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+                  className="px-6 py-2 bg-gradient-to-r from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-100 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
                 >
                   {operationLoading ? (
                     <span className="flex items-center gap-2">
@@ -1310,26 +1315,26 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             <ModalHeader>
               <ModalTitle>
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <div className="h-10 w-10 bg-gradient-to-br from-error-400 to-error-500 rounded-xl flex items-center justify-center shadow-sm">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">{tDashboard('deleteConfirmModal.title')}</div>
-                    <div className="text-sm text-gray-500 font-normal">{tDashboard('deleteConfirmModal.description')}</div>
+                    <div className="text-xl font-bold text-text-100">{tDashboard('deleteConfirmModal.title')}</div>
+                    <div className="text-sm text-text-300 font-normal">{tDashboard('deleteConfirmModal.description')}</div>
                   </div>
                 </div>
               </ModalTitle>
             </ModalHeader>
             
             <div className="px-8 py-6 space-y-6">
-              <div className="text-gray-700">
+              <div className="text-text-200">
                 {tDashboard('deleteConfirmModal.message', { title: deletingPrompt?.title || '' })}
               </div>
             </div>
             
-            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end items-center rounded-b-2xl space-x-3">
+            <div className="px-8 py-6 bg-bg-200 border-t border-bg-200 flex justify-end items-center rounded-b-2xl space-x-3">
               <Button
                 onClick={() => {
                   setShowDeleteConfirmModal(false)
@@ -1348,7 +1353,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     setDeletingPrompt(null)
                   }
                 }}
-                className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg text-white rounded-xl"
+                className="px-6 py-2 bg-gradient-to-r from-error-400 to-error-500 hover:from-error-500 hover:to-error-400 transition-all duration-200 shadow-md hover:shadow-lg text-white rounded-xl"
               >
                 {tDashboard('deleteConfirmModal.confirm')}
               </Button>

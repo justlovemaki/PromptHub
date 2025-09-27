@@ -3,6 +3,7 @@ import { PromptService } from '@/lib/services';
 import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { getTranslation } from '@/i18n';
+import { SORT_FIELDS, SORT_ORDERS, PromptSortField, SortOrder } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,14 +35,14 @@ export async function GET(request: NextRequest) {
     
     // 验证分页参数
     const validatedPage = Math.max(1, page);
-    const validatedLimit = Math.min(Math.max(1, limit), 100); // 限制最大100条
+    const validatedLimit = Math.min(Math.max(1, limit), 100); // 限制最大数量
     
     // 验证排序参数
-    const validSortFields = ['title', 'createdAt', 'updatedAt', 'useCount'] as const;
-    const validSortOrders = ['asc', 'desc'] as const;
+    const validSortFields = SORT_FIELDS.PROMPTS;
+    const validSortOrders = SORT_ORDERS;
     
-    const finalSortBy = validSortFields.includes(sortBy as any) ? sortBy as 'title' | 'createdAt' | 'updatedAt' | 'useCount' : 'updatedAt';
-    const finalSortOrder = validSortOrders.includes(sortOrder.toLowerCase() as any) ? sortOrder.toLowerCase() as 'asc' | 'desc' : 'desc';
+    const finalSortBy = validSortFields.includes(sortBy as any) ? sortBy as PromptSortField : 'updatedAt';
+    const finalSortOrder = validSortOrders.includes(sortOrder.toLowerCase() as any) ? sortOrder.toLowerCase() as SortOrder : 'desc';
     
     // 处理isPublic参数
     const isPublicBool = isPublic === 'true' ? true : isPublic === 'false' ? false : undefined;

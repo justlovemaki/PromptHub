@@ -8,9 +8,10 @@ import Decimal from 'decimal.js';
 import { useTranslation } from '@/i18n/client';
 import { useAuth } from '@promptmanager/core-logic';
 import { useRouter } from 'next/navigation';
+import { SUBSCRIPTION_ACTIONS, type SubscriptionAction, type SubscriptionStatus, SUBSCRIPTION_STATUS } from '@/lib/constants';
 
 interface PricingPlan {
-  id: 'FREE' | 'PRO' | 'TEAM';
+  id: SubscriptionStatus;
   nameKey: string;
   monthlyPrice: number;
   yearlyPrice: string;
@@ -22,28 +23,30 @@ interface PricingPlan {
 }
 
 // 价格卡片组件
-const PricingCard = ({ 
-  plan, 
-  index, 
-  t, 
-  billingCycle, 
+const PricingCard = ({
+  plan,
+  index,
+  t,
+  billingCycle,
   params,
   user,
   isAuthenticated,
   handleSubscriptionAction,
   isLoading,
-  setIsLoading
-}: { 
-  plan: PricingPlan; 
-  index: number; 
-  t: any; 
-  billingCycle: 'monthly' | 'yearly'; 
+  setIsLoading,
+  isAdmin
+}: {
+  plan: PricingPlan;
+  index: number;
+  t: any;
+  billingCycle: 'monthly' | 'yearly';
   params: { lang: string };
   user: any;
   isAuthenticated: boolean;
-  handleSubscriptionAction: (action: 'upgrade' | 'downgrade' | 'cancel', planId: string) => Promise<void>;
+  handleSubscriptionAction: (action: SubscriptionAction, planId: string) => Promise<void>;
   isLoading: string | null;
   setIsLoading: (planId: string | null) => void;
+  isAdmin: boolean;
 }) => {
   const { ref, inView } = useInView({ threshold: 0.3, triggerOnce: true });
   const router = useRouter();
@@ -80,19 +83,19 @@ const PricingCard = ({
       return t('common:currentPlan');
     }
 
-    if (user?.subscriptionStatus === 'FREE' && plan.id !== 'FREE') {
+    if (user?.subscriptionStatus === SUBSCRIPTION_STATUS.FREE && plan.id !== SUBSCRIPTION_STATUS.FREE) {
       return t('common:upgrade');
     }
 
-    if (user?.subscriptionStatus === 'PRO' && plan.id === 'FREE') {
+    if (user?.subscriptionStatus === SUBSCRIPTION_STATUS.PRO && plan.id === SUBSCRIPTION_STATUS.FREE) {
       return t('common:downgrade');
     }
 
-    if (user?.subscriptionStatus === 'PRO' && plan.id === 'TEAM') {
+    if (user?.subscriptionStatus === SUBSCRIPTION_STATUS.PRO && plan.id === SUBSCRIPTION_STATUS.TEAM) {
       return t('common:upgrade');
     }
 
-    if (user?.subscriptionStatus === 'TEAM' && plan.id !== 'TEAM') {
+    if (user?.subscriptionStatus === SUBSCRIPTION_STATUS.TEAM && plan.id !== SUBSCRIPTION_STATUS.TEAM) {
       return t('common:downgrade');
     }
 
@@ -165,20 +168,20 @@ const PricingCard = ({
               if (user?.subscriptionStatus === plan.id) return;
               
               if (user?.subscriptionStatus === 'FREE' && plan.id !== 'FREE') {
-                handleSubscriptionAction('upgrade', plan.id);
+                handleSubscriptionAction(SUBSCRIPTION_ACTIONS.UPGRADE, plan.id);
               } else if (user?.subscriptionStatus === 'PRO' && plan.id === 'FREE') {
-                handleSubscriptionAction('downgrade', plan.id);
+                handleSubscriptionAction(SUBSCRIPTION_ACTIONS.DOWNGRADE, plan.id);
               } else if (user?.subscriptionStatus === 'PRO' && plan.id === 'TEAM') {
-                handleSubscriptionAction('upgrade', plan.id);
+                handleSubscriptionAction(SUBSCRIPTION_ACTIONS.UPGRADE, plan.id);
               } else if (user?.subscriptionStatus === 'TEAM' && plan.id !== 'TEAM') {
-                handleSubscriptionAction('downgrade', plan.id);
+                handleSubscriptionAction(SUBSCRIPTION_ACTIONS.DOWNGRADE, plan.id);
               }
             }}
-            disabled={isLoading === plan.id || (user?.subscriptionStatus === plan.id)}
+            disabled={isLoading === plan.id || (user?.subscriptionStatus === plan.id) || (!isAdmin && plan.id !== 'FREE')}
             className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 ${
               getButtonStyle()
             } ${
-              isLoading === plan.id ? 'opacity-50 cursor-not-allowed' : ''
+              isLoading === plan.id || (!isAdmin && plan.id !== 'FREE') ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isLoading === plan.id ? (
@@ -200,7 +203,7 @@ const PricingCard = ({
 };
 
 // 价格区域组件
-const PricingSection = ({ params }: { params: { lang: string } }) => {
+const PricingSection = ({ params, isAdmin }: { params: { lang: string }, isAdmin: boolean }) => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -209,7 +212,7 @@ const PricingSection = ({ params }: { params: { lang: string } }) => {
   const router = useRouter();
   
   // 处理订阅管理
-  const handleSubscriptionAction = async (action: 'upgrade' | 'downgrade' | 'cancel', planId: string) => {
+  const handleSubscriptionAction = async (action: SubscriptionAction, planId: string) => {
     if (!isAuthenticated) {
       router.push(`/${params.lang}/login`);
       return;
@@ -236,7 +239,7 @@ const PricingSection = ({ params }: { params: { lang: string } }) => {
   // 价格方案数据 - 使用语言键
   const pricingPlans: PricingPlan[] = [
     {
-      id: 'FREE',
+      id: SUBSCRIPTION_STATUS.FREE,
       nameKey: 'pricing.free.name',
       monthlyPrice: 0,
       yearlyPrice: '0',
@@ -255,7 +258,7 @@ const PricingSection = ({ params }: { params: { lang: string } }) => {
       buttonKey: 'pricing.free.button'
     },
     {
-      id: 'PRO',
+      id: SUBSCRIPTION_STATUS.PRO,
       nameKey: 'pricing.pro.name',
       monthlyPrice: params.lang === 'en' ? 7 : params.lang === 'ja' ? 1000 : 49,
       yearlyPrice: new Decimal(params.lang === 'en' ? 7 : params.lang === 'ja' ? 1000 : 49).mul(12).mul(0.8).ceil().toFixed(0),
@@ -272,7 +275,7 @@ const PricingSection = ({ params }: { params: { lang: string } }) => {
       buttonKey: 'pricing.pro.button'
     },
     {
-      id: 'TEAM',
+      id: SUBSCRIPTION_STATUS.TEAM,
       nameKey: 'pricing.team.name',
       monthlyPrice: params.lang === 'en' ? 39 : params.lang === 'ja' ? 5000 : 299,
       yearlyPrice: new Decimal(params.lang === 'en' ? 39 : params.lang === 'ja' ? 5000 : 299).mul(12).mul(0.8).ceil().toFixed(0),
@@ -348,18 +351,19 @@ const PricingSection = ({ params }: { params: { lang: string } }) => {
         
         <div className="grid md:grid-cols-3 gap-8">
           {pricingPlans.map((plan, index) => (
-            <PricingCard 
-              key={index} 
-              plan={plan} 
-              index={index} 
-              t={t} 
-              billingCycle={billingCycle} 
+            <PricingCard
+              key={index}
+              plan={plan}
+              index={index}
+              t={t}
+              billingCycle={billingCycle}
               params={params}
               user={user}
               isAuthenticated={isAuthenticated}
               handleSubscriptionAction={handleSubscriptionAction}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
+              isAdmin={isAdmin}
             />
           ))}
         </div>

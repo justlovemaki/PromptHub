@@ -7,6 +7,7 @@ import { DataTable } from '@promptmanager/ui-components/src/components/data-tabl
 import type { SystemLog } from '@promptmanager/core-logic'
 import AdminPageWrapper from '../../../../components/admin/AdminPageWrapper'
 import { useTranslation } from '@/i18n/client'
+import { LogLevel, LogCategory } from '@/lib/constants';
 
 interface LogsPageProps {
   params: {
@@ -81,10 +82,10 @@ export default function LogsPage({ params }: LogsPageProps) {
 
       // 添加筛选条件
       if (filterLevel !== 'all') {
-        query.level = filterLevel as 'INFO' | 'WARN' | 'ERROR' | 'DEBUG'
+        query.level = filterLevel as LogLevel
       }
       if (filterCategory !== 'all') {
-        query.category = filterCategory as 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE'
+        query.category = filterCategory as LogCategory
       }
 
       const result = await api.getSystemLogs(query, lang)
@@ -129,12 +130,12 @@ export default function LogsPage({ params }: LogsPageProps) {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-text-100">{t('title')}</h1>
+              <p className="text-text-200 mt-1">
                 {t('description')}
               </p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-text-300">
               {t('totalLogs', { count: totalLogs })}
             </div>
           </div>
@@ -174,8 +175,8 @@ export default function LogsPage({ params }: LogsPageProps) {
 
         {/* 日志列表 */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">{t('tableHeaders.listTitle')}</h2>
+          <div className="px-6 py-4 border-b border-bg-300">
+            <h2 className="text-lg font-semibold text-text-100">{t('tableHeaders.listTitle')}</h2>
           </div>
 
           <DataTable
@@ -187,7 +188,7 @@ export default function LogsPage({ params }: LogsPageProps) {
                 width: '16.67%',
                 sortable: true,
                 render: (value: string) => (
-                  <span className="text-gray-500 text-xs">
+                  <span className="text-text-300 text-xs">
                     {new Date(value).toLocaleString(params.lang)}
                   </span>
                 )
@@ -199,10 +200,10 @@ export default function LogsPage({ params }: LogsPageProps) {
                 sortable: true,
                 render: (value: string) => {
                   const colors = {
-                    INFO: 'bg-blue-100 text-blue-800',
-                    WARN: 'bg-yellow-100 text-yellow-800',
-                    ERROR: 'bg-red-100 text-red-800',
-                    DEBUG: 'bg-gray-100 text-gray-800'
+                    INFO: 'bg-primary-300 text-primary-100',
+                    WARN: 'bg-warning-400 text-warning-500',
+                    ERROR: 'bg-error-400 text-error-500',
+                    DEBUG: 'bg-bg-200 text-text-200'
                   }
                   return (
                     <span className={`px-2 py-1 text-xs rounded-full ${colors[value as keyof typeof colors] || colors.INFO}`}>
@@ -218,12 +219,12 @@ export default function LogsPage({ params }: LogsPageProps) {
                 sortable: true,
                 render: (value: string) => {
                   const colors = {
-                    AUTH: 'bg-purple-100 text-purple-800',
-                    API: 'bg-green-100 text-green-800',
-                    USER: 'bg-blue-100 text-blue-800',
-                    SYSTEM: 'bg-gray-100 text-gray-800',
-                    SECURITY: 'bg-red-100 text-red-800',
-                    PERFORMANCE: 'bg-orange-100 text-orange-800'
+                    AUTH: 'bg-secondary-400 text-secondary-500',
+                    API: 'bg-success-400 text-success-500',
+                    USER: 'bg-primary-300 text-primary-100',
+                    SYSTEM: 'bg-bg-200 text-text-200',
+                    SECURITY: 'bg-error-400 text-error-500',
+                    PERFORMANCE: 'bg-warning-400 text-warning-500'
                   }
                   return (
                     <span className={`px-2 py-1 text-xs rounded-full ${colors[value as keyof typeof colors] || colors.SYSTEM}`}>
@@ -239,26 +240,26 @@ export default function LogsPage({ params }: LogsPageProps) {
                 render: (value: string, record: SystemLog) => (
                   <div className="space-y-2">
                     <div className="flex items-start space-x-2">
-                      <p className="text-gray-800 font-medium break-words flex-1">
+                      <p className="text-text-200 font-medium break-words flex-1">
                         {value}
                       </p>
                       {record.statusCode && (
-                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs bg-bg-200 text-text-200 rounded whitespace-nowrap">
                           {record.statusCode}
                         </span>
                       )}
                     </div>
                     {record.details && (
                       <details className="mt-2">
-                        <summary className="cursor-pointer text-xs text-blue-600 hover:text-blue-800">
+                        <summary className="cursor-pointer text-xs text-primary-100 hover:text-primary-100">
                           {t('details.showDetails')}
                         </summary>
-                        <div className="mt-1 p-2 bg-gray-50 rounded text-xs break-words">
+                        <div className="mt-1 p-2 bg-bg-200 rounded text-xs break-words">
                           <pre className="whitespace-pre-wrap">{record.details}</pre>
                         </div>
                       </details>
                     )}
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 text-xs text-text-300">
                       {record.ip && (
                         <span title={`${t('details.ip')}: ${record.ip}`}>{t('details.ip')}: {record.ip}</span>
                       )}

@@ -5,6 +5,7 @@ import { verifyAdminInApiRoute } from '@/lib/auth-helpers';
 import { db } from '@/lib/database';
 import { asc, desc, like, and, or, gte, lte } from 'drizzle-orm';
 import { getTranslation } from '@/i18n';
+import { SORT_FIELDS, SORT_ORDERS, LOG_CATEGORIES, LogCategory, LOG_LEVELS, LogLevel } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,8 +33,12 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
     const sortBy = searchParams.get('sort') || 'timestamp';
     const sortOrder = searchParams.get('order') || 'desc';
-    const level = searchParams.get('level') as 'INFO' | 'WARN' | 'ERROR' | 'DEBUG' | null;
-    const category = searchParams.get('category') as 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE' | null;
+
+    // 验证排序参数
+    const finalSortBy = SORT_FIELDS.LOGS.includes(sortBy as any) ? sortBy : 'timestamp';
+    const finalSortOrder = SORT_ORDERS.includes(sortOrder.toLowerCase() as any) ? sortOrder.toLowerCase() : 'desc';
+    const level = searchParams.get('level') as LogLevel | null;
+    const category = searchParams.get('category') as LogCategory | null;
     const search = searchParams.get('search') || '';
 
     // 验证分页参数
@@ -93,15 +98,15 @@ export async function GET(request: NextRequest) {
 
     // 构建排序配置
     let orderBy;
-    switch (sortBy) {
+    switch (finalSortBy) {
       case 'timestamp':
-        orderBy = sortOrder === 'asc' ? asc(systemLogs.timestamp) : desc(systemLogs.timestamp);
+        orderBy = finalSortOrder === 'asc' ? asc(systemLogs.timestamp) : desc(systemLogs.timestamp);
         break;
       case 'level':
-        orderBy = sortOrder === 'asc' ? asc(systemLogs.level) : desc(systemLogs.level);
+        orderBy = finalSortOrder === 'asc' ? asc(systemLogs.level) : desc(systemLogs.level);
         break;
       case 'category':
-        orderBy = sortOrder === 'asc' ? asc(systemLogs.category) : desc(systemLogs.category);
+        orderBy = finalSortOrder === 'asc' ? asc(systemLogs.category) : desc(systemLogs.category);
         break;
       default:
         orderBy = desc(systemLogs.timestamp);

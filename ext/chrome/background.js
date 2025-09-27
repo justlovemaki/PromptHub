@@ -96,11 +96,10 @@ if (chrome && chrome.storage && chrome.storage.onChanged) {
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local' && changes.authToken) {
       authToken = changes.authToken.newValue;
-      
-      if (changes.extension_config) {
-        const extension_config = changes.extension_config.newValue;
-        baseUrl = extension_config && extension_config.WEB_APP_BASE_URL ? extension_config.WEB_APP_BASE_URL : 'http://localhost';
-      }
+    }
+    if (namespace === 'local' && changes.extension_config) {
+      const extension_config = changes.extension_config.newValue;
+      baseUrl = extension_config && extension_config.WEB_APP_BASE_URL ? extension_config.WEB_APP_BASE_URL : 'http://localhost';
     }
   });
 }

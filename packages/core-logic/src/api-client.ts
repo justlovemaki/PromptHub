@@ -22,8 +22,10 @@ import type {
    SystemLogListQuery,
    SystemLogListResponse,
    TagWithCount,
+   AiPointsPackageType,
+   SubscriptionAction,
  } from './types';
-import { useAuthStore } from './stores/auth-store';
+ import { useAuthStore } from './stores/auth-store';
 
 // ============== 辅助函数 ==============
 
@@ -319,7 +321,7 @@ export class ApiClient {
     }>('/api/user/ai-points', true, lang);
   }
 
-  async purchaseAiPoints(packageType: 'small' | 'medium' | 'large', lang?: string): Promise<ApiResponse<{
+  async purchaseAiPoints(packageType: AiPointsPackageType, lang?: string): Promise<ApiResponse<{
     userId: string;
     newBalance: number;
     purchasedPoints: number
@@ -331,7 +333,7 @@ export class ApiClient {
     }>('/api/user/purchase-ai-points', { packageType }, true, lang);
   }
 
-  async manageSubscription(action: 'upgrade' | 'downgrade' | 'cancel', lang?: string): Promise<ApiResponse<{
+  async manageSubscription(action: SubscriptionAction, lang?: string): Promise<ApiResponse<{
     userId: string;
     subscriptionStatus: string;
   }>> {
@@ -566,8 +568,8 @@ export const api = {
   importPrompts: (data: any[], spaceId?: string, lang?: string) => getApiClient().importPrompts(data, spaceId, lang),
   exportPrompts: (spaceId?: string, lang?: string) => getApiClient().exportPrompts(spaceId, lang),
   getAiPointsUsage: (lang?: string) => getApiClient().get<{ totalPoints: number; usedPoints: number; remainingPoints: number; usageRecords: any[] }>('/api/user/ai-points', true, lang),
-  purchaseAiPoints: (packageType: 'small' | 'medium' | 'large', lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),
-  manageSubscription: (action: 'upgrade' | 'downgrade' | 'cancel', lang?: string) => getApiClient().post<{ userId: string; subscriptionStatus: string }>('/api/user/subscription', { action }, true, lang),
+  purchaseAiPoints: (packageType: AiPointsPackageType, lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),
+  manageSubscription: (action: SubscriptionAction, lang?: string) => getApiClient().post<{ userId: string; subscriptionStatus: string }>('/api/user/subscription', { action }, true, lang),
   
   // 管理员
   getAdminStats: (lang?: string) => getApiClient().get<AdminStats>('/api/admin/stats/get', true, lang),

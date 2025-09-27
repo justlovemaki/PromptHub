@@ -6,6 +6,7 @@ import { db } from '@/lib/database';
 import { user } from '@/drizzle-schema';
 import { sql, asc, desc } from 'drizzle-orm';
 import { getTranslation } from '@/i18n';
+import { SORT_FIELDS, VALID_USER_ROLES, VALID_SUBSCRIPTION_STATUSES } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,8 +36,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = searchParams.get('search') || '';
 
     // 验证排序字段并构建orderBy
-    const allowedSortFields = ['id', 'email', 'name', 'role', 'subscriptionStatus', 'createdAt', 'updatedAt'];
-    const validSortField = allowedSortFields.includes(sortField) ? sortField : 'createdAt';
+    const validSortField = SORT_FIELDS.USERS.includes(sortField as any) ? sortField : 'createdAt';
 
     // 构建orderBy对象
     let orderBy;
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 构建搜索和筛选条件
-    let whereCondition = sql`1=1`; // 默认条件
+    let whereCondition = sql` 1=1 `; // 默认条件
 
     if (searchTerm) {
       whereCondition = sql`${whereCondition} AND (${user.email} LIKE ${`%${searchTerm}%`} OR ${user.name} LIKE ${`%${searchTerm}%`})`;
@@ -75,13 +75,13 @@ export async function GET(request: NextRequest) {
 
     // 角色筛选
     const roleFilter = searchParams.get('role');
-    if (roleFilter && ['USER', 'ADMIN'].includes(roleFilter)) {
+    if (roleFilter && VALID_USER_ROLES.includes(roleFilter as any)) {
       whereCondition = sql`${whereCondition} AND ${user.role} = ${roleFilter}`;
     }
 
     // 订阅状态筛选
     const subscriptionFilter = searchParams.get('subscriptionStatus');
-    if (subscriptionFilter && ['FREE', 'PRO', 'TEAM'].includes(subscriptionFilter)) {
+    if (subscriptionFilter && VALID_SUBSCRIPTION_STATUSES.includes(subscriptionFilter as any)) {
       whereCondition = sql`${whereCondition} AND ${user.subscriptionStatus} = ${subscriptionFilter}`;
     }
 
@@ -109,11 +109,11 @@ export async function GET(request: NextRequest) {
       totalWhereCondition = sql`${totalWhereCondition} AND (${user.email} LIKE ${`%${searchTerm}%`} OR ${user.name} LIKE ${`%${searchTerm}%`})`;
     }
 
-    if (roleFilter && ['USER', 'ADMIN'].includes(roleFilter)) {
+    if (roleFilter && VALID_USER_ROLES.includes(roleFilter as any)) {
       totalWhereCondition = sql`${totalWhereCondition} AND ${user.role} = ${roleFilter}`;
     }
 
-    if (subscriptionFilter && ['FREE', 'PRO', 'TEAM'].includes(subscriptionFilter)) {
+    if (subscriptionFilter && VALID_SUBSCRIPTION_STATUSES.includes(subscriptionFilter as any)) {
       totalWhereCondition = sql`${totalWhereCondition} AND ${user.subscriptionStatus} = ${subscriptionFilter}`;
     }
 

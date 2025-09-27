@@ -5,6 +5,7 @@ import { prompt } from '@/drizzle-schema'
 import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils'
 import { desc, asc, sql } from 'drizzle-orm'
 import { getTranslation } from '@/i18n'
+import { SORT_FIELDS, SORT_ORDERS } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,10 +40,8 @@ export async function GET(request: NextRequest) {
     const offset = (validatedPage - 1) * validatedLimit
 
     // 验证排序参数
-    const validSortFields = ['title', 'createdAt', 'updatedAt', 'useCount']
-    const validSortOrders = ['asc', 'desc']
-    const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'updatedAt'
-    const finalSortOrder = validSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toLowerCase() : 'desc'
+    const finalSortBy = SORT_FIELDS.PROMPTS.includes(sortBy as any) ? sortBy : 'updatedAt'
+    const finalSortOrder = SORT_ORDERS.includes(sortOrder.toLowerCase() as any) ? sortOrder.toLowerCase() : 'desc'
 
     // 处理isPublic参数
     const isPublicBool = isPublic === 'true' ? true : isPublic === 'false' ? false : undefined

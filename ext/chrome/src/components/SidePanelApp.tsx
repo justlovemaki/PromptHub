@@ -3,7 +3,7 @@ import { DropdownMenu } from './ui';
 import { Card } from './ui';
 import PromptCard from './PromptCard';
 import { fetchPrompts, fetchUserStats, fetchUserInfo, setAuthToken, fetchPromptTags, PromptTag, findTagByKey } from '../utils/api';
-import { Prompt, UserStats, User } from '../types';
+import { Prompt, UserStats, User, USER_ROLES } from '../types';
 import { CONFIG } from '../config';
 
 const API_BASE_URL = import.meta.env.VITE_WEB_APP_BASE_URL || ''
@@ -36,6 +36,7 @@ const SidePanelApp: React.FC = () => {
   useEffect(() => {
     // 将配置写入 chrome.storage.local
     if (chrome && chrome.storage && chrome.storage.local) {
+      CONFIG.WEB_APP_BASE_URL = API_BASE_URL;
       chrome.storage.local.set({ extension_config: CONFIG });
     } else {
       console.error('Chrome storage API not available');
@@ -225,6 +226,7 @@ const SidePanelApp: React.FC = () => {
     } catch (err: any) {
       setError('Failed to load data');
       console.error('Error loading data:', err);
+      handleLogout()
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
@@ -292,7 +294,15 @@ const SidePanelApp: React.FC = () => {
       }
       
       // 打开目标网页
-      const tab = await chrome.tabs.create({ url: API_BASE_URL });
+      let tab = null;
+      console.log('Opening web app...',chrome.i18n.getUILanguage());
+      if(chrome.i18n.getUILanguage().startsWith('zh')){
+        tab = await chrome.tabs.create({ url: `${API_BASE_URL}/zh-CN/` });
+      } else if(chrome.i18n.getUILanguage() === 'ja'){
+        tab = await chrome.tabs.create({ url: `${API_BASE_URL}/ja/` });
+      } else {
+        tab = await chrome.tabs.create({ url: `${API_BASE_URL}/` }); // 使用配置中的基础URL
+      }
       console.log('Tab created:', tab.id);
       
       // 等待页面加载完成
@@ -583,14 +593,18 @@ const SidePanelApp: React.FC = () => {
       {/* Dashboard Stats */}
       {userStats && (
         <div className="p-4 grid grid-cols-2 gap-4 bg-gray-50">
-          <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
-            <h3 className="text-sm font-medium text-gray-600">{t('subscriptionStatus')}</h3>
-            <p className="text-xl font-semibold mt-1 text-gray-900">{userInfo?.subscriptionStatus}</p>
-          </Card>
-          <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
-            <h3 className="text-sm font-medium text-gray-600">{t('aiPoints')}</h3>
-            <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.remainingCredits}</p>
-          </Card>
+          {(userInfo?.role === USER_ROLES.ADMIN) && (
+            <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
+              <h3 className="text-sm font-medium text-gray-600">{t('subscriptionStatus')}</h3>
+              <p className="text-xl font-semibold mt-1 text-gray-900">{userInfo?.subscriptionStatus}</p>
+            </Card>
+          )}
+          {(userInfo?.role === USER_ROLES.ADMIN) && (
+            <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
+              <h3 className="text-sm font-medium text-gray-600">{t('aiPoints')}</h3>
+              <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.remainingCredits}</p>
+            </Card>
+          )}
           <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
             <h3 className="text-sm font-medium text-gray-600">{t('totalPrompts')}</h3>
             <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.totalPrompts}</p>

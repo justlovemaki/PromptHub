@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 主色调 - 莫兰迪蓝紫色系 */
+  --primary-100: #7A85A8;  /* 柔和深蓝紫 - 主色 */
+  --primary-200: #9AA3C1;  /* 柔和中蓝紫 */
+  --primary-300: #D9DEEB;  /* 柔和浅蓝紫 - 背景用 */
+
+  /* 强调色 - 莫兰迪紫灰色系 */
+  --accent-100: #8E88A5;   /* 柔和紫灰 - 主强调色 */
+  --accent-200: #716D88;   /* 深紫灰 - 高对比度 */
+
+  /* 文字色 - 深色系保证高对比度 */
+  --text-100: #2c2c2c;     /* 炭黑 - 主文字（对比度 > 14:1） */
+  --text-200: #4a4a4a;     /* 深灰 - 次要文字（对比度 > 8:1） */
+  --text-300: #6b6b6b;     /* 中灰 - 辅助文字（对比度 > 4.5:1） */
+
+  /* 背景色系列 - 莫兰迪中性色调 */
+  --bg-100: #ffffff;       /* 纯白 */
+  --bg-200: #f9f9fa;       /* 柔和米白 */
+  --bg-300: #f1f1f4;       /* 柔和灰紫白 */
+  --bg-400: #e5e5e9;       /* 柔和浅紫灰 */
+  --bg-500: #d0d0d6;       /* 柔和中紫灰 */
+  --bg-600: #b5b5bc;       /* 柔和深紫灰 */
+  --bg-700: #93939b;       /* 柔和深灰紫 */
+  --bg-800: #6b6b75;       /* 柔和深紫褐 */
+  --bg-900: #47474f;       /* 柔和炭紫灰 */
+  --bg-1000: #2a2a2f;      /* 深炭紫 */
+
+  /* 次要色 - 莫兰迪蓝紫灰色系 */
+  --secondary-400: #9DA4BD; /* 柔和蓝紫灰 */
+  --secondary-500: #EDF0F7; /* 柔和浅蓝紫灰 - 背景用 */
+
+  /* 状态色 - 莫兰迪蓝紫风格 */
+  --error-400: #E8D6DC;    /* 柔和紫粉背景 */
+  --error-500: #82606B;    /* 柔和深紫粉文字 */
+
+  --success-400: #D4E0DC;  /* 柔和紫绿背景 */
+  --success-500: #586F6A;  /* 柔和深紫绿文字 */
+
+  --warning-400: #E8E4D6;  /* 柔和紫黄背景 */
+  --warning-500: #757060;  /* 柔和深紫黄文字 */
+
+  --info-400: #D6E1EC;     /* 柔和蓝紫背景 */
+  --info-500: #566C86;     /* 柔和深蓝紫文字 */
+
+  /* 基础前景色 - 柔和简约 */
+  --foreground-rgb: 44, 44, 44;          /* 对应 --text-100 */
+  --background-start-rgb: 249, 249, 250; /* 对应 --bg-200 */
+  --background-end-rgb: 255, 255, 255;   /* 对应 --bg-100 */
+}
+
+/* 无障碍增强 - 焦点样式 */
+*:focus-visible {
+  outline: 2px solid var(--primary-100);
+  outline-offset: 2px;
+  border-radius: 4px; /* 柔和圆角 */
+}
+
+/* 隐藏滚动条的类 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-end-rgb));
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 莫兰迪风格的柔和装饰背景 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    /* 蓝紫晕染 */
+    radial-gradient(ellipse at 15% 30%, rgba(122, 133, 168, 0.04) 0%, transparent 50%),
+    /* 紫灰装饰 */
+    radial-gradient(circle at 85% 80%, rgba(142, 136, 165, 0.03) 0%, transparent 40%),
+    /* 蓝紫点缀 */
+    radial-gradient(ellipse at 50% 5%, rgba(157, 164, 189, 0.025) 0%, transparent 60%),
+    /* 细腻纹理 */
+    linear-gradient(0deg, transparent 0%, rgba(241, 241, 244, 0.5) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 选中文本的莫兰迪风格 */
+::selection {
+  background-color: rgba(154, 163, 193, 0.25);
+  color: var(--text-100);
+}
+
+/* 莫兰迪风格滚动条（如果显示） */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-200);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-500);
+  border-radius: 4px;
+  border: 1px solid var(--bg-300);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-600);
+}
+
+/* 莫兰迪风格分割线 */
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--bg-400) 10%,
+    var(--bg-400) 90%,
+    transparent
+  );
+  margin: 2rem 0;
+}
+
+/* 增强对比度的辅助类 */
+.high-contrast {
+  filter: contrast(1.1);
+}

@@ -7,15 +7,17 @@ import { getTruePathFromPathname } from '../lib/utils';
 import { languages, fallbackLng } from '@/i18n/settings'
 
 interface LanguageSwitcherProps {
-  lang: string
+  lang: string,
+  textClassName?: string
 }
 
-const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang, textClassName }) => {
   const { t, i18n } = useTranslation(lang, 'common')
   const router = useRouter()
   const currentPath = usePathname()
   const [isClient, setIsClient] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  textClassName = textClassName || 'text-text-200';
 
   useEffect(() => {
     setIsClient(true)
@@ -56,8 +58,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
   if (!isClient) {
     return (
       <div className="flex items-center">
-        <div className="animate-pulse bg-gray-200 rounded-full w-8 h-8"></div>
-        <div className="ml-2 animate-pulse bg-gray-200 rounded w-16 h-4"></div>
+        <div className="animate-pulse bg-bg-300 rounded-full w-8 h-8"></div>
+        <div className="ml-2 animate-pulse bg-bg-300 rounded w-16 h-4"></div>
       </div>
     )
   }
@@ -69,13 +71,13 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+        className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-primary-100 transition-colors"
       >
-        <span className="text-gray-700 font-medium truncate max-w-[100px]">
+        <span className={`${textClassName} hover:text-white font-medium truncate max-w-[100px]`}>
           {t(currentLanguage.name)}
         </span>
         <svg
-          className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 ${textClassName} transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -85,7 +87,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-bg-100 border border-bg-300 rounded-md shadow-lg z-50">
           <div className="py-1">
             {languagesCode.map((language) => (
               <button
@@ -93,11 +95,11 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
                 onClick={() => switchLanguage(language.code)}
                 className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center space-x-2 ${
                   lang === language.code || (language.code === '' && lang === fallbackLng)
-                    ? 'bg-brand-blue text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-100 text-white'
+                    : 'text-text-100 hover:bg-bg-200'
                 }`}
               >
-                <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-primary-100/10 flex items-center justify-center">
                   <span className="text-xs font-medium">
                     {language.name.charAt(0).toUpperCase()}
                   </span>

@@ -42,7 +42,7 @@ export interface FlatTag {
  */
 export function useTags(language: string = 'en') {
   const tagsData = useMemo(() => {
-    const mapLanguageCodeToAbbreviation = (fullCode: string): 'cn' | 'en' | 'ja' => {
+    const mapLanguageCodeToAbbreviation = (fullCode: string) => {
       switch (fullCode) {
         case 'zh-CN':
           return 'cn';

@@ -3,6 +3,7 @@ import { verifyUserInApiRoute } from '@/lib/auth-helpers';
 import { addConnection, removeConnection } from '@/lib/sse-manager';
 import { getLanguageFromNextRequest } from '@/lib/utils';
 import { getTranslation } from '@/i18n';
+import { API_CONFIG } from '@/lib/constants';
 
 // 告诉 Next.js 这是一个动态路由
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
             clearInterval(heartbeat);
             removeConnection(connectionId);
           }
-        }, 30000); // 每30秒发送心跳
+        }, API_CONFIG.SSE_HEARTBEAT_INTERVAL); // 每30秒发送心跳
         
         // 清理连接的回调
         request.signal.addEventListener('abort', () => {

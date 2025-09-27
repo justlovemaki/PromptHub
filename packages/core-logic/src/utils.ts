@@ -346,6 +346,8 @@ export const CONSTANTS = {
 
 
 // 系统日志工具类 - 提供统一的日志记录接口
+import { LogLevel, LogCategory, LOG_LEVELS } from './types';
+
 export class SystemLogger {
   private static instance: SystemLogger;
 
@@ -359,8 +361,8 @@ export class SystemLogger {
   }
 
   public log(
-    level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG',
-    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    level: LogLevel,
+    category: LogCategory,
     message: string,
     details?: any,
     userId?: string,
@@ -392,7 +394,7 @@ export class SystemLogger {
   }
 
   public info(
-    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    category: LogCategory,
     message: string,
     details?: any,
     userId?: string,
@@ -400,11 +402,11 @@ export class SystemLogger {
     ip?: string,
     userAgent?: string
   ) {
-    return this.log('INFO', category, message, details, userId, userEmail, ip, userAgent);
+    return this.log(LOG_LEVELS.INFO, category, message, details, userId, userEmail, ip, userAgent);
   }
 
   public warn(
-    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    category: LogCategory,
     message: string,
     details?: any,
     userId?: string,
@@ -412,11 +414,11 @@ export class SystemLogger {
     ip?: string,
     userAgent?: string
   ) {
-    return this.log('WARN', category, message, details, userId, userEmail, ip, userAgent);
+    return this.log(LOG_LEVELS.WARN, category, message, details, userId, userEmail, ip, userAgent);
   }
 
   public error(
-    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    category: LogCategory,
     message: string,
     details?: any,
     userId?: string,
@@ -425,11 +427,11 @@ export class SystemLogger {
     userAgent?: string,
     statusCode?: number
   ) {
-    return this.log('ERROR', category, message, details, userId, userEmail, ip, userAgent, statusCode);
+    return this.log(LOG_LEVELS.ERROR, category, message, details, userId, userEmail, ip, userAgent, statusCode);
   }
 
   public debug(
-    category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE',
+    category: LogCategory,
     message: string,
     details?: any,
     userId?: string,
@@ -437,7 +439,7 @@ export class SystemLogger {
     ip?: string,
     userAgent?: string
   ) {
-    return this.log('DEBUG', category, message, details, userId, userEmail, ip, userAgent);
+    return this.log(LOG_LEVELS.DEBUG, category, message, details, userId, userEmail, ip, userAgent);
   }
 }
 
@@ -445,14 +447,14 @@ export class SystemLogger {
 export const logger = SystemLogger.getInstance();
 
 // 便捷的记录方法
-export const logInfo = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any) =>
+export const logInfo = (category: LogCategory, message: string, details?: any) =>
   logger.info(category, message, details);
 
-export const logWarn = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any) =>
+export const logWarn = (category: LogCategory, message: string, details?: any) =>
   logger.warn(category, message, details);
 
-export const logError = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any, statusCode?: number) =>
+export const logError = (category: LogCategory, message: string, details?: any, statusCode?: number) =>
   logger.error(category, message, details, undefined, undefined, undefined, undefined, statusCode);
 
-export const logDebug = (category: 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE', message: string, details?: any) =>
+export const logDebug = (category: LogCategory, message: string, details?: any) =>
   logger.debug(category, message, details);

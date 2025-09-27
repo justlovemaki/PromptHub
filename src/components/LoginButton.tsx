@@ -6,14 +6,14 @@ import { useSession, signOut } from '../lib/auth-client'
 import { useAuthStore } from '@promptmanager/core-logic'
 import { useTranslation } from '../i18n/client'
 
-export default function LoginButton({ lng }: { lng: string }) {
+export default function LoginButton({ lng,  textClassName }: { lng: string,  textClassName?: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { data: session, isPending } = useSession()
   const { user: authUser, logout, setLanguage } = useAuthStore()
   const { t } = useTranslation(lng, 'common')
-  
+  textClassName = textClassName || 'text-text-200';
 
   useEffect(() => {
     setIsClient(true)
@@ -74,7 +74,7 @@ export default function LoginButton({ lng }: { lng: string }) {
       <div className="relative">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+          className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-primary-100 transition-colors"
         >
           {currentUser.image ? (
             <img 
@@ -89,7 +89,7 @@ export default function LoginButton({ lng }: { lng: string }) {
               </span>
             </div>
           )}
-          <span className="text-gray-700 font-medium">
+          <span className={`${textClassName} hover:text-white font-medium`}>
             {currentUser.name || currentUser.email}
           </span>
           <svg 
@@ -142,7 +142,7 @@ export default function LoginButton({ lng }: { lng: string }) {
           />
         )}
 
-        <LoginModal isOpen={isModalOpen} onClose={handleCloseModal} lng={lng} />
+        {/* <LoginModal isOpen={isModalOpen} onClose={handleCloseModal} lng={lng} /> */}
       </div>
     )
   }

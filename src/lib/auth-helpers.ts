@@ -7,11 +7,13 @@ import { session } from '../drizzle-schema';
 import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 
+import { USER_ROLES } from './constants';
+
 export interface AuthenticatedUser {
   id: string;
   email: string;
   name?: string;
-  role: 'USER' | 'ADMIN';
+  role: typeof USER_ROLES.USER | typeof USER_ROLES.ADMIN;
   personalSpaceId: string;
 }
 
@@ -73,7 +75,7 @@ export async function verifyUserInApiRoute(request: NextRequest): Promise<Authen
  */
 export async function verifyAdminInApiRoute(request: NextRequest): Promise<AuthenticatedUser | null> {
   const user = await verifyUserInApiRoute(request);
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || user.role !== USER_ROLES.ADMIN) {
     return null;
   }
   return user;

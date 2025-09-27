@@ -1,7 +1,9 @@
 import { createAuthClient } from "better-auth/react";
 
+import { FALLBACK_DEFAULT_CONFIG } from "./constants";
+
 export const { signIn, signUp, signOut, useSession } = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || FALLBACK_DEFAULT_CONFIG.AUTH_BASE_URL,
 });
 
 // 自定义登录函数，支持自动注册

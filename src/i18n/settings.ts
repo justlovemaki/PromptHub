@@ -1,5 +1,7 @@
-export const fallbackLng = 'en'
-export const languages = [fallbackLng, 'zh-CN', 'ja']
+import { LANGUAGES, FALLBACK_LANGUAGE } from '../lib/constants';
+
+export const fallbackLng = FALLBACK_LANGUAGE;
+export const languages = [LANGUAGES.ENGLISH, LANGUAGES.CHINESE_SIMPLIFIED, LANGUAGES.JAPANESE];
 export const defaultNS = 'common'
 
 export function getOptions (lng = fallbackLng, ns = defaultNS) {

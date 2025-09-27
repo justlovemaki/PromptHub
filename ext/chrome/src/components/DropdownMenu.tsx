@@ -1,4 +1,5 @@
 import React from 'react';
+import { SubscriptionStatus } from '../types';
 
 interface DropdownMenuProps {
   children: React.ReactNode;
@@ -6,7 +7,7 @@ interface DropdownMenuProps {
   user?: {
     name?: string | null;
     email?: string;
-    subscriptionStatus?: 'FREE' | 'PRO' | 'TEAM';
+    subscriptionStatus?: SubscriptionStatus;
   } | null;
 }
 

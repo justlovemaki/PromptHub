@@ -4,9 +4,11 @@ import ParticlesBackground from '@/components/landing/ParticlesBackground';
 import TopNavbar from '@/components/layout/TopNavbar';
 import PricingSection from '@/components/landing/PricingSection';
 import { useTranslation } from '@/i18n/client';
+import { useAuthStatus } from '@promptmanager/core-logic';
 
 export default function Pricing({ params }: { params: { lang: string } }) {
   const { t } = useTranslation(params.lang, 'common');
+  const { isAdmin, isTokenExpired } = useAuthStatus();
 
   return (
     <div className="relative bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white min-h-screen overflow-x-hidden">
@@ -18,9 +20,9 @@ export default function Pricing({ params }: { params: { lang: string } }) {
 
       {/* 主内容区 */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
-        <div className="max-w-7xl mx-auto">                    
+        <div className="max-w-7xl mx-auto">
           {/* 使用 PricingSection 组件 */}
-          <PricingSection params={params} />
+          <PricingSection params={params} isAdmin={isAdmin} />
 
           {/* 常见问题 */}
           <div className="mt-20 max-w-3xl mx-auto">

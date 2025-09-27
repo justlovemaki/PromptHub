@@ -2,13 +2,22 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { jwt,bearer } from "better-auth/plugins";
 import { db } from "./database";
+import { FALLBACK_DEFAULT_CONFIG } from "./constants";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "sqlite",
   }),
-  secret: process.env.BETTER_AUTH_SECRET || "fallback_secret_key",
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  session: {
+    expiresIn: 60 * 60 * 24, // 1 days
+    updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60 // Cache duration in seconds
+    }
+  },
+  secret: process.env.BETTER_AUTH_SECRET || FALLBACK_DEFAULT_CONFIG.AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL || FALLBACK_DEFAULT_CONFIG.AUTH_BASE_URL,
   telemetry: {
     enabled: false,
   },

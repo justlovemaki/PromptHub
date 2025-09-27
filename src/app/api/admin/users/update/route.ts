@@ -7,12 +7,13 @@ import { db } from '@/lib/database';
 import { user } from '@/drizzle-schema';
 import { eq } from 'drizzle-orm';
 import { getTranslation } from '@/i18n';
+import { ZOD_ADMIN_USER_ROLE_VALUES, ZOD_SUBSCRIPTION_STATUS_VALUES } from '@/lib/constants';
 
 // 更新用户验证模式
 const updateUserSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
-  role: z.enum(['USER', 'ADMIN']).optional(),
-  subscriptionStatus: z.enum(['FREE', 'PRO', 'TEAM']).optional(),
+  role: z.enum(ZOD_ADMIN_USER_ROLE_VALUES).optional(),
+  subscriptionStatus: z.enum(ZOD_SUBSCRIPTION_STATUS_VALUES).optional(),
   subscriptionEndDate: z.date().nullable().optional(),
   name: z.string().optional(),
 });

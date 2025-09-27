@@ -221,7 +221,7 @@ function DataTable<T extends Record<string, any>>({
                         }}
                       >
                         <div className={cn(
-                          column.width && "truncate",
+                          column.width && "",
                           !column.width && "whitespace-nowrap"
                         )}>
                           {renderCell(column, record, index)}

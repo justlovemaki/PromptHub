@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { UI_CONFIG } from "@/lib/constants";
 
 // ============== 消息类型定义 ==============
 
@@ -43,7 +44,7 @@ const Toast: React.FC<{
     switch (message.type) {
       case 'success':
         return (
-          <div className="h-5 w-5 text-green-600">
+          <div className="h-5 w-5 text-success-500">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
@@ -51,7 +52,7 @@ const Toast: React.FC<{
         )
       case 'error':
         return (
-          <div className="h-5 w-5 text-red-600">
+          <div className="h-5 w-5 text-error-500">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -59,7 +60,7 @@ const Toast: React.FC<{
         )
       case 'warning':
         return (
-          <div className="h-5 w-5 text-yellow-600">
+          <div className="h-5 w-5 text-warning-500">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
@@ -68,7 +69,7 @@ const Toast: React.FC<{
       case 'info':
       default:
         return (
-          <div className="h-5 w-5 text-blue-600">
+          <div className="h-5 w-5 text-primary-100">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -79,26 +80,26 @@ const Toast: React.FC<{
 
   const getBorderColor = () => {
     switch (message.type) {
-      case 'success': return 'border-green-200'
-      case 'error': return 'border-red-200'
-      case 'warning': return 'border-yellow-200'
-      case 'info': return 'border-blue-200'
-      default: return 'border-gray-200'
+      case 'success': return 'border-success-300'
+      case 'error': return 'border-error-300'
+      case 'warning': return 'border-warning-300'
+      case 'info': return 'border-primary-300'
+      default: return 'border-bg-300'
     }
   }
 
   const getBgColor = () => {
     switch (message.type) {
-      case 'success': return 'bg-green-50'
-      case 'error': return 'bg-red-50'
-      case 'warning': return 'bg-yellow-50'
-      case 'info': return 'bg-blue-50'
+      case 'success': return 'bg-success-300'
+      case 'error': return 'bg-error-300'
+      case 'warning': return 'bg-warning-300'
+      case 'info': return 'bg-primary-300'
       default: return 'bg-white'
     }
   }
 
   React.useEffect(() => {
-    const duration = message.duration || 3000
+    const duration = message.duration || UI_CONFIG.TOAST_DEFAULT_DURATION
     const timer = setTimeout(() => {
       onRemove(message.id)
     }, duration)
@@ -116,14 +117,14 @@ const Toast: React.FC<{
         {getIcon()}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900">{message.title}</p>
+        <p className="text-sm font-medium text-text-100">{message.title}</p>
         {message.description && (
-          <p className="text-sm text-gray-600 mt-1">{message.description}</p>
+          <p className="text-sm text-text-200 mt-1">{message.description}</p>
         )}
       </div>
       <button
         onClick={() => onRemove(message.id)}
-        className="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 transition-colors"
+        className="flex-shrink-0 ml-3 text-text-300 hover:text-text-200 transition-colors"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

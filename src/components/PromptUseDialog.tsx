@@ -202,8 +202,8 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
         
         <ModalHeader>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="h-10 w-10 bg-primary-300 rounded-lg flex items-center justify-center">
+              <svg className="h-5 w-5 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
@@ -222,14 +222,14 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
         <div className="px-8 py-6 max-h-[60vh] overflow-y-auto">
           {/* 提示词标题 */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{prompt.title}</h3>
-            <p className="text-sm text-gray-600">{prompt.description || tCommon('noDescription')}</p>
+            <h3 className="text-lg font-semibold text-text-100 mb-2">{prompt.title}</h3>
+            <p className="text-sm text-text-200">{prompt.description || tCommon('noDescription')}</p>
           </div>
 
           {/* 变量输入区域 */}
           {parsedVariables.length > 0 && (
             <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-900 mb-4">{tPrompt('sections.variables')}</h4>
+              <h4 className="text-md font-medium text-text-100 mb-4">{tPrompt('sections.variables')}</h4>
               <div className="space-y-4">
                 {parsedVariables.map((variable) => (
                   <Input
@@ -247,16 +247,16 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
 
           {/* 预览区域 */}
           <div className="mb-6">
-            <h4 className="text-md font-medium text-gray-900 mb-3">{tPrompt('sections.preview')}</h4>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono leading-relaxed">
+            <h4 className="text-md font-medium text-text-100 mb-3">{tPrompt('sections.preview')}</h4>
+            <div className="bg-bg-200 border border-bg-300 rounded-lg p-4">
+              <pre className="text-sm text-text-200 whitespace-pre-wrap font-mono leading-relaxed">
                 {finalContent}
               </pre>
             </div>
           </div>
         </div>
 
-        <ModalFooter className="px-8 py-6 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <ModalFooter className="px-8 py-6 border-t border-bg-200 bg-bg-200/50 rounded-b-2xl">
           <div className="flex justify-end space-x-3 w-full">
             <Button
               variant="outline"

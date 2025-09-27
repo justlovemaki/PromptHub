@@ -416,4 +416,53 @@ export interface TagWithCount {
   count: number;
 }
 
+// AI 点数套餐类型
+export type AiPointsPackageType = 'small' | 'medium' | 'large';
+
+// 订阅操作类型
+export type SubscriptionAction = 'upgrade' | 'downgrade' | 'cancel';
+
+// 日志级别类型
+export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+
+// 日志级别常量
+export const LOG_LEVELS = {
+  INFO: 'INFO',
+  WARN: 'WARN',
+  ERROR: 'ERROR',
+  DEBUG: 'DEBUG',
+} as const;
+
+// 日志分类类型
+export type LogCategory = 'AUTH' | 'API' | 'USER' | 'SYSTEM' | 'SECURITY' | 'PERFORMANCE';
+
+// 日志分类常量
+export const LOG_CATEGORIES = {
+  AUTH: 'AUTH',
+  API: 'API',
+  USER: 'USER',
+  SYSTEM: 'SYSTEM',
+  SECURITY: 'SECURITY',
+  PERFORMANCE: 'PERFORMANCE',
+} as const;
+
+// 订阅状态类型
+export type SubscriptionStatus = 'FREE' | 'PRO' | 'TEAM';
+
+// 订阅状态常量
+export const SUBSCRIPTION_STATUS = {
+  FREE: 'FREE',
+  PRO: 'PRO',
+  TEAM: 'TEAM',
+} as const;
+
+// 用户角色类型
+export type UserRole = 'USER' | 'ADMIN';
+
+// 用户角色常量
+export const USER_ROLES = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
+
 export type GetPromptTagsResponse = TagWithCount[];

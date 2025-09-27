@@ -1,4 +1,19 @@
 // 为浏览器扩展定义类型
+// 定义用户角色常量
+export const USER_ROLES = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER',
+} as const;
+
+export const SUBSCRIPTION_STATUS = {
+  FREE: 'FREE',
+  PRO: 'PRO',
+  TEAM: 'TEAM',
+} as const;
+
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+export type SubscriptionStatus = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];
 
 // 提示词类型
 export interface Prompt {
@@ -36,8 +51,8 @@ export interface User {
   updatedAt: Date;
   username: string | null;
   displayUsername: string | null;
-  role: 'USER' | 'ADMIN';
-  subscriptionStatus: 'FREE' | 'PRO' | 'TEAM';
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
   stripeCustomerId: string | null;
   subscriptionId: string | null;
   subscriptionEndDate: Date | null;

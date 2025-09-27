@@ -71,6 +71,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
         callbackURL: `${truePath}/dashboard`,
         newUserCallbackURL: `/api/auth/newuser?pathname=` + truePath,
       })
+      onClose()
     } catch (err) {
       console.error('GitHub login error:', err)
       setError(t('githubLoginFailed'))
@@ -89,6 +90,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
         callbackURL: `${truePath}/dashboard`,
         newUserCallbackURL: `/api/auth/newuser?pathname=` + truePath,
       })
+      onClose()
     } catch (err) {
       console.error('Google login error:', err)
       setError(t('googleLoginFailed'))

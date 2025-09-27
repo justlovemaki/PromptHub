@@ -2,7 +2,7 @@
 
 export const CONFIG = {
   // Web应用基础URL
-  //WEB_APP_BASE_URL: 'http://localhost:3000',              // 开发环境URL
+  WEB_APP_BASE_URL: 'http://localhost',              // 开发环境URL
   
   // 扩展设置
   EXTENSION_NAME: 'PromptHub',

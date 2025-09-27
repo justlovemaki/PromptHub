@@ -26,8 +26,8 @@ const sendApiRequest = async (url: string, method: string, token: string, data?:
     }, (response) => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
-      } else if (response && response.error) {
-        reject(new Error(response.error));
+      } else if (response && response.data.error) {
+        reject(new Error(response.data.error));
       } else {
         resolve(response.data);
       }

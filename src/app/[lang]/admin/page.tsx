@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import AdminPageWrapper from '../../../components/admin/AdminPageWrapper'
 import { useAuth, api, AdminUserListResponse, PopularPromptsResponse } from '@promptmanager/core-logic'
 import { useTranslation } from '@/i18n/client'
+import { UserRole, SubscriptionStatus } from '@/lib/constants';
 
 // API响应类型定义
 interface AdminStats {
@@ -24,8 +25,8 @@ interface User {
   id: string
   email: string
   name: string | null
-  role: 'USER' | 'ADMIN'
-  subscriptionStatus: 'FREE' | 'PRO' | 'TEAM'
+  role: UserRole
+  subscriptionStatus: SubscriptionStatus
   createdAt: number
   updatedAt: number
 }
@@ -122,12 +123,12 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{tAdmin('dashboard.title')}</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-text-100">{tAdmin('dashboard.title')}</h1>
+              <p className="text-text-200 mt-1">
                 {tAdmin('dashboard.welcome', { name: user?.name || user?.email || tAdmin('common.adminRole') })}！{tAdmin('dashboard.description')}
               </p>
             </div>
-            <span className="px-3 py-1 text-sm bg-red-500 text-white rounded-full">{tAdmin('common.adminRole')}</span>
+            <span className="px-3 py-1 text-sm bg-error-500 text-white rounded-full">{tAdmin('common.adminRole')}</span>
           </div>
         </div>
 
@@ -136,13 +137,13 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tAdmin('stats.totalUsers')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tAdmin('stats.totalUsers')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {stats ? stats.totalUsers.toLocaleString() : '--'}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-primary-300 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                 </svg>
               </div>
@@ -152,13 +153,13 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tAdmin('stats.activeUsers')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tAdmin('stats.activeUsers')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {stats ? stats.activeUsers.toLocaleString() : '--'}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-warning-400 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-warning-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
@@ -168,13 +169,13 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tAdmin('stats.totalPrompts')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tAdmin('stats.totalPrompts')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {stats ? stats.totalPrompts.toLocaleString() : '--'}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-success-400 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-success-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
@@ -184,13 +185,13 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{tAdmin('stats.proUsers')}</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-text-200">{tAdmin('stats.proUsers')}</p>
+                <p className="text-2xl font-bold text-text-100">
                   {stats ? stats.subscriptionStats.pro : '--'}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 bg-primary-300 rounded-lg flex items-center justify-center">
+                <svg className="h-6 w-6 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
               </div>
@@ -203,10 +204,10 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">{tAdmin('sections.userManagement')}</h2>
+                <h2 className="text-lg font-semibold text-text-100">{tAdmin('sections.userManagement')}</h2>
                 <button
                   onClick={handleViewAllUsers}
-                  className="text-brand-blue hover:text-brand-blue/80 text-sm font-medium cursor-pointer"
+                  className="text-primary-100 hover:text-primary-100/80 text-sm font-medium cursor-pointer"
                 >
                   {tAdmin('common.viewAll')}
                 </button>
@@ -217,24 +218,24 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
                 {recentUsers.length > 0 ? recentUsers.map((user, index) => (
                   <div key={user.id} className="flex items-center justify-between py-2">
                     <div className="flex items-center space-x-3">
-                      <div className="h-8 w-8 bg-brand-blue rounded-full flex items-center justify-center">
+                      <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">
                           {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                        <p className="text-sm font-medium text-text-100  truncate max-w-[200px]">
                           {user.name || user.email}
                         </p>
-                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{user.email}</p>
+                        <p className="text-xs text-text-300  truncate max-w-[200px]">{user.email}</p>
                       </div>
                     </div>
                     <span className={`px-2 py-1 text-xs rounded ${
                       user.subscriptionStatus === 'PRO'
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-success-400 text-success-500'
                         : user.subscriptionStatus === 'TEAM'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-gray-100 text-gray-800'
+                        ? 'bg-primary-300 text-primary-100'
+                        : 'bg-bg-200 text-text-200'
                     }`}>
                       {user.subscriptionStatus === 'PRO' ? tAdmin('users.subscriptionPro') :
                        user.subscriptionStatus === 'TEAM' ? tAdmin('users.subscriptionTeam') : tAdmin('users.subscriptionFree')}
@@ -250,10 +251,10 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">{tAdmin('sections.popularPrompts')}</h2>
+                <h2 className="text-lg font-semibold text-text-100">{tAdmin('sections.popularPrompts')}</h2>
                 <button
                   onClick={handleViewAllPrompts}
-                  className="text-brand-blue hover:text-brand-blue/80 text-sm font-medium cursor-pointer"
+                  className="text-primary-100 hover:text-primary-100/80 text-sm font-medium cursor-pointer"
                 >
                   {tAdmin('common.viewAll')}
                 </button>
@@ -264,16 +265,16 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
                 {popularPrompts.length > 0 ? popularPrompts.map((prompt, index) => (
                   <div key={prompt.id} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                      <p className="text-sm font-medium text-text-100 truncate max-w-[200px]">
                         {prompt.title || tAdmin('promptManagement.unnamedPrompt')}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-text-300">
                         {tAdmin('promptManagement.useCountPrefix')}{prompt.useCount}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className={`px-2 py-1 text-xs rounded ${
-                        index === 0 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                        index === 0 ? 'bg-primary-300 text-primary-100' : 'bg-success-400 text-success-500'
                       }`}>
                         {index === 0 ? tAdmin('promptManagement.popularTag') : tAdmin('promptManagement.recommendedTag')}
                       </span>

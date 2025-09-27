@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 主色调 - 青花瓷蓝色系 */
+  --primary-100: #1e5387;  /* 青花蓝 - 主色（景德镇青花瓷） */
+  --primary-200: #4a7ba7;  /* 浅青花蓝 */
+  --primary-300: #e8f0f7;  /* 月白色 - 背景用 */
+
+  /* 强调色 - 中国红色系 */
+  --accent-100: #c53f3f;   /* 朱砂红 - 主强调色（传统中国红） */
+  --accent-200: #8b1a1a;   /* 深朱红 - 高对比度 */
+
+  /* 文字色 - 水墨色系 */
+  --text-100: #1a1a1a;     /* 墨黑 - 主文字（对比度 > 15:1） */
+  --text-200: #3d3d3d;     /* 浓墨灰 - 次要文字（对比度 > 9:1） */
+  --text-300: #666666;     /* 淡墨灰 - 辅助文字（对比度 > 5:1） */
+
+  /* 背景色系列 - 宣纸色调 */
+  --bg-100: #ffffff;       /* 雪白 */
+  --bg-200: #faf8f5;       /* 宣纸白 */
+  --bg-300: #f5f2ed;       /* 米白 */
+  --bg-400: #e8e3da;       /* 素纸色 */
+  --bg-500: #d4ccc0;       /* 生宣色 */
+  --bg-600: #b3a69a;       /* 陈纸色 */
+  --bg-700: #8b7d70;       /* 古铜色 */
+  --bg-800: #5c5248;       /* 焦茶色 */
+  --bg-900: #3a332c;       /* 墨褐色 */
+  --bg-1000: #1a1714;      /* 玄色 */
+
+  /* 次要色 - 藕荷紫色系 */
+  --secondary-400: #8b658b; /* 藕荷紫（传统紫色） */
+  --secondary-500: #f5f0f5; /* 淡藕荷 - 背景用 */
+
+  /* 状态色 - 传统配色（400背景色，500文字色） */
+  --error-400: #ffeaea;    /* 淡胭脂背景 */
+  --error-500: #8b1a1a;    /* 深朱红文字 - 高对比度 */
+
+  --success-400: #e8f5e8;  /* 淡竹青背景 */
+  --success-500: #2e5a2e;  /* 深竹青文字 - 高对比度 */
+
+  --warning-400: #fff8e6;  /* 淡黄背景 */
+  --warning-500: #8b5a00;  /* 深琥珀文字 - 高对比度 */
+
+  --info-400: #e6f2f8;     /* 淡天青背景 */
+  --info-500: #1a4d6d;     /* 深天青文字 - 高对比度 */
+
+  /* 基础前景色 - 水墨渐变 */
+  --foreground-rgb: 26, 26, 26;          /* 对应 --text-100 */
+  --background-start-rgb: 250, 248, 245; /* 对应 --bg-200 */
+  --background-end-rgb: 255, 255, 255;   /* 对应 --bg-100 */
+}
+
+/* 无障碍增强 - 焦点样式 */
+*:focus-visible {
+  outline: 2px solid var(--accent-100);
+  outline-offset: 2px;
+  border-radius: 2px; /* 微圆角 - 现代中式 */
+}
+
+/* 隐藏滚动条的类 */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    180deg,
+    rgb(var(--background-start-rgb)) 0%,
+    rgb(var(--background-end-rgb)) 100%
+  );
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 中国风水墨装饰背景 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    /* 青花蓝晕染 */
+    radial-gradient(ellipse at 20% 30%, rgba(30, 83, 135, 0.05) 0%, transparent 40%),
+    /* 朱砂红点缀 */
+    radial-gradient(circle at 80% 70%, rgba(197, 63, 63, 0.03) 0%, transparent 30%),
+    /* 水墨纹理 */
+    radial-gradient(ellipse at 60% 10%, rgba(26, 26, 26, 0.02) 0%, transparent 50%),
+    /* 宣纸纹理 */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(212, 204, 192, 0.1) 2px,
+      rgba(212, 204, 192, 0.1) 4px
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 选中文本的中国风样式 */
+::selection {
+  background-color: rgba(197, 63, 63, 0.2);
+  color: var(--text-100);
+}
+
+/* 中国风滚动条（如果显示） */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-200);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary-100), var(--primary-200));
+  border-radius: 2px;
+  border: 1px solid var(--bg-300);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent-100), var(--accent-200));
+}
+
+/* 中式分割线 */
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--bg-400) 20%,
+    var(--bg-400) 80%,
+    transparent
+  );
+  margin: 2rem 0;
+}
+
+/* 针对 WebKit 浏览器 (Chrome, Safari) 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* 针对 Firefox 隐藏滚动条 */
+html {
+    scrollbar-width: none;
+}
+
+/* 针对 IE 和 Edge 隐藏滚动条 */
+body {
+    -ms-overflow-style: none;
+}

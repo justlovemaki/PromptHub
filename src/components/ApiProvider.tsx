@@ -2,13 +2,14 @@
 
 import { useEffect } from 'react'
 import { createApiClient, useAuthStore } from '@promptmanager/core-logic'
+import { FALLBACK_DEFAULT_CONFIG } from "@/lib/constants";
 
 export function ApiProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // 获取baseURL
-    const baseURL = process.env.NEXT_PUBLIC_APP_URL || 
-                   process.env.BETTER_AUTH_URL?.replace(/\/$/, '') || 
-                   (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+    const baseURL = process.env.NEXT_PUBLIC_APP_URL ||
+                   process.env.BETTER_AUTH_URL?.replace(/\/$/, '') ||
+                   (typeof window !== 'undefined' ? window.location.origin : FALLBACK_DEFAULT_CONFIG.APP_BASE_URL)
     
     // 初始化API客户端
     createApiClient({
