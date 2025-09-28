@@ -287,7 +287,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
             transition={{ duration: 0.8 }}
             style={{ opacity, scale }}
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-gradient leading-tight">
+            <h1 className="p-6 text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-gradient leading-tight">
               {t('hero.title')}
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
@@ -453,7 +453,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       {/* 价格区 */}
       <section id="pricing" className="min-h-screen flex items-center justify-center py-12 sm:py-20 bg-gradient-to-b from-gray-900 to-black">
         <div className="w-full">
-          <PricingSection params={params} />
+          <PricingSection params={params} isAdmin={false} />
         </div>
       </section>
 

@@ -80,9 +80,9 @@ const Toast: React.FC<{
 
   const getBorderColor = () => {
     switch (message.type) {
-      case 'success': return 'border-success-300'
-      case 'error': return 'border-error-300'
-      case 'warning': return 'border-warning-300'
+      case 'success': return 'border-success-400'
+      case 'error': return 'border-error-400'
+      case 'warning': return 'border-warning-400'
       case 'info': return 'border-primary-300'
       default: return 'border-bg-300'
     }
@@ -90,10 +90,10 @@ const Toast: React.FC<{
 
   const getBgColor = () => {
     switch (message.type) {
-      case 'success': return 'bg-success-300'
-      case 'error': return 'bg-error-300'
-      case 'warning': return 'bg-warning-300'
-      case 'info': return 'bg-primary-300'
+      case 'success': return 'bg-white'
+      case 'error': return 'bg-white'
+      case 'warning': return 'bg-white'
+      case 'info': return 'bg-white'
       default: return 'bg-white'
     }
   }
@@ -109,8 +109,8 @@ const Toast: React.FC<{
 
   return (
     <div className={`
-      flex items-start p-4 mb-3 rounded-lg border shadow-sm
-      ${getBgColor()} ${getBorderColor()}
+      flex items-start p-4 mb-3 rounded-lg border-2 shadow-sm
+      ${getBgColor()} ${getBorderColor()} opacity-75
       animate-in slide-in-from-right-full duration-300 ease-out
     `}>
       <div className="flex-shrink-0 mr-3">

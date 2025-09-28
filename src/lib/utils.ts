@@ -56,11 +56,12 @@ export const HTTP_STATUS = {
 
 import { type NextRequest } from 'next/server';
 import { fallbackLng, languages } from '../i18n/settings';
+type Locale = typeof languages[0];
 
 export function getLanguageFromNextRequest(request: NextRequest): string {
   // 优先使用 URL 查询参数中的 'lang'
   const langParam = request.nextUrl.searchParams.get('lang');
-  if (langParam && languages.includes(langParam)) {
+  if (langParam && languages.includes(langParam as Locale)) {
     return langParam;
   }
 
@@ -70,7 +71,7 @@ export function getLanguageFromNextRequest(request: NextRequest): string {
     const detectedLng = acceptLanguage
       .split(',')
       .map(l => l.split(';')[0])
-      .find(l => languages.includes(l));
+      .find(l => languages.includes(l as Locale));
     if (detectedLng) {
       return detectedLng;
     }
@@ -91,7 +92,7 @@ export async function getTruePathFromHeaders(headersList: ReadonlyHeaders, langP
   const pathname = headersList.get('x-next-pathname') || '';
   // console.log('Current pathname (from server):', pathname);
   // console.log('langParam:', langParam);
-  if (pathname === '' || !languages.includes(pathname)) {
+  if (pathname === '' || !languages.includes(pathname as Locale)) {
     if (isRoot) {
       return '/';
     }
@@ -107,7 +108,7 @@ export function getTruePathFromPathname(pathname: string, initialLang: string): 
   const rootPathname = pathname.split('/')[1];
   // console.log('rootPathname:', rootPathname);
   // 处理根路径
-  if (pathname === '/' || !languages.includes(rootPathname)) {
+  if (pathname === '/' || !languages.includes(rootPathname as Locale)) {
     return '';
   }
   // 处理其他路径

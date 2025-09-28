@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     // 处理返回数据，解析tags等JSON字段
     const processedPrompts = result.prompts.map(prompt => ({
       ...prompt,
-      tags: prompt.tags ? JSON.parse(prompt.tags) : [],
+      tags: typeof prompt.tags === 'string' ? (prompt.tags ? JSON.parse(prompt.tags) : []) : prompt.tags || [],
     }));
 
     // 返回符合PromptListResponseSchema的数据结构

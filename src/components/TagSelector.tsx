@@ -244,7 +244,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                       className={`
                         px-4 py-2 text-sm rounded-lg border transition-all duration-200
                         ${isSelected
-                          ? 'bg-primary-100 text-white border-primary-100 hover:bg-accent-100'
+                          ? 'bg-primary-100 text-white border-primary-100 hover:bg-primary-200'
                           : isDisabled
                             ? 'bg-bg-200 text-text-300 border-bg-300 cursor-not-allowed'
                             : 'bg-bg-100 text-text-200 border-bg-300 hover:bg-bg-200 hover:border-bg-400'
@@ -294,7 +294,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                           className={`
                             px-4 py-2 text-sm rounded-lg border transition-all duration-200
                             ${isSelected
-                              ? 'bg-primary-100 text-white border-primary-100 hover:bg-accent-100'
+                              ? 'bg-primary-100 text-white border-primary-100 hover:bg-primary-200'
                               : isDisabled
                                 ? 'bg-bg-200 text-text-300 border-bg-300 cursor-not-allowed'
                                 : 'bg-bg-100 text-text-200 border-bg-300 hover:bg-bg-200 hover:border-bg-400'
@@ -318,7 +318,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         <div className="px-6 py-4 border-t border-bg-300 flex justify-end">
           <Button
             onClick={handleCloseModal}
-            className="px-6 py-2 bg-primary-100 hover:bg-accent-100 text-white rounded-xl"
+            className="px-6 py-2 bg-primary-100 hover:bg-primary-200 text-white rounded-xl"
           >
             完成选择
           </Button>

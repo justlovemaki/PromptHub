@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     const newUsersThisMonthResult = await db.select({ count: sql<number>`count(*)` })
       .from(user)
-      .where(sql`${user.createdAt} >= ${thisMonth.getTime()}`);
+      .where(sql`${user.createdAt} >= ${thisMonth.toISOString()}`);
 
     // 格式化订阅统计
     const subscriptionStats = {

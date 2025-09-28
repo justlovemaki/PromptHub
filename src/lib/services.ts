@@ -254,7 +254,7 @@ export class PromptService {
   // 增加提示词使用次数
   static async incrementUseCount(promptId: string) {
     const [updatedPrompt] = await db.update(prompt)
-      .set({ 
+      .set({
         useCount: sql`${prompt.useCount} + 1`,
         updatedAt: new Date()
       })
@@ -278,7 +278,7 @@ export class PromptService {
           search ? like(prompt.tags, `%${search}%`) : undefined
         )
       )
-      .all();
+      .execute();
 
     // 解析标签字符串并统计出现次数
     const tagCount = new Map<string, number>();
@@ -354,7 +354,6 @@ export class DashboardService {
       // 计算本月开始时间
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthStartMs = monthStart.getTime();
 
       // 1. 获取用户AI点数使用情况（根据参数决定是否包含使用记录）
       const aiPointsUsage = await AIPointsService.getUserAIPointsUsage(userId, null, null, AI_POINTS_TYPES.USE, false)
@@ -365,7 +364,7 @@ export class DashboardService {
           totalPrompts: sql<number>`count(*)`,
           publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
           privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-          monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStartMs} then 1 else 0 end)`,
+          monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.toISOString()} then 1 else 0 end)`,
         })
         .from(prompt)
         .where(eq(prompt.spaceId, spaceId));
@@ -376,8 +375,9 @@ export class DashboardService {
           tags: prompt.tags,
         })
         .from(prompt)
-        .where(eq(prompt.spaceId, spaceId));
-
+        .where(eq(prompt.spaceId, spaceId))
+        .execute();
+  
       // 计算唯一标签数量
       const uniqueTags = new Set<string>();
       allPrompts.forEach(p => {
@@ -422,7 +422,7 @@ export class DashboardService {
         totalPrompts: sql<number>`count(*)`,
         publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
         privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.getTime()} then 1 else 0 end)`,
+        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.toISOString()} then 1 else 0 end)`,
       })
       .from(prompt)
       .where(eq(prompt.spaceId, spaceId));
