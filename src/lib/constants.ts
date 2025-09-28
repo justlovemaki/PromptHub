@@ -89,8 +89,8 @@ export type AiPointsPackageType = keyof typeof AI_POINTS_PACKAGES;
 // ============== 环境配置默认值 ==============
 export const FALLBACK_DEFAULT_CONFIG = {
   AUTH_SECRET: "fallback_secret_key",
-  AUTH_BASE_URL: "http://localhost:3000",
-  APP_BASE_URL: "http://localhost:3000",
+  AUTH_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+  APP_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
 } as const;
 
 // ============== 排序字段配置 ==============
