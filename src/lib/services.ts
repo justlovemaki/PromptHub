@@ -351,9 +351,10 @@ export class LogService {
 export class DashboardService {
   static async getDashboardStats(userId: string, spaceId: string, includeUsageRecords: boolean = false) {
     try {
-      // 计算本月开始时间
+      // 计算本月开始时间（使用UTC时间确保时区一致性）
       const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+      // console.log('monthStart', monthStart)
 
       // 1. 获取用户AI点数使用情况（根据参数决定是否包含使用记录）
       const aiPointsUsage = await AIPointsService.getUserAIPointsUsage(userId, null, null, AI_POINTS_TYPES.USE, false)
@@ -412,9 +413,10 @@ export class DashboardService {
   }
 
   static async getPromptStats(spaceId: string) {
-    // 计算本月开始时间
+    // 计算本月开始时间（使用UTC时间确保时区一致性）
     const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+    // console.log('monthStart', monthStart)
 
     // 查询统计数据
     const [stats] = await db
@@ -454,8 +456,24 @@ export class AIPointsService {
   static async getUserAIPointsUsage(userId: string, startDate?: string, endDate?: string, type?: keyof typeof AI_POINTS_TYPES, includeUsageRecords: boolean = false) {
     // 计算日期范围
     const now = new Date();
-    const monthStart = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    let monthStart = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
+    let monthEnd = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    // 使用UTC时间确保时区一致性
+    if (startDate) {
+        const start = new Date(startDate);
+        monthStart = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), 0, 0, 0, 0));
+    } else {
+        monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+    }
+    
+    if (endDate) {
+        const end = new Date(endDate);
+        monthEnd = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate(), 23, 59, 59, 999));
+    } else {
+        monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+    }
+    // console.log(monthStart, monthEnd);
     
     // 构建查询条件
     const conditions = [

@@ -463,7 +463,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       render: (prompt: boolean) => (
         <span className={`px-2 py-1 text-xs rounded-full ${
           prompt
-            ? 'bg-success-300 text-success-500'
+            ? 'bg-success-400 text-success-500'
             : 'bg-primary-300 text-primary-100'
         }`}>
           {prompt ? tDashboard('public') : tDashboard('private')}

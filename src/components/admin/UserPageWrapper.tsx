@@ -58,9 +58,16 @@ export default function UserPageWrapper({
   }, [user, isAuthenticated, isLoading, isInitialized])
 
   // 正在加载中
-  if ((isLoading || isPending) && !isInitialized) {
+  if ((isLoading || isPending)) {
     return (
       <div className="min-h-screen bg-bg-200 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 bg-brand-blue/100 rounded-full flex items-center justify-center mb-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">系统加载中</h2>
+          <p className="text-gray-600">请稍候，正在为您准备内容...</p>
+        </div>
       </div>
     )
   }
@@ -94,7 +101,7 @@ export default function UserPageWrapper({
   const finalIsAuthenticated = isAuthenticated || !!session?.user
 
   // 用户未登录
-  if (isInitialized && !finalIsAuthenticated) {
+  if (!finalIsAuthenticated) {
     return (
       <div className="min-h-screen bg-bg-200 flex items-center justify-center">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg border border-bg-300 p-8">

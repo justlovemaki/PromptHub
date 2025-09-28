@@ -177,7 +177,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         }
 
         // console.log('refreshUser: 开始获取用户信息', { hasToken: !!token, isAuthenticated })
-        set({ isLoading: true, error: null });
+        // set({ isLoading: true, error: null });
 
         try {
           const response = await api.getCurrentUser(language || undefined);
@@ -217,7 +217,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       },
 
       updateUser: async (data: { name?: string }): Promise<boolean> => {
-        set({ isLoading: true, error: null });
+        // set({ isLoading: true, error: null });
 
         try {
           const { language } = get();
@@ -248,7 +248,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       },
 
       purchaseAiPoints: async (packageType: AiPointsPackageType): Promise<boolean> => {
-        set({ isLoading: true, error: null });
+        // set({ isLoading: true, error: null });
 
         try {
           const { language } = get();
