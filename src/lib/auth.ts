@@ -36,8 +36,8 @@ export const auth = betterAuth({
 			console.log(`[${level}] ${message}`, ...args);
 		}
 	},
-  secret: process.env.BETTER_AUTH_SECRET || FALLBACK_DEFAULT_CONFIG.AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || FALLBACK_DEFAULT_CONFIG.AUTH_BASE_URL,
+  secret: process.env.BETTER_AUTH_SECRET!,
+  baseURL: process.env.BETTER_AUTH_URL!,
   telemetry: {
     enabled: false,
   },
@@ -86,12 +86,12 @@ export const auth = betterAuth({
   },
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
 });
