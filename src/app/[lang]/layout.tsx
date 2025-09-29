@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: { params: { lang: string } })
     description: t('description'),
     authors: [{ name: 'PodcastHub Team' }],
     icons: {
-      icon: '/logo.png',
-      apple: '/logo.png',
+      icon: '/logo.ico',
+      apple: '/logo.ico',
     },
     openGraph: {
       title: t('title'),

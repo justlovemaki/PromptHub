@@ -102,7 +102,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, lang }) => {
                 className="flex items-center ml-4 lg:ml-0 hover:opacity-80 transition-opacity"
               >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-                  <img src="/logo.png" alt="PromptHub" className="w-8 h-8" />
+                  <img src="/logo.ico" alt="PromptHub" className="w-8 h-8" />
                 </div>
                 <span className="ml-2 text-lg font-semibold text-text-100">PromptHub</span>
               </button>

@@ -18,3 +18,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+interface ImportMetaEnv {
+  readonly VITE_WEB_APP_BASE_URL: string
+  // 其他环境变量...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

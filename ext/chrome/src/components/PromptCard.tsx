@@ -202,34 +202,43 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token, localizedTagsMap
       <div className="flex justify-between items-start">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-800 truncate">{prompt.title}</h3>
-          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-            {prompt.description || prompt.content.substring(0, 100) + (prompt.content.length > 100 ? '...' : '')}
+          <p className="text-sm text-gray-600 mt-1 line-clamp-4">
+            {prompt.content.substring(0, 100) + (prompt.content.length > 100 ? '...' : '')}
           </p>
         </div>
-        <div className="flex space-x-2 ml-2">
+        <div className="flex flex-col space-y-2 ml-2">
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={handleUse}
             title={t('usePromptTooltip')}
+            className="p-2 w-8 h-8"
           >
-            {t('use')}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </Button>
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={handleCopy}
             title={t('copyPromptTooltip')}
+            className="p-2 w-8 h-8"
           >
-            {t('copy')}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
           </Button>
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={handleEdit}
             title={t('editPromptTooltip')}
+            className="p-2 w-8 h-8"
           >
-            {t('edit')}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
           </Button>
         </div>
       </div>
