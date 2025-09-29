@@ -226,5 +226,53 @@
   "tags": {
     "message": "Tags",
     "description": "Label for tags"
+  },
+  "promptsTab": {
+    "message": "Prompts",
+    "description": "Label for prompts tab"
+  },
+  "myTab": {
+    "message": "My",
+    "description": "Label for my tab"
+  },
+  "usageTab": {
+    "message": "Usage",
+    "description": "Label for usage tab"
+  },
+  "myTabContent": {
+    "message": "My tab content",
+    "description": "Content for my tab when implemented"
+  },
+  "usageExamples": {
+    "message": "Usage Examples",
+    "description": "Usage examples heading in my tab"
+  },
+  "usageExample1": {
+    "message": "1. Select text in any input field, right-click and choose \"Quick Import as Prompt\" to create a new prompt.",
+    "description": "First usage example in my tab"
+  },
+  "usageExample2": {
+    "message": "2. Click the \"Use\" button on a prompt card to automatically fill the prompt into the current page's input field.",
+    "description": "Second usage example in my tab"
+  },
+  "usageExample3": {
+    "message": "3. Use {{variable}} syntax in prompts to add variables, making prompts more flexible.",
+    "description": "Third usage example in my tab"
+  },
+  "usageExample4": {
+    "message": "4. Use tags to categorize and manage prompts for easier searching and use.",
+    "description": "Four usage example in my tab"
+  },
+  "keyboardShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Keyboard shortcuts heading in my tab"
+  },
+  "toggleSidePanel": {
+    "message": "Toggle Side Panel",
+    "description": "Toggle side panel shortcut description"
+  },
+  "quickSaveSelection": {
+    "message": "Quick Save Selected Text",
+    "description": "Quick save selection shortcut description"
   }
 }

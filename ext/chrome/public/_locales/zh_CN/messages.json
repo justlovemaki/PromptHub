@@ -226,5 +226,53 @@
   "tags": {
     "message": "标签",
     "description": "Label for tags"
+  },
+  "promptsTab": {
+    "message": "提示词",
+    "description": "Label for prompts tab"
+  },
+  "myTab": {
+    "message": "我的",
+    "description": "Label for my tab"
+  },
+  "usageTab": {
+    "message": "使用方法",
+    "description": "Label for usage tab"
+  },
+  "myTabContent": {
+    "message": "我的页面内容",
+    "description": "Content for my tab when implemented"
+  },
+  "usageExamples": {
+    "message": "使用示例",
+    "description": "Usage examples heading in my tab"
+  },
+  "usageExample1": {
+    "message": "1. 在任何网页中选中文本，右键选择\"快速导入为提示词\"来创建新的提示词。",
+    "description": "First usage example in my tab"
+  },
+  "usageExample2": {
+    "message": "2. 点击提示词卡片的\"使用\"按钮，提示词内容将自动填入当前页面的输入框。",
+    "description": "Second usage example in my tab"
+  },
+  "usageExample3": {
+    "message": "3. 在提示词中使用 {{variable}} 语法添加变量，使提示词更灵活。",
+    "description": "Third usage example in my tab"
+  },
+  "usageExample4": {
+    "message": "4. 使用标签对提示词进行分类管理，便于查找和使用。",
+    "description": "Four usage example in my tab"
+  },
+  "keyboardShortcuts": {
+    "message": "快捷键",
+    "description": "Keyboard shortcuts heading in my tab"
+  },
+  "toggleSidePanel": {
+    "message": "打开侧边栏",
+    "description": "Toggle side panel shortcut description"
+  },
+  "quickSaveSelection": {
+    "message": "快速保存选中文字",
+    "description": "Quick save selection shortcut description"
   }
 }

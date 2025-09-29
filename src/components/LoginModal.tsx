@@ -161,7 +161,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
           </button>
         </div>
 
-        <div className="relative mb-6">
+        {/* <div className="relative mb-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-700"></div>
           </div>
@@ -210,7 +210,7 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
               {isLoading ? `${t('signin')}...` : t('signin')}
             </button>
           </div>
-        </form>
+        </form> */}
       </motion.div>
     </motion.div>
   )}

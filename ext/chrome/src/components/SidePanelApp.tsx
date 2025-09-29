@@ -23,6 +23,7 @@ const SidePanelApp: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<'prompts' | 'usage'>('prompts'); // 添加标签页状态，保持默认为'prompts'，与原来一致
   // const [language, setLanguage] = useState('en'); // 直切读取浏览器配置
   const observer = useRef<IntersectionObserver | null>(null);
   const lastPromptRef = useRef<HTMLDivElement>(null);
@@ -95,7 +96,7 @@ const SidePanelApp: React.FC = () => {
         chrome.runtime.onMessage.removeListener(messageListener);
       }
     };
-  }, [token, searchTerm]);
+  }, [token, searchTerm]); // 移除 activeTab 作为依赖
 
   // 在token变化时获取用户信息
   useEffect(() => {
@@ -397,20 +398,20 @@ const SidePanelApp: React.FC = () => {
         
         // 等待一小段时间确保页面完全加载
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+                
         // 立即检查一次
         const token = await checkForToken();
         if (token) {
           // 如果立即找到了token
           setToken(token);
           await setAuthToken(token);
-          
+                
           // 重新加载数据
           loadData();
-          
+                
           // 关闭提示错误的界面
           setError(null);
-          
+                
           // 关闭刚刚打开的标签页
           try {
             await chrome.tabs.remove(tab.id!);
@@ -421,7 +422,7 @@ const SidePanelApp: React.FC = () => {
         } else {
           // 如果没找到token，开始轮询检查
           const pollInterval = startTokenPolling();
-          
+                
           // 监听标签页是否被关闭，如果关闭则停止轮询
           chrome.tabs.onRemoved.addListener(function onTabRemoved(removedTabId) {
             if (removedTabId === tab.id) {
@@ -434,7 +435,7 @@ const SidePanelApp: React.FC = () => {
       } catch (scriptError: any) {
         console.error("执行脚本失败:", scriptError);
         setError('Failed to retrieve token from localStorage: ' + scriptError.message);
-        
+                
         // 即使出错也要确保标签页被关闭
         try {
           await chrome.tabs.remove(tab.id!);
@@ -453,31 +454,31 @@ const SidePanelApp: React.FC = () => {
   useEffect(() => {
     // 防止初始化时的空搜索触发加载
     if (!token || (searchTerm === '' && selectedTag === null)) return;
-    
+                
     // 使用防抖延迟来减少API调用频率
     const debounceTimer = setTimeout(() => {
       setPage(1); // 搜索时总是重置到第一页
       loadData(true, false); // 重新加载数据
     }, 500); // 有搜索词时延迟500ms
-
+                
     // 清理定时器
     return () => clearTimeout(debounceTimer);
   }, [searchTerm, selectedTag, token]);
-  
+                  
   // 刷新数据的函数
   const handleRefresh = async () => {
-    // 同时加载提示词数据、用户统计信息、用户信息和标签数据
+    // 同时加载提示词数据、用户统计信息、户信息和标签数据
     if (token) {
       setLoading(true); // 开始加载时设置loading状态
       try {
-
+                
         // 并行加载所有数据
         const [userInfoData] = await Promise.all([
           fetchUserInfo(token), // 同时获取用户信息
           loadData(true, true),
           loadTagLocalizations(),
         ]);
-        
+                
         // 更新所有状态
         setUserInfo(userInfoData);
       } catch (err: any) {
@@ -542,7 +543,7 @@ const SidePanelApp: React.FC = () => {
           </div> */}
           <h1 className="text-xl font-bold text-gray-900">{t('appName')}</h1>
         </div>
-        
+                
         <div className="flex items-center space-x-4">
           <button
             onClick={handleRefresh}
@@ -561,7 +562,7 @@ const SidePanelApp: React.FC = () => {
             <option value="en">EN</option>
             <option value="zh">中文</option>
           </select> */}
-          
+                
           <DropdownMenu user={userInfo}>
             {/* Dropdown Menu */}
             <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 transform origin-top-right scale-95 group-hover:scale-100">
@@ -589,9 +590,33 @@ const SidePanelApp: React.FC = () => {
           </DropdownMenu>
         </div>
       </header>
+      
+      {/* Tab Navigation */}
+      <div className="flex border-b border-gray-200 bg-white px-4 pt-2 pb-1 mb-2">
+        <button
+          className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ${
+            activeTab === 'prompts'
+              ? 'text-[var(--primary-100)] border-b-2 border-[var(--primary-100)] bg-white'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+          onClick={() => setActiveTab('prompts')}
+        >
+          {t('promptsTab') || '提示词'}
+        </button>
+        <button
+          className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ${
+            activeTab === 'usage'
+              ? 'text-[var(--primary-100)] border-b-2 border-[var(--primary-100)] bg-white'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+          onClick={() => setActiveTab('usage')}
+        >
+          {t('usageTab') || '使用方法'}
+        </button>
+      </div>
 
       {/* Dashboard Stats */}
-      {userStats && (
+      {userStats && activeTab === 'prompts' && (
         <div className="p-4 grid grid-cols-2 gap-4 bg-gray-50">
           {(userInfo?.role === USER_ROLES.ADMIN) && (
             <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
@@ -625,111 +650,145 @@ const SidePanelApp: React.FC = () => {
       )}
 
       {/* Search */}
-      <div className="p-4 pb-2">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder={t('searchPrompts')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:border-[var(--primary-100)] transition-all duration-200 text-base pr-24" // 增加右侧内边距为按钮留出空间
-          />
-          
-          {/* 标签选择按钮 */}
-          <button
-            onClick={handleGetTags}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
-            title={t('selectTag')}
-          >
-            {selectedTag ? (
-              <span className="text-[var(--primary-100)] font-medium">{localizedTags[selectedTag] || selectedTag}</span>
-            ) : (
-              <span className="text-gray-600">#</span>
-            )}
-          </button>
-          
-          {/* 清除标签按钮 */}
-          {selectedTag && (
+      {activeTab === 'prompts' && (
+        <div className="p-4 pb-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={t('searchPrompts')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)] focus:border-[var(--primary-100)] transition-all duration-200 text-base pr-24" // 增加右侧内边距为按钮留出空间
+            />
+                
+            {/* 标签选择按钮 */}
             <button
-              onClick={handleClearTag}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              title={t('clearTag')}
+              onClick={handleGetTags}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
+              title={t('selectTag')}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              {selectedTag ? (
+                <span className="text-[var(--primary-100)] font-medium">{localizedTags[selectedTag] || selectedTag}</span>
+              ) : (
+                <span className="text-gray-600">#</span>
+              )}
             </button>
+                
+            {/* 清除标签按钮 */}
+            {selectedTag && (
+              <button
+                onClick={handleClearTag}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                title={t('clearTag')}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+                
+          {/* 标签下拉菜单 */}
+          {showTagDropdown && (
+            <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+              <div className="p-2">
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{t('promptTags')}</div>
+                {allTags.length > 0 ? (
+                  allTags.map((tag) => (
+                    <div
+                      key={tag.name}
+                      onClick={() => handleSelectTag(tag.name)}
+                      className={`px-3 py-2 rounded cursor-pointer mb-1 text-sm ${
+                        selectedTag === tag.name
+                          ? 'bg-blue-100 text-blue-700 font-medium'
+                          : 'hover:bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {localizedTags[tag.name] || tag.name}
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-gray-500">{t('noTagsAvailable')}</div>
+                )}
+              </div>
+            </div>
           )}
         </div>
-        
-        {/* 标签下拉菜单 */}
-        {showTagDropdown && (
-          <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-            <div className="p-2">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{t('promptTags')}</div>
-              {allTags.length > 0 ? (
-                allTags.map((tag) => (
-                  <div
-                    key={tag.name}
-                    onClick={() => handleSelectTag(tag.name)}
-                    className={`px-3 py-2 rounded cursor-pointer mb-1 text-sm ${
-                      selectedTag === tag.name
-                        ? 'bg-blue-100 text-blue-700 font-medium'
-                        : 'hover:bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    {localizedTags[tag.name] || tag.name}
-                  </div>
-                ))
-              ) : (
-                <div className="px-3 py-2 text-sm text-gray-500">{t('noTagsAvailable')}</div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Prompts List */}
       <div id="prompts-list-container" className="flex-1 overflow-y-auto p-4 pt-2 bg-gray-50">
-        {loading && !error ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--primary-100)] mb-2"></div>
-              <p className="text-gray-600">{t('loading')}...</p>
-            </div>
-          </div>
-        ) : displayedPrompts.length > 0 ? (
-          <div className="space-y-3">
-            {token && (
-              displayedPrompts.map((prompt, index) => {
-                // 为列表的最后一项添加ref，以便用于无限滚动
-                if (index === displayedPrompts.length - 1) {
-                  return (
-                    <div ref={lastPromptRef} key={prompt.id}>
-                      <PromptCard prompt={prompt} token={token} localizedTagsMap={localizedTags} />
-                    </div>
-                  );
-                } else {
-                  return <PromptCard key={prompt.id} prompt={prompt} token={token} localizedTagsMap={localizedTags} />;
-                }
-              })
+        {activeTab === 'prompts' && (
+          <>
+            {loading && !error ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--primary-100)] mb-2"></div>
+                  <p className="text-gray-600">{t('loading')}...</p>
+                </div>
+              </div>
+            ) : displayedPrompts.length > 0 ? (
+              <div className="space-y-3">
+                {token && (
+                  displayedPrompts.map((prompt, index) => {
+                    // 为列表的最后一项添加ref，以便用于无限滚动
+                    if (index === displayedPrompts.length - 1) {
+                      return (
+                        <div ref={lastPromptRef} key={prompt.id}>
+                          <PromptCard prompt={prompt} token={token} localizedTagsMap={localizedTags} />
+                        </div>
+                      );
+                    } else {
+                      return <PromptCard key={prompt.id} prompt={prompt} token={token} localizedTagsMap={localizedTags} />;
+                    }
+                  })
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-10 text-gray-500 bg-white rounded-xl shadow-sm p-6 mt-2">
+                {searchTerm ? t('noPromptsFound') : t('noPromptsAvailable')}
+              </div>
             )}
-          </div>
-        ) : (
-          <div className="text-center py-10 text-gray-500 bg-white rounded-xl shadow-sm p-6 mt-2">
-            {searchTerm ? t('noPromptsFound') : t('noPromptsAvailable')}
-          </div>
+            {/* 加载更多指示器 */}
+            {loadingMore && (
+              <div className="flex items-center justify-center mt-4 py-4">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--primary-100)] mr-3"></div>
+                <span className="text-gray-600">{t('loadingMore')}...</span>
+              </div>
+            )}
+            {!loadingMore && !hasMore && displayedPrompts.length > 0 && (
+              <div className="text-center py-4 text-gray-500">
+                {t('noMorePrompts')}
+              </div>
+            )}
+          </>
         )}
-        {/* 加载更多指示器 */}
-        {loadingMore && (
-          <div className="flex items-center justify-center mt-4 py-4">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[var(--primary-100)] mr-3"></div>
-            <span className="text-gray-600">{t('loadingMore')}...</span>
-          </div>
-        )}
-        {!loadingMore && !hasMore && displayedPrompts.length > 0 && (
-          <div className="text-center py-4 text-gray-500">
-            {t('noMorePrompts')}
+        
+        {activeTab === 'usage' && (
+          <div className="p-4 space-y-4">
+            <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('usageExamples') || '使用示例'}</h3>
+              <div className="space-y-3 text-gray-700">
+                <p>{t('usageExample1') || '1. 在任何网页中选中文本，右键选择"快速导入为提示词"来创建新的提示词。'}</p>
+                <p>{t('usageExample2') || '2. 点击提示词卡片的"使用"按钮，提示词内容将自动填入当前页面的输入框。'}</p>
+                <p>{t('usageExample3') || '3. 在提示词中使用 {{variable}} 语法添加变量，使提示词更灵活'}</p>
+                <p>{t('usageExample4') || '4. 使用标签对提示词进行分类管理，便于查找和使用'}</p>
+              </div>
+            </Card>
+            
+            <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('keyboardShortcuts') || '快捷键'}</h3>
+              <div className="grid grid-cols-1 gap-2 text-gray-700">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span>{t('toggleSidePanel') || '打开侧边栏'}</span>
+                  <span className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">ALT+O</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span>{t('quickSaveSelection') || '快速保存选中文字'}</span>
+                  <span className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">ALT+P</span>
+                </div>
+              </div>
+            </Card>
           </div>
         )}
       </div>

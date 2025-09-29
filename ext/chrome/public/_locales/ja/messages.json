@@ -226,5 +226,53 @@
   "tags": {
     "message": "タグ",
     "description": "Label for tags"
+  },
+  "promptsTab": {
+    "message": "プロンプト",
+    "description": "Label for prompts tab"
+  },
+  "myTab": {
+    "message": "マイ",
+    "description": "Label for my tab"
+  },
+  "usageTab": {
+    "message": "使用方法",
+    "description": "Label for usage tab"
+  },
+  "myTabContent": {
+    "message": "マイタブの内容",
+    "description": "Content for my tab when implemented"
+  },
+  "usageExamples": {
+    "message": "使用例",
+    "description": "Usage examples heading in my tab"
+  },
+  "usageExample1": {
+    "message": "1. 任意の入力フィールドでテキストを選択し、右クリックして「プロンプトとしてクイックインポート」を選択して新しいプロンプトを作成します。",
+    "description": "First usage example in my tab"
+  },
+  "usageExample2": {
+    "message": "2. プロンプトカードの「使用」ボタンをクリックすると、プロンプト内容が現在のページの入力フィールドに自動入力されます。",
+    "description": "Second usage example in my tab"
+  },
+  "usageExample3": {
+    "message": "3. プロンプト内で {{variable}} 構文を使用して変数を追加し、より柔軟なプロンプトを作成します。",
+    "description": "Third usage example in my tab"
+  },
+  "usageExample4": {
+    "message": "4. タグを使用してプロンプトを分類・管理し、検索と使用を容易にします。",
+    "description": "Four usage example in my tab"
+  },
+  "keyboardShortcuts": {
+    "message": "キーボードショートカット",
+    "description": "Keyboard shortcuts heading in my tab"
+  },
+  "toggleSidePanel": {
+    "message": "サイドパネルの切り替え",
+    "description": "Toggle side panel shortcut description"
+  },
+  "quickSaveSelection": {
+    "message": "選択したテキストをクイック保存",
+    "description": "Quick save selection shortcut description"
   }
 }
