@@ -76,22 +76,21 @@ const PricingCard = ({
 
   // 格式化价格显示 - 使用浏览器内置的货币格式化功能
   const formatPrice = (price: string) => {
-    // const priceNum = parseFloat(price);
-    // if (isNaN(priceNum)) return `${getCurrencySymbol()}${price}`;
+    const priceNum = Number(price);
+    if (isNaN(priceNum)) return `${getCurrencySymbol()}${price}`;
     
-    // // 使用浏览器的数字格式化功能，但需要考虑不同语言环境下的格式
-    // try {
-    //   return new Intl.NumberFormat(params.lang, {
-    //     style: 'currency',
-    //     currency: getCurrencyCode(),
-    //     minimumFractionDigits: 0,
-    //     maximumFractionDigits: 0,
-    //   }).format(priceNum);
-    // } catch (e) {
-    //   // 如果国际化格式化失败，回退到简单格式
-    //   return `${getCurrencySymbol()}${price}`;
-    // }
-    return price;
+    // 使用浏览器的数字格式化功能，但需要考虑不同语言环境下的格式
+    try {
+      return new Intl.NumberFormat(params.lang, {
+        style: 'currency',
+        currency: getCurrencyCode(),
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1,
+      }).format(priceNum);
+    } catch (e) {
+      // 如果国际化格式化失败，回退到简单格式
+      return `${getCurrencySymbol()}${price}`;
+    }
   };
 
   // 获取价格显示 - 从国际化文件中获取完整的格式化价格字符串
