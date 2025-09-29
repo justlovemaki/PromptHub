@@ -54,5 +54,20 @@
   "variables": {
     "placeholder": "请输入 {{variable}} 的值",
     "helperText": "变量格式：{{variable}}"
+  },
+  "tagSelector": {
+    "placeholder": "点击选择标签...",
+    "loading": "加载标签数据中...",
+    "title": "选择标签",
+    "selectedCount": "已选择 {{count}}/{{max}} 个标签",
+    "searchPlaceholder": "搜索标签...",
+    "noSelectedTags": "暂无选择的标签",
+    "existingTags": "现有标签",
+    "fromExistingPrompts": "来自您现有的提示词",
+    "noMatchingTags": "未找到匹配的标签",
+    "noAvailableTags": "暂无可用标签",
+    "confirmSelection": "完成选择",
+    "existingTagLabel": "现有标签:",
+    "usageCount": "使用次数: {{count}}"
   }
 }

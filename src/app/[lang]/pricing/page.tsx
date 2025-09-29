@@ -5,10 +5,13 @@ import TopNavbar from '@/components/layout/TopNavbar';
 import PricingSection from '@/components/landing/PricingSection';
 import { useTranslation } from '@/i18n/client';
 import { useAuthStatus } from '@promptmanager/core-logic';
+import LoginModal from '@/components/LoginModal';
+import { useState } from 'react';
 
 export default function Pricing({ params }: { params: { lang: string } }) {
   const { t } = useTranslation(params.lang, 'common');
   const { isAdmin, isTokenExpired } = useAuthStatus();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <div className="relative bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white min-h-screen overflow-x-hidden">
@@ -22,7 +25,7 @@ export default function Pricing({ params }: { params: { lang: string } }) {
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
         <div className="max-w-7xl mx-auto">
           {/* 使用 PricingSection 组件 */}
-          <PricingSection params={params} isAdmin={isAdmin} />
+          <PricingSection params={params} isAdmin={isAdmin} handleLoginModal={setIsLoginModalOpen} />
 
           {/* 常见问题 */}
           <div className="mt-20 max-w-3xl mx-auto">
@@ -50,6 +53,12 @@ export default function Pricing({ params }: { params: { lang: string } }) {
           </div>
         </div>
       </main>
+      {/* 登录模态框 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        lng={params.lang}
+      />
     </div>
   );
 }

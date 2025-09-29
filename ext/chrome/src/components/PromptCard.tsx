@@ -151,7 +151,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token, localizedTagsMap
       const notificationId = `prompt-manager-${Date.now()}`;
       chrome.notifications.create(notificationId, {
         type: 'basic',
-        iconUrl: chrome.runtime.getURL('icons/logo_128x128'),
+        iconUrl: chrome.runtime.getURL('icons/logo_128x128.png'),
         title: type === 'success' ? 'PromptHub' : 'PromptHub Error',
         message: message,
         priority: 1
@@ -166,14 +166,14 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, token, localizedTagsMap
       if (Notification.permission === 'granted') {
         new Notification(type === 'success' ? 'PromptHub' : 'PromptHub Error', {
           body: message,
-          icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/logo_128x128') : undefined
+          icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/logo_128x128.png') : undefined
         });
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then(permission => {
           if (permission === 'granted') {
             new Notification(type === 'success' ? 'PromptHub' : 'PromptHub Error', {
               body: message,
-              icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/logo_128x128') : undefined
+              icon: chrome.runtime.getURL ? chrome.runtime.getURL('icons/logo_128x128.png') : undefined
             });
           }
         });

@@ -19,7 +19,7 @@
     "highlight": "瞬間検索",
     "description": "すべてのAIモデル（GPT、Midjourney、Claudeなど）のための統一プロンプトライブラリを構築。フォルダとタグで整理し、必要なものを瞬時に見つけられます。",
     "features": {
-      "smartCategory": "スマート分類",
+      "smartCategory": "自動入力",
       "multiTag": "多次元タグ", 
       "instantSearch": "即座に検索"
     },
@@ -58,10 +58,10 @@
     }
   },
   "cards": {
-    "gpt": "GPT-4 コード生成",
+    "gpt": "GPT コピー最適化",
+    "claude": "Claude コード生成",
+    "banana": "Nano Banana 画像編集",
     "midjourney": "Midjourney アート創作",
-    "claude": "Claude コピー最適化",
-    "dalle": "DALL-E 画像説明",
     "sd": "Stable Diffusion シーン"
   },
   "pricing": {
@@ -71,45 +71,40 @@
     "mostPopular": "最も人気",
     "free": {
       "name": "無料版",
-      "price": "¥0",
-      "period": "/永久",
-      "button": "無料で始める",
+      "price": "0",
       "features": {
         "storage": "100個のプロンプト保存",
-        "basicCategory": "基本的な分類管理",
-        "simpleSearch": "シンプルな検索機能",
-        "browserExt": "ブラウザ拡張機能"
+        "basicCategory": "多次元タグ",
+        "simpleSearch": "シンプル検索機能",
+        "browserExt": "ブラウザ拡張",
+        "dataSync": "データのインポート・エクスポート"
       },
       "notIncluded": {
-        "aiOptimize": "AI最適化提案",
-        "teamCollab": "チーム協働",
-        "cloudSync": "クラウド同期"
+        "aiOptimize": "AIスマート最適化",
+        "teamCollab": "チームコラボレーション"
       }
     },
     "pro": {
-      "name": "プロ版",
-      "price": "¥1,000",
-      "period": "/月",
-      "button": "今すぐアップグレード",
+      "name": "プロフェッショナル版",
+      "price": "1999",
       "features": {
-        "unlimited": "無制限のプロンプト保存",
-        "advancedTags": "高度な分類とタグ",
+        "allFree": "無料版のすべての機能を含む",
+        "unlimited": "無制限プロンプト保存",
         "aiOptimize": "AIスマート最適化",
-        "globalHotkey": "グローバルホットキー",
-        "cloudSync": "自動クラウド同期",
-        "prioritySupport": "優先サポート"
+        "versionControl": "バージョン管理",
+        "globalHotkey": "カスタムホットキー",
+        "allExt": "全プラットフォーム対応エクステンション",
+        "prioritySupport": "優先技術サポート"
       }
     },
     "team": {
       "name": "チーム版",
-      "price": "¥5,000",
-      "period": "/月",
-      "button": "営業に連絡",
+      "price": "9999",
       "features": {
-        "allPro": "プロ版のすべての機能",
+        "allPro": "プロフェッショナル版のすべての機能を含む",
         "teamLib": "チーム共有ライブラリ",
         "permission": "権限管理",
-        "analytics": "使用状況分析",
+        "analytics": "使用分析レポート",
         "apiAccess": "APIアクセス",
         "accountManager": "専任アカウントマネージャー"
       }

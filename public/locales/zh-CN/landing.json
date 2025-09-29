@@ -19,7 +19,7 @@
     "highlight": "秒速搜索",
     "description": "为您所有的AI模型（GPT, Midjourney, Claude等）建立一个统一的提示词库。通过文件夹和标签进行分类，瞬间找到你需要的任何内容。",
     "features": {
-      "smartCategory": "智能分类",
+      "smartCategory": "自动填充",
       "multiTag": "多维标签", 
       "instantSearch": "即时搜索"
     },
@@ -58,10 +58,10 @@
     }
   },
   "cards": {
-    "gpt": "GPT-4 代码生成",
+    "gpt": "GPT 文案优化",
+    "claude": "Claude 代码生成",
+    "banana": "Nano Banana 图像编辑",
     "midjourney": "Midjourney 艺术创作",
-    "claude": "Claude 文案优化",
-    "dalle": "DALL-E 图像描述",
     "sd": "Stable Diffusion 场景"
   },
   "pricing": {
@@ -71,40 +71,35 @@
     "mostPopular": "最受欢迎",
     "free": {
       "name": "免费版",
-      "price": "¥0",
-      "period": "/永久",
-      "button": "免费开始",
+      "price": "0",
       "features": {
         "storage": "100条提示词存储",
-        "basicCategory": "基础分类管理",
+        "basicCategory": "多维度标签",
         "simpleSearch": "简单搜索功能",
-        "browserExt": "浏览器扩展"
+        "browserExt": "浏览器扩展",
+        "dataSync": "数据导入导出"
       },
       "notIncluded": {
-        "aiOptimize": "AI优化建议",
-        "teamCollab": "团队协作",
-        "cloudSync": "云端同步"
+        "aiOptimize": "AI智能优化",
+        "teamCollab": "团队协作"
       }
     },
     "pro": {
       "name": "专业版",
-      "price": "¥49",
-      "period": "/月",
-      "button": "立即升级",
+      "price": "29.9",
       "features": {
+        "allFree": "包含免费版所有功能",
         "unlimited": "无限提示词存储",
-        "advancedTags": "高级分类与标签",
         "aiOptimize": "AI智能优化",
-        "globalHotkey": "全局快捷键",
-        "cloudSync": "云端自动同步",
+        "versionControl": "版本管理",
+        "globalHotkey": "自定义快捷键",
+        "allExt": "全端扩展",
         "prioritySupport": "优先技术支持"
       }
     },
     "team": {
       "name": "团队版",
-      "price": "¥299",
-      "period": "/月",
-      "button": "联系销售",
+      "price": "89.9",
       "features": {
         "allPro": "包含专业版所有功能",
         "teamLib": "团队共享库",

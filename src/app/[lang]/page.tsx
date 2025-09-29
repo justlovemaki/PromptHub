@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import ParticlesBackground from '@/components/landing/ParticlesBackground';
-import { ChevronDown, Check, X, Globe, Zap, Shield, Users, Sparkles, Search, Tag, Folder, Rocket, Menu, X as XIcon } from 'lucide-react';
+import { ChevronDown, Check, X, Globe, Zap, Shield, Text, Sparkles, Search, Tag, Folder, Rocket, Menu, X as XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -404,7 +404,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
                 {t('management.description')}
               </p>
               <div className="mt-6 sm:mt-8 flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4">
-                <FeatureBadge icon={<Folder className="w-4 h-4" />} text={t('management.features.smartCategory')} />
+                <FeatureBadge icon={<Text className="w-4 h-4" />} text={t('management.features.smartCategory')} />
                 <FeatureBadge icon={<Tag className="w-4 h-4" />} text={t('management.features.multiTag')} />
                 <FeatureBadge icon={<Search className="w-4 h-4" />} text={t('management.features.instantSearch')} />
               </div>
@@ -453,7 +453,7 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
       {/* 价格区 */}
       <section id="pricing" className="min-h-screen flex items-center justify-center py-12 sm:py-20 bg-gradient-to-b from-gray-900 to-black">
         <div className="w-full">
-          <PricingSection params={params} isAdmin={false} />
+          <PricingSection params={params} isAdmin={false} handleLoginModal={setIsLoginModalOpen}/>
         </div>
       </section>
 
@@ -546,9 +546,9 @@ const AnimatedCards = ({ lang }: { lang: string }) => {
   useEffect(() => {
     // 只在客户端生成随机值
     const initialValues = Array(5).fill(0).map(() => ({
-      x: Math.random() * 200 - 100,
-      y: Math.random() * 200 - 100,
-      rotate: Math.random() * 30 - 15
+      x: Math.random() * 300 - 150, // 增加随机位置范围
+      y: Math.random() * 300 - 150, // 增加随机位置范围
+      rotate: Math.random() * 60 - 30 // 增加旋转角度范围
     }));
     setRandomValues(initialValues);
   }, []);
@@ -561,28 +561,31 @@ const AnimatedCards = ({ lang }: { lang: string }) => {
 
   const cards = [
     { text: t('cards.gpt'), color: 'from-purple-500 to-purple-700' },
-    { text: t('cards.midjourney'), color: 'from-blue-500 to-blue-700' },
     { text: t('cards.claude'), color: 'from-green-500 to-green-700' },
-    { text: t('cards.dalle'), color: 'from-yellow-500 to-yellow-700' },
+    { text: t('cards.banana'), color: 'from-yellow-500 to-yellow-700' },
+    { text: t('cards.midjourney'), color: 'from-blue-500 to-blue-700' },
     { text: t('cards.sd'), color: 'from-red-500 to-red-700' },
   ];
 
+  // 反转卡片顺序，让原本后面的卡片显示在前面
+  const reversedCards = [...cards].reverse();
+
   return (
     <div ref={ref} className="relative h-full flex items-center justify-center">
-      {cards.map((card, index) => (
+      {reversedCards.map((card, index) => (
         <motion.div
           key={index}
-          className={`absolute w-48 h-24 sm:w-64 sm:h-32 bg-gradient-to-br ${card.color} rounded-xl p-3 sm:p-4 shadow-2xl flex items-center justify-center text-white font-semibold`}
+          className={`absolute w-48 h-24 sm:w-64 sm:h-32 bg-gradient-to-br ${card.color} rounded-xl p-3 sm:p-4 shadow-2xl flex flex-col`}
           initial={randomValues.length > 0 ? {
-            x: randomValues[index]?.x || 0,
-            y: randomValues[index]?.y || 0,
-            rotate: randomValues[index]?.rotate || 0,
+            x: randomValues[4-index]?.x || 0, // 反转初始位置索引
+            y: randomValues[4-index]?.y || 0,
+            rotate: randomValues[4-index]?.rotate || 0,
             opacity: 0.7
           } : {}}
           animate={organized ? {
-            x: 0,
-            y: index * 25 - 50,
-            rotate: 0,
+            x: -((4-index) * 40 - 80), // 反转x轴位置，实现左右翻转
+            y: (4-index) * 50 - 80, // 增大垂直间距从25到40
+            rotate: 0, // 移除旋转，确保文字不会被遮挡
             opacity: 1
           } : {}}
           transition={{
@@ -592,7 +595,12 @@ const AnimatedCards = ({ lang }: { lang: string }) => {
             stiffness: 100
           }}
         >
-          {card.text}
+          <div className="flex-grow flex items-center justify-center">
+            {/* 留空区域，将文字推到底部 */}
+          </div>
+          <div className="text-white font-semibold text-center">
+            {card.text}
+          </div>
         </motion.div>
       ))}
     </div>

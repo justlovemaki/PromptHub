@@ -158,7 +158,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         
         // 检查token是否过期
         if (isTokenExpired()) {
-          console.log('refreshUser: Token已过期，清理认证状态')
+          console.log('refreshUser: Token has expired, clearing authentication state')
           set({
             user: null,
             token: null,
@@ -172,7 +172,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         
         // 如果既没有token也没有认证状态，则不进行请求
         if (!token && !isAuthenticated) {
-          console.log('refreshUser: 无token和认证状态，跳过请求')
+          console.log('refreshUser: No token and authentication state, skipping request')
           return;
         }
 
@@ -184,14 +184,14 @@ export const useAuthStore = create<AuthState>()(  persist(
           // console.log('refreshUser: API响应', response)
 
           if (response.success) {
-            console.log('refreshUser: 成功获取用户信息', response.data)
+            console.log('refreshUser: Successfully retrieved user information', response.data)
             set({
               user: response.data,
               isAuthenticated: true,
               isLoading: false,
             });
           } else {
-            console.log('refreshUser: API返回错误', response)
+            console.log('refreshUser: API returned error', response)
             // Token可能已过期，清理认证状态
             set({
               user: null,
@@ -203,7 +203,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             });
           }
         } catch (error) {
-          console.error('refreshUser: 请求异常', error)
+          console.error('refreshUser: Request exception', error)
           const errorMessage = error instanceof Error ? error.message : 'auth.getUserInfoFailed';
           set({
             user: null,
@@ -373,7 +373,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       checkTokenExpiration: (): void => {
         const { isTokenExpired } = get();
         if (isTokenExpired()) {
-          console.log('checkTokenExpiration: Token已过期，清理认证状态');
+          console.log('checkTokenExpiration: Token has expired, clearing authentication state');
           set({
             user: null,
             token: null,
@@ -421,12 +421,12 @@ export const useAuthStore = create<AuthState>()(  persist(
       onRehydrateStorage: () => (state) => {
         // 重新加载后，检查token是否过期
         if (state?.userDataExpireTime && Date.now() > state.userDataExpireTime) {
-          console.log('onRehydrateStorage: Token已过期，清理状态');
+          console.log('onRehydrateStorage: Token has expired, clearing state');
         }
         
         // 重新加载后，如果有token但没有用户信息，尝试刷新用户信息
         if (state?.token && !state?.user) {
-          console.log('onRehydrateStorage: 尝试刷新用户信息');
+          console.log('onRehydrateStorage: Attempting to refresh user information');
           // 延迟执行，确保组件已挂载
           setTimeout(() => {
             state.refreshUser?.()

@@ -19,7 +19,7 @@
     "highlight": "Lightning-Fast Search",
     "description": "Build a unified prompt library for all your AI models (GPT, Midjourney, Claude, and more). Organize with folders and tags, instantly find anything you need.",
     "features": {
-      "smartCategory": "Smart Categories",
+      "smartCategory": "Auto Fill",
       "multiTag": "Multi-dimensional Tags", 
       "instantSearch": "Instant Search"
     },
@@ -58,10 +58,10 @@
     }
   },
   "cards": {
-    "gpt": "GPT-4 Code Generation",
+    "gpt": "GPT Copy Optimization",
+    "claude": "Claude Code Generation",
+    "banana": "Nano Banana Image Editing",
     "midjourney": "Midjourney Art Creation",
-    "claude": "Claude Copy Optimization",
-    "dalle": "DALL-E Image Description",
     "sd": "Stable Diffusion Scenes"
   },
   "pricing": {
@@ -71,45 +71,40 @@
     "mostPopular": "Most Popular",
     "free": {
       "name": "Free",
-      "price": "$0",
-      "period": "/forever",
-      "button": "Start Free",
+      "price": "0",
       "features": {
         "storage": "100 prompts storage",
-        "basicCategory": "Basic categorization",
-        "simpleSearch": "Simple search",
-        "browserExt": "Browser extension"
+        "basicCategory": "Multi-dimensional tags",
+        "simpleSearch": "Simple search function",
+        "browserExt": "Browser extension",
+        "dataSync": "Data import and export"
       },
       "notIncluded": {
-        "aiOptimize": "AI optimization suggestions",
-        "teamCollab": "Team collaboration",
-        "cloudSync": "Cloud sync"
+        "aiOptimize": "AI intelligent optimization",
+        "teamCollab": "Team collaboration"
       }
     },
     "pro": {
       "name": "Professional",
-      "price": "$7",
-      "period": "/month",
-      "button": "Upgrade Now",
+      "price": "10",
       "features": {
+        "allFree": "Includes all Free features",
         "unlimited": "Unlimited prompt storage",
-        "advancedTags": "Advanced categories & tags",
-        "aiOptimize": "AI smart optimization",
-        "globalHotkey": "Global hotkeys",
-        "cloudSync": "Automatic cloud sync",
-        "prioritySupport": "Priority support"
+        "aiOptimize": "AI intelligent optimization",
+        "versionControl": "Version management",
+        "globalHotkey": "Custom hotkeys",
+        "allExt": "Full-platform extension",
+        "prioritySupport": "Priority technical support"
       }
     },
     "team": {
       "name": "Team",
-      "price": "$39",
-      "period": "/month",
-      "button": "Contact Sales",
+      "price": "99",
       "features": {
-        "allPro": "All Professional features",
+        "allPro": "Includes all Professional features",
         "teamLib": "Team shared library",
         "permission": "Permission management",
-        "analytics": "Usage analytics",
+        "analytics": "Usage analytics reports",
         "apiAccess": "API access",
         "accountManager": "Dedicated account manager"
       }

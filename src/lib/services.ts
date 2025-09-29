@@ -5,6 +5,93 @@ import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTran
 import { generateId } from './utils';
 import { SPACE_TYPES, USER_ROLES, LOG_LEVELS, LOG_CATEGORIES, AI_POINTS_TYPES, SORT_FIELDS, SORT_ORDERS } from './constants';
 
+// ============== 日期时区处理服务 ==============
+
+export class DateService {
+  /**
+   * 将日期转换为当前系统时区的格式化字符串
+   * @param date 要转换的日期对象
+   * @param includeTime 是否包含时间，默认为 true
+   * @returns 当前系统时区的日期(时间)字符串
+   */
+  static convertToSystemTimezone(date: Date | string, includeTime: boolean = true): string {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // 获取当前系统时区的格式化选项
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    };
+    
+    if (includeTime) {
+      options.hour = '2-digit';
+      options.minute = '2-digit';
+      options.second = '2-digit';
+    }
+    
+    // 使用系统默认时区进行格式化
+    return new Intl.DateTimeFormat(undefined, options).format(dateObj);
+  }
+
+  /**
+   * 获取当前系统时区的时区名称
+   * @returns 系统时区名称，如 'Asia/Shanghai'
+   */
+  static getSystemTimezone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
+  /**
+   * 将日期转换为系统时区的时间戳
+   * @param date 要转换的日期对象
+   * @returns 系统时区的日期对象
+   */
+  static toSystemTimezoneDate(date: Date | string): Date {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // 获取系统时区偏移量（分钟）
+    const timezoneOffset = new Date().getTimezoneOffset();
+    
+    // 计算系统时区的时间
+    const localTime = dateObj.getTime() - (timezoneOffset * 60000);
+    const utc = new Date(localTime + (timezoneOffset * 60000));
+    
+    return new Date(utc.getTime() + (timezoneOffset * 60000));
+  }
+  /**
+   * 获取当前 UTC 时间的 Date 对象。
+   * @returns 当前 UTC 时间的 Date 对象。
+   */
+  static getCurrentUTCDate(): Date {
+    return new Date(); // 创建一个表示当前时刻的Date对象，内部存储为UTC毫秒
+  }
+
+  /**
+   * 从 UTC 年、月、日、时、分、秒、毫秒创建 Date 对象。
+   * @param year UTC 年
+   * @param month UTC 月 (0-11)
+   * @param day UTC 日 (1-31)
+   * @param hours UTC 小时 (0-23)
+   * @param minutes UTC 分 (0-59)
+   * @param seconds UTC 秒 (0-59)
+   * @param milliseconds UTC 毫秒 (0-999)
+   * @returns UTC 时间的 Date 对象
+   */
+  static createUTCDate(
+    year: number,
+    month: number,
+    day: number = 1,
+    hours: number = 0,
+    minutes: number = 0,
+    seconds: number = 0,
+    milliseconds: number = 0
+  ): Date {
+    return new Date(Date.UTC(year, month, day, hours, minutes, seconds, milliseconds));
+  }
+}
+
+
 // 由于当前依赖包还未安装，这里先创建服务层的结构
 // 实际运行时需要取消注释并安装相关依赖
 
@@ -23,7 +110,7 @@ export class UserService {
     // 在事务中创建用户、个人空间和成员关系
     return db.transaction(async (tx) => {
       // 1. 创建用户
-      const now = new Date();
+      const now = DateService.getCurrentUTCDate();
       // const [newUser] = await tx.insert(user).values({
       //   id: userId,
       //   email: userData.email,
@@ -105,7 +192,7 @@ export class PromptService {
       isPublic: promptData.isPublic ?? false,
       spaceId: promptData.spaceId,
       createdBy: promptData.createdBy,
-      updatedAt: new Date(),
+      updatedAt: DateService.getCurrentUTCDate(),
     }).returning();
 
     return newPrompt;
@@ -212,7 +299,7 @@ export class PromptService {
     }
     
     // 自动设置更新时间
-    updateData.updatedAt = new Date();
+    updateData.updatedAt = DateService.getCurrentUTCDate();
     
     const [updatedPrompt] = await db.update(prompt)
       .set(updateData)
@@ -256,7 +343,7 @@ export class PromptService {
     const [updatedPrompt] = await db.update(prompt)
       .set({
         useCount: sql`${prompt.useCount} + 1`,
-        updatedAt: new Date()
+        updatedAt: DateService.getCurrentUTCDate()
       })
       .where(eq(prompt.id, promptId))
       .returning();
@@ -296,7 +383,7 @@ export class PromptService {
           }
         } catch (error) {
           // 忽略无效的 JSON 数据，继续处理其他提示词
-          console.error('解析标签JSON时出错:', error);
+          console.error('Error parsing tag JSON:', error);
         }
       }
     });
@@ -334,7 +421,7 @@ export class LogService {
         userEmail: logData.userEmail,
         ip: logData.ip,
         userAgent: logData.userAgent,
-        timestamp: new Date(),
+        timestamp: DateService.getCurrentUTCDate(),
         statusCode: logData.statusCode,
       };
 
@@ -352,8 +439,8 @@ export class DashboardService {
   static async getDashboardStats(userId: string, spaceId: string, includeUsageRecords: boolean = false) {
     try {
       // 计算本月开始时间（使用UTC时间确保时区一致性）
-      const now = new Date();
-      const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+      const now = DateService.getCurrentUTCDate();
+      const monthStart = DateService.createUTCDate(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0);
       // console.log('monthStart', monthStart)
 
       // 1. 获取用户AI点数使用情况（根据参数决定是否包含使用记录）
@@ -407,15 +494,15 @@ export class DashboardService {
         tagsCount: uniqueTags.size
       };
     } catch (error) {
-      console.error('DashboardService.getDashboardStats 错误:', error);
+      console.error('DashboardService.getDashboardStats error:', error);
       throw error;
     }
   }
 
   static async getPromptStats(spaceId: string) {
     // 计算本月开始时间（使用UTC时间确保时区一致性）
-    const now = new Date();
-    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+    const now = DateService.getCurrentUTCDate();
+    const monthStart = DateService.createUTCDate(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0);
     // console.log('monthStart', monthStart)
 
     // 查询统计数据
@@ -455,23 +542,23 @@ export class DashboardService {
 export class AIPointsService {
   static async getUserAIPointsUsage(userId: string, startDate?: string, endDate?: string, type?: keyof typeof AI_POINTS_TYPES, includeUsageRecords: boolean = false) {
     // 计算日期范围
-    const now = new Date();
-    let monthStart = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
-    let monthEnd = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const now = DateService.getCurrentUTCDate();
+    let monthStart = startDate ? new Date(startDate) : DateService.createUTCDate(now.getUTCFullYear(), now.getUTCMonth(), 1);
+    let monthEnd = endDate ? new Date(endDate) : DateService.createUTCDate(now.getUTCFullYear(), now.getUTCMonth() + 1, 0);
     
     // 使用UTC时间确保时区一致性
     if (startDate) {
         const start = new Date(startDate);
-        monthStart = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), 0, 0, 0, 0));
+        monthStart = DateService.createUTCDate(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), 0, 0, 0, 0);
     } else {
-        monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+        monthStart = DateService.createUTCDate(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0);
     }
     
     if (endDate) {
         const end = new Date(endDate);
-        monthEnd = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate(), 23, 59, 59, 999));
+        monthEnd = DateService.createUTCDate(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate(), 23, 59, 59, 999);
     } else {
-        monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+        monthEnd = DateService.createUTCDate(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999);
     }
     // console.log(monthStart, monthEnd);
     
@@ -536,4 +623,5 @@ export class AIPointsService {
     };
   }
   
+
 }

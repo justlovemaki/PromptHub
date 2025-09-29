@@ -54,5 +54,20 @@
   "variables": {
     "placeholder": "Please enter a value for {{variable}}",
     "helperText": "Variable format: {{variable}}"
+  },
+  "tagSelector": {
+    "placeholder": "Click to select tags...",
+    "loading": "Loading tag data...",
+    "title": "Select Tags",
+    "selectedCount": "Selected {{count}}/{{max}} tags",
+    "searchPlaceholder": "Search tags...",
+    "noSelectedTags": "No selected tags",
+    "existingTags": "Existing Tags",
+    "fromExistingPrompts": "From your existing prompts",
+    "noMatchingTags": "No matching tags found",
+    "noAvailableTags": "No available tags",
+    "confirmSelection": "Confirm Selection",
+    "existingTagLabel": "Existing Tag:",
+    "usageCount": "Usage count: {{count}}"
   }
 }

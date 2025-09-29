@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useTags } from '../hooks/useTags'
 import { Input, Button } from '@promptmanager/ui-components'
+import { useTranslation } from '../i18n/client'
 
 interface TagSelectorProps {
   selectedKeys: string[]
@@ -20,17 +21,19 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   selectedKeys,
   onChange,
   language,
-  placeholder = '点击选择标签...',
+  placeholder: propPlaceholder,
   className = '',
   maxTags = 10,
   isEditing = false,
   existingTags = []
 }) => {
+  const { t } = useTranslation(language, 'prompt')
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [mounted, setMounted] = useState(false)
   
   const { tagsByCategory, searchTags, isLoaded, allTags } = useTags(language)
+  const placeholder = propPlaceholder || t('tagSelector.placeholder')
 
   // Create lookup maps for performance
   const keyToNameMap = useMemo(() => new Map(allTags.map(t => [t.key, t.name])), [allTags])
@@ -143,7 +146,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
     return (
       <div className={`${className}`}>
         <div className="border border-bg-300 rounded-xl px-4 py-3 bg-bg-200 text-text-300">
-          加载标签数据中...
+          {t('tagSelector.loading')}
         </div>
       </div>
     )
@@ -165,9 +168,9 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-bg-300 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-text-100">选择标签</h3>
+            <h3 className="text-lg font-semibold text-text-100">{t('tagSelector.title')}</h3>
             <p className="text-sm text-text-300 mt-1">
-              已选择 {selectedKeys.length}/{maxTags} 个标签
+              {t('tagSelector.selectedCount', { count: selectedKeys.length, max: maxTags })}
             </p>
           </div>
           <button
@@ -185,7 +188,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           <Input
             value={searchQuery}
             onChange={handleSearchChange}
-            placeholder="搜索标签..."
+            placeholder={t('tagSelector.searchPlaceholder')}
             className="w-full rounded-xl px-4 py-3"
           />
         </div>
@@ -211,7 +214,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               </span>
             ))}
             {selectedKeys.length === 0 && (
-              <span className="text-text-300 text-sm py-2">暂无选择的标签</span>
+              <span className="text-text-300 text-sm py-2">{t('tagSelector.noSelectedTags')}</span>
             )}
           </div>
         </div>
@@ -223,8 +226,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
             <div className="mb-6 space-y-3">
               {/* 现有标签头部 */}
               <div className="border-b border-bg-300 pb-2">
-                <h4 className="text-base font-medium text-text-100">现有标签</h4>
-                <p className="text-sm text-text-300">来自您现有的提示词</p>
+                <h4 className="text-base font-medium text-text-100">{t('tagSelector.existingTags')}</h4>
+                <p className="text-sm text-text-300">{t('tagSelector.fromExistingPrompts')}</p>
               </div>
               
               {/* 现有标签列表 */}
@@ -250,7 +253,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                             : 'bg-bg-100 text-text-200 border-bg-300 hover:bg-bg-200 hover:border-bg-400'
                         }
                       `}
-                      title={`现有标签: ${typeof tagItem === 'string' ? tagName : `${tagName} (使用次数: ${tagItem.count})`}`}
+                      title={`${t('tagSelector.existingTagLabel')} ${typeof tagItem === 'string' ? tagName : `${tagName} (${t('tagSelector.usageCount', { count: tagItem.count })})`}`}
                       type="button"
                     >
                       {tagName}
@@ -264,7 +267,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           {/* 原始分类标签 */}
           {filteredCategories.length === 0 && getMatchingExistingTags().length === 0 ? (
             <div className="text-center text-text-300 py-12">
-              {searchQuery ? '未找到匹配的标签' : '暂无可用标签'}
+              {searchQuery ? t('tagSelector.noMatchingTags') : t('tagSelector.noAvailableTags')}
             </div>
           ) : (
             <div className="space-y-6">
@@ -320,7 +323,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
             onClick={handleCloseModal}
             className="px-6 py-2 bg-primary-100 hover:bg-primary-200 text-white rounded-xl"
           >
-            完成选择
+            {t('tagSelector.confirmSelection')}
           </Button>
         </div>
       </div>
@@ -350,7 +353,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
             </span>
           ))}
           {selectedKeys.length === 0 && (
-            <span className="text-text-300 text-sm py-1">暂无选择的标签</span>
+            <span className="text-text-300 text-sm py-1">{t('tagSelector.noSelectedTags')}</span>
           )}
         </div>
       </div>

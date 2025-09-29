@@ -13,7 +13,7 @@ import { SUBSCRIPTION_ACTIONS, type SubscriptionAction, type SubscriptionStatus,
 interface PricingPlan {
   id: SubscriptionStatus;
   nameKey: string;
-  monthlyPrice: number;
+  monthlyPrice: string; // 改为string类型
   yearlyPrice: string;
   periodKey: string;
   features: string[];
@@ -34,7 +34,8 @@ const PricingCard = ({
   handleSubscriptionAction,
   isLoading,
   setIsLoading,
-  isAdmin
+  isAdmin,
+  handleLoginModal
 }: {
   plan: PricingPlan;
   index: number;
@@ -47,30 +48,77 @@ const PricingCard = ({
   isLoading: string | null;
   setIsLoading: (planId: string | null) => void;
   isAdmin: boolean;
+  handleLoginModal: (open: boolean) => void
 }) => {
   const { ref, inView } = useInView({ threshold: 0.3, triggerOnce: true });
   const router = useRouter();
   
-  // 获取价格显示
+  // 获取货币符号
+  const getCurrencySymbol = () => {
+    // 根据语言获取货币符号，从国际化文件获取更准确的货币符号
+    switch (params.lang) {
+      case 'zh-CN': return '¥';  // 人民币
+      case 'ja': return '¥';  // 日元（与中文的元符号相同，但含义不同）
+      case 'en':
+      default: return '$';  // 美元
+    }
+  };
+
+  // 获取货币代码，用于更精确的货币格式化
+  const getCurrencyCode = () => {
+    switch (params.lang) {
+      case 'zh-CN': return 'CNY';  // 人民币
+      case 'ja': return 'JPY';  // 日元
+      case 'en':
+      default: return 'USD';  // 美元
+    }
+  };
+
+  // 格式化价格显示 - 使用浏览器内置的货币格式化功能
+  const formatPrice = (price: string) => {
+    // const priceNum = parseFloat(price);
+    // if (isNaN(priceNum)) return `${getCurrencySymbol()}${price}`;
+    
+    // // 使用浏览器的数字格式化功能，但需要考虑不同语言环境下的格式
+    // try {
+    //   return new Intl.NumberFormat(params.lang, {
+    //     style: 'currency',
+    //     currency: getCurrencyCode(),
+    //     minimumFractionDigits: 0,
+    //     maximumFractionDigits: 0,
+    //   }).format(priceNum);
+    // } catch (e) {
+    //   // 如果国际化格式化失败，回退到简单格式
+    //   return `${getCurrencySymbol()}${price}`;
+    // }
+    return price;
+  };
+
+  // 获取价格显示 - 从国际化文件中获取完整的格式化价格字符串
   const getPrice = () => {
-    if (plan.monthlyPrice === 0) {
+    if (plan.monthlyPrice === '0') {  // 改为字符串比较
       return t('common:free');
     }
-    
-    const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
-    const currency = params.lang === 'en' ? '$' : params.lang === 'ja' ? '¥' : '¥';
-    
-    return `${currency}${price}${billingCycle === 'monthly' ? '/' + t('common:monthly') : '/' + t('common:yearly')}`;
+
+    let price;
+    if (billingCycle === 'monthly') {
+      price = formatPrice(plan.monthlyPrice);
+    } else {
+      price = formatPrice(plan.yearlyPrice);
+    }
+
+    return `${price}${billingCycle === 'monthly' ? '/' + t('common:monthly') : '/' + t('common:yearly')}`;
   };
   
   // 获取等效月价格（仅年付时显示）
   const getEquivalentMonthlyPrice = () => {
-    if (billingCycle === 'monthly' || plan.monthlyPrice === 0) return null;
+    if (billingCycle === 'monthly' || plan.monthlyPrice === '0') return null;  // 改为字符串比较
     
+    // 将 yearlyPrice 转换为数字进行计算，然后格式化为整数字符串
     const equivalentPrice = new Decimal(plan.yearlyPrice).div(12).ceil().toFixed(0);
-    const currency = params.lang === 'en' ? '$' : params.lang === 'ja' ? '¥' : '¥';
+    const formattedPrice = formatPrice(equivalentPrice);
     
-    return `${t('common:equivalentTo')} ${currency}${equivalentPrice}/${t('common:month')}`;
+    return `${t('common:equivalentTo')} ${formattedPrice}/${t('common:month')}`;
   };
   
   // 获取按钮文本
@@ -161,7 +209,7 @@ const PricingCard = ({
           <button
             onClick={() => {
               if (!isAuthenticated) {
-                router.push(`/${params.lang}/login`);
+                handleLoginModal(true)
                 return;
               }
               
@@ -203,8 +251,8 @@ const PricingCard = ({
 };
 
 // 价格区域组件
-const PricingSection = ({ params, isAdmin }: { params: { lang: string }, isAdmin: boolean }) => {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+const PricingSection = ({ params, isAdmin, handleLoginModal}: { params: { lang: string }, isAdmin: boolean, handleLoginModal: (open: boolean) => void; }) => {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation(params.lang, 'landing');
@@ -214,7 +262,7 @@ const PricingSection = ({ params, isAdmin }: { params: { lang: string }, isAdmin
   // 处理订阅管理
   const handleSubscriptionAction = async (action: SubscriptionAction, planId: string) => {
     if (!isAuthenticated) {
-      router.push(`/${params.lang}/login`);
+      handleLoginModal(true)
       return;
     }
 
@@ -236,39 +284,45 @@ const PricingSection = ({ params, isAdmin }: { params: { lang: string }, isAdmin
     }
   };
   
+  // 计算年费价格
+  const calculateYearlyPrice = (monthlyPrice: string) => {
+    return new Decimal(monthlyPrice).mul(12).mul(0.8).ceil().toFixed(0);
+  };
+
   // 价格方案数据 - 使用语言键
   const pricingPlans: PricingPlan[] = [
     {
       id: SUBSCRIPTION_STATUS.FREE,
       nameKey: 'pricing.free.name',
-      monthlyPrice: 0,
-      yearlyPrice: '0',
+      monthlyPrice: t('pricing.free.price'),
+      yearlyPrice: t('pricing.free.price'),
       periodKey: 'pricing.free.period',
       features: [
         t('pricing.free.features.storage'),
         t('pricing.free.features.basicCategory'),
         t('pricing.free.features.simpleSearch'),
         t('pricing.free.features.browserExt'),
+        t('pricing.free.features.dataSync'),
       ],
       notIncluded: [
         t('pricing.free.notIncluded.aiOptimize'),
         t('pricing.free.notIncluded.teamCollab'),
-        t('pricing.free.notIncluded.cloudSync'),
       ],
       buttonKey: 'pricing.free.button'
     },
     {
       id: SUBSCRIPTION_STATUS.PRO,
       nameKey: 'pricing.pro.name',
-      monthlyPrice: params.lang === 'en' ? 7 : params.lang === 'ja' ? 1000 : 49,
-      yearlyPrice: new Decimal(params.lang === 'en' ? 7 : params.lang === 'ja' ? 1000 : 49).mul(12).mul(0.8).ceil().toFixed(0),
+      monthlyPrice: t('pricing.pro.price'),
+      yearlyPrice: calculateYearlyPrice(t('pricing.pro.price')),
       periodKey: 'pricing.pro.period',
       features: [
+        t('pricing.pro.features.allFree'),
         t('pricing.pro.features.unlimited'),
-        t('pricing.pro.features.advancedTags'),
         t('pricing.pro.features.aiOptimize'),
+        t('pricing.pro.features.versionControl'),
         t('pricing.pro.features.globalHotkey'),
-        t('pricing.pro.features.cloudSync'),
+        t('pricing.pro.features.allExt'),
         t('pricing.pro.features.prioritySupport'),
       ],
       recommended: true,
@@ -277,8 +331,8 @@ const PricingSection = ({ params, isAdmin }: { params: { lang: string }, isAdmin
     {
       id: SUBSCRIPTION_STATUS.TEAM,
       nameKey: 'pricing.team.name',
-      monthlyPrice: params.lang === 'en' ? 39 : params.lang === 'ja' ? 5000 : 299,
-      yearlyPrice: new Decimal(params.lang === 'en' ? 39 : params.lang === 'ja' ? 5000 : 299).mul(12).mul(0.8).ceil().toFixed(0),
+      monthlyPrice: t('pricing.team.price'),
+      yearlyPrice: calculateYearlyPrice(t('pricing.team.price')),
       periodKey: 'pricing.team.period',
       features: [
         t('pricing.team.features.allPro'),
@@ -364,6 +418,7 @@ const PricingSection = ({ params, isAdmin }: { params: { lang: string }, isAdmin
               isLoading={isLoading}
               setIsLoading={setIsLoading}
               isAdmin={isAdmin}
+              handleLoginModal={handleLoginModal}
             />
           ))}
         </div>
