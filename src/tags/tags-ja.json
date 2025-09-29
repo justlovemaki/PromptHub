@@ -1,115 +1,96 @@
 {
   "prompt_tags_classification": {
     "scenario_tags": {
-      "title": "シナリオタグ (Scenario Tags)",
-      "description": "ユーザーがプロンプトを適用する特定の領域や文脈を記述します。",
+      "title": "シナリオタグ",
+      "description": "特定の分野や文脈でプロンプトを使用する目的を記述します。",
       "categories": {
         "office_and_professional": {
-         "category_name": "ビジネス・オフィス",
-         "labels": [
-           {"name": "メール処理", "key": "emailProcessing", "description": "メールの作成、返信、推敲、辞退、招待状の作成。"},
-           {"name": "会議アシスタント", "key": "meetingAssistant", "description": "議題、議事録、アクションアイテムの要約を生成。"},
-           {"name": "レポート・ドキュメント", "key": "reportDocument", "description": "週報、プロジェクト報告書、調査資料、データ分析レポート。"},
-           {"name": "プレゼンテーション", "key": "presentationDocument", "description": "プレゼンの構成案、スピーチ原稿、スライド内容の生成。"},
-           {"name": "プロジェクト管理", "key": "projectManagement", "description": "計画の策定、タスクの分解（WBS）、リスク評価。"},
-           {"name": "人事", "key": "humanResources", "description": "職務記述書の作成、面接の質問設計、業績評価のドラフト作成。"},
-           {"name": "法務", "key": "legalAffairs", "description": "契約書の起草、条項の解説、法律相談。"},
-           {"name": "財務・会計", "key": "financeAccounting", "description": "財務分析、市場解釈、報告書の説明。"},
-           {"name": "カスタマーサービス", "key": "customerService", "description": "顧客からの問い合わせへの返信、苦情処理、FAQの作成。"}
-         ]
-       },
-        "content_and_marketing": {
-         "category_name": "コンテンツ制作・マーケティング",
-         "labels": [
-           {"name": "記事執筆", "key": "articleWriting", "description": "ブログ、プレスリリース、詳細な分析記事。"},
-           {"name": "ソーシャルメディア", "key": "socialMedia", "description": "Twitter、Instagram、Facebookなどのコンテンツを生成。"},
-           {"name": "広告コピーライティング", "key": "advertisingCopy", "description": "スローガン、製品のセールスポイント抽出、マーケティングコピー。"},
-           {"name": "SEO最適化", "key": "seoOptimization", "description": "キーワード調査、SEO用のタイトルとディスクリプションの生成、コンテンツの最適化。"},
-           {"name": "動画スクリプト", "key": "videoScript", "description": "ショート動画、YouTube動画の台本、ナレーション原稿の作成。"},
-           {"name": "マーケティング戦略", "key": "marketingStrategy", "description": "ユーザーペルソナ分析、キャンペーン企画、ブランドのポジショニング。"},
-           {"name": "ブランドネーミング", "key": "brandNaming", "description": "製品、会社、イベントの命名。"}
-         ]
-       },
+          "category_name": "ビジネス・オフィス",
+          "labels": [
+            {"name": "コミュニケーション・協業", "key": "communicationCollaboration", "description": "メール、議事録、チャットメッセージなどの作成。"},
+            {"name": "ドキュメント・レポート", "key": "documentReport", "description": "週報、プロジェクト報告書、分析レポート、PPT構成案などの作成。"},
+            {"name": "プロジェクト管理", "key": "projectManagement", "description": "計画策定、タスク分解、リスク評価。"},
+            {"name": "人事", "key": "humanResources", "description": "職務記述書(JD)の作成、面接の質問設計、業績評価。"},
+            {"name": "専門分野", "key": "professionalFields", "description": "法律、会計、カスタマーサービスなど、特定の専門業務の処理。"}
+          ]
+        },
+        "creative_and_design": {
+          "category_name": "クリエイティブ・デザイン",
+          "labels": [
+            {"name": "コンテンツマーケティング", "key": "contentMarketing", "description": "ブログ記事、SNS投稿、広告コピーの作成。"},
+            {"name": "画像生成", "key": "imageGeneration", "description": "デジタルアート、デザイン素材、製品モックアップの制作。"},
+            {"name": "ブランディング・企画", "key": "brandIdentity", "description": "ブランド名の考案、スローガンのブレインストーミング、市場ポジショニング分析。"},
+            {"name": "動画脚本", "key": "videoScript", "description": "ショート動画、ナレーション原稿、YouTube動画の脚本作成。"},
+            {"name": "SEO最適化", "key": "seoOptimization", "description": "キーワード調査、SEOに適したタイトルとコンテンツの生成。"}
+          ]
+        },
         "technology_and_development": {
-         "category_name": "テクノロジー・開発",
-         "labels": [
-           {"name": "コーディング", "key": "codeProgramming", "description": "コードスニペットの生成、機能の実装、アルゴリズムの作成。"},
-           {"name": "コード支援", "key": "codeAssistance", "description": "コードの説明、デバッグ、最適化、リファクタリング。"},
-           {"name": "技術ドキュメント", "key": "technicalDocument", "description": "APIドキュメント、ユーザーマニュアル、開発ログの作成。"},
-           {"name": "システム設計", "key": "systemDesign", "description": "アーキテクチャ設計、データベーススキーマの生成。"}
-         ]
-       },
+          "category_name": "技術・開発",
+          "labels": [
+            {"name": "コーディング", "key": "codeProgramming", "description": "コードスニペットの生成、アルゴリズムの実装、スクリプトの作成。"},
+            {"name": "コード支援", "key": "codeAssistance", "description": "コードの説明、デバッグ、最適化、リファクタリング。"},
+            {"name": "技術ドキュメント", "key": "technicalDocumentation", "description": "APIドキュメント、ユーザーマニュアル、開発ログの作成。"},
+            {"name": "システム設計", "key": "systemDesign", "description": "アーキテクチャ設計、データベーススキーマの生成。"}
+          ]
+        },
         "learning_and_education": {
-         "category_name": "学習・教育",
-         "labels": [
-           {"name": "概念説明", "key": "conceptExplanation", "description": "科学理論、専門用語、複雜な概念の説明。"},
-           {"name": "宿題支援", "key": "homeworkGuidance", "description": "問題解決のアプローチ、作文の構成案、知識点の整理。"},
-           {"name": "授業計画", "key": "courseDesign", "description": "シラバスの作成、授業活動の設計、問題作成。"},
-           {"name": "言語学習", "key": "languageLearning", "description": "文法練習、会話のロールプレイング、単語の暗記。"},
-           {"name": "学術研究", "key": "academicResearch", "description": "文献レビュー、論文の推敲、研究アイデアの創出。"}
-         ]
-       },
-        "personal_life_and_self_improvement": {
-         "category_name": "私生活・自己啓発",
-         "labels": [
-           {"name": "旅行計画", "key": "travelPlanning", "description": "旅程の作成、観光地やレストランの推薦。"},
-           {"name": "健康・フィットネス", "key": "healthFitness", "description": "トレーニング計画のカスタマイズ、健康的なレシピの生成。"},
-           {"name": "キャリアプランニング", "key": "careerPlanning", "description": "履歴書の最適化、模擬面接、キャリア開発のアドバイス。"},
-           {"name": "意思決定支援", "key": "decisionSupport", "description": "メリット・デメリットのリストアップ、異なる視点の提供。"},
-           {"name": "エンターテインメント", "key": "entertainmentInteraction", "description": "ロールプレイング、テキストベースのゲーム、詩作。"}
-         ]
-       }
+          "category_name": "学習・教育",
+          "labels": [
+            {"name": "知識応答・Q&A", "key": "knowledgeQA", "description": "概念の説明、質問への回答、知識の整理。"},
+            {"name": "学術研究", "key": "academicResearch", "description": "文献レビュー、論文の推敲、研究アイデアの着想。"},
+            {"name": "教育設計", "key": "instructionalDesign", "description": "シラバスの作成、授業活動の設計、問題作成。"},
+            {"name": "言語学習", "key": "languageLearning", "description": "文法練習、会話シミュレーション、翻訳支援。"}
+          ]
+        },
+        "life_and_planning": {
+          "category_name": "生活・プランニング",
+          "labels": [
+            {"name": "旅行計画", "key": "travelPlanning", "description": "旅程の作成、観光地の推薦、予算の見積もり。"},
+            {"name": "健康・ウェルネス", "key": "healthAndWellness", "description": "フィットネスプランのカスタマイズ、健康的なレシピの生成。"},
+            {"name": "キャリア開発", "key": "careerDevelopment", "description": "履歴書の最適化、模擬面接、キャリアパスに関する助言。"},
+            {"name": "意思決定・分析", "key": "decisionMaking", "description": "メリット・デメリット分析、多角的なアドバイスの提供。"}
+          ]
+        }
       }
     },
     "intent_tags": {
-      "title": "意図タグ (Intent Tags)",
-      "description": "ユーザーがAIに実行させたい特定の行動やタスクの種類を記述します。",
+      "title": "意図タグ",
+      "description": "AIに実行してほしい具体的なアクションやタスクの種類を記述します。",
       "categories": {
-        "generation_and_creation": {
-         "category_name": "生成・創作",
-         "labels": [
-           {"name": "下書き", "key": "drafting", "description": "ゼロから初稿を生成する。"},
-           {"name": "アイデア出し", "key": "conception", "description": "ブレインストーミングを行い、複数のアイデアや選択肢を生成する。"},
-           {"name": "続きを書く", "key": "continuation", "description": "既存のテキストに基づいて続きを記述する。"},
-           {"name": "模倣", "key": "imitation", "description": "与えられたスタイル、トーン、構造を模倣してコンテンツを作成する。"}
-         ]
-       },
-        "analysis_and_extraction": {
-         "category_name": "分析・抽出",
-         "labels": [
-           {"name": "要約", "key": "summarization", "description": "長い文章を要点にまとめる。"},
-           {"name": "抽出", "key": "extraction", "description": "テキストから重要な情報（例：名前、日付、データ）を抽出する。"},
-           {"name": "分類", "key": "classification", "description": "コンテンツを定義済みのカテゴリに分類する。"},
-           {"name": "感情分析", "key": "sentimentAnalysis", "description": "テキストの感情的なトーン（ポジティブ/ネガティブ/ニュートラル）を判断する。"},
-           {"name": "比較分析", "key": "comparativeAnalysis", "description": "2つ以上のテキストの類似点と相違点を特定する。"}
-         ]
-       },
-        "editing_and_rewriting": {
-         "category_name": "編集・書き換え",
-         "labels": [
-           {"name": "推敲", "key": "polishing", "description": "より流暢で、プロフェッショナル、または洗練された表現に改善する。"},
-           {"name": "短縮", "key": "abbreviation", "description": "中心的な意味を保持しつつ、文字数を減らす。"},
-           {"name": "拡張", "key": "expansion", "description": "詳細を詳述し、内容を追加する。"},
-           {"name": "言い換え", "key": "paraphrasing", "description": "異なる言葉で同じ内容を表現する。"},
-           {"name": "スタイル変換", "key": "styleConversion", "description": "テキストをあるスタイル（例：口語体）から別のスタイル（例：フォーマル）に変換する。"}
-         ]
-       },
-        "transformation_and_formatting": {
-         "category_name": "変換・フォーマット",
-         "labels": [
-           {"name": "翻訳", "key": "translation", "description": "異なる言語間でテキストを変換する。"},
-           {"name": "フォーマット化", "key": "formatting", "description": "JSON、Markdown、表などの特定の形式でコンテンツを出力する。"},
-           {"name": "コード変換", "key": "codeConversion", "description": "あるプログラミング言語のコードを別の言語に変換する。"}
-         ]
-       },
-        "interaction_and_simulation": {
-         "category_name": "対話・シミュレーション",
-         "labels": [
-           {"name": "ロールプレイング", "key": "rolePlaying", "description": "AIに特定のキャラクターを演じさせて対話やタスクを行わせる。"},
-           {"name": "シミュレーション", "key": "simulation", "description": "会話やイベントの展開をシミュレートする。"},
-           {"name": "質問", "key": "questioning", "description": "与えられた内容についてAIに質問させる。"}
-         ]
-       }
+        "creation": {
+          "category_name": "生成・創作",
+          "labels": [
+            {"name": "コンテンツ生成", "key": "generate", "description": "ゼロから、または要件に基づいてテキストやコードなどを創作する。"},
+            {"name": "アイデア出し・構想", "key": "brainstorm", "description": "複数のアイデア、選択肢、構成案をブレインストーミングする。"},
+            {"name": "ビジュアル化", "key": "visualize", "description": "テキスト記述に基づいて画像、図、デザインを生成する。"}
+          ]
+        },
+        "rewriting": {
+          "category_name": "編集・リライト",
+          "labels": [
+            {"name": "推敲・最適化", "key": "refine", "description": "表現を改善し、より流暢、専門的、または効果的にする。"},
+            {"name": "言い換え・リライト", "key": "rewrite", "description": "核心的な意味を保ちつつ、異なる言葉遣いやスタイルで内容を書き直す。"},
+            {"name": "長さ調整", "key": "changeLength", "description": "コンテンツを長くしたり短くしたりする。"},
+            {"name": "翻訳", "key": "translate", "description": "異なる言語間でコンテンツを変換する。"}
+          ]
+        },
+        "processing": {
+          "category_name": "処理・分析",
+          "labels": [
+            {"name": "要約", "key": "summarize", "description": "長いコンテンツを核心的な要約や要点にまとめる。"},
+            {"name": "情報抽出", "key": "extract", "description": "テキストから特定の種類の重要情報を抽出する。"},
+            {"name": "分析・インサイト", "key": "analyze", "description": "感情分析、比較分析、論理的推論などを行う。"},
+            {"name": "分類・整理", "key": "classify", "description": "指定された基準や自動的に発見された規則に従って情報を整理する。"}
+          ]
+        },
+        "utility": {
+          "category_name": "ユーティリティ・対話",
+          "labels": [
+            {"name": "説明", "key": "explain", "description": "指定された概念、コード、テキストについて詳細な説明を提供する。"},
+            {"name": "フォーマット変換", "key": "format", "description": "指定された形式（例：JSON、Markdown、表）でコンテンツを出力する。"},
+            {"name": "ロールプレイング", "key": "rolePlay", "description": "AIに特定のキャラクターを演じさせ、対話やタスクを実行させる。"}
+          ]
+        }
       }
     }
   }

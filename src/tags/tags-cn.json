@@ -7,56 +7,48 @@
         "office_and_professional": {
           "category_name": "职场办公",
           "labels": [
-            {"name": "邮件处理", "key": "emailProcessing", "description": "撰写、回复、润色、拒绝、邀约邮件。"},
-            {"name": "会议助理", "key": "meetingAssistant", "description": "生成议程、会议纪要、行动项总结。"},
-            {"name": "报告文档", "key": "reportDocument", "description": "周报、项目报告、调研报告、数据分析报告。"},
-            {"name": "演示文稿", "key": "presentationDocument", "description": "生成PPT大纲、演讲稿、内容填充。"},
-            {"name": "项目管理", "key": "projectManagement", "description": "制定计划、分解任务（WBS）、风险评估。"},
-            {"name": "人力资源", "key": "humanResources", "description": "撰写招聘JD、面试问题设计、绩效评估文案。"},
-            {"name": "法律事务", "key": "legalAffairs", "description": "合同草拟、条款解释、法律咨询。"},
-            {"name": "金融财会", "key": "financeAccounting", "description": "财务分析、市场解读、报表解释。"},
-            {"name": "客户服务", "key": "customerService", "description": "回复客户咨询、处理投诉、编写FAQ。"}
+            {"name": "沟通协作", "key": "communicationCollaboration", "description": "撰写邮件、会议纪要、即时消息等。"},
+            {"name": "文档报告", "key": "documentReport", "description": "撰写周报、项目报告、分析报告、PPT大纲等。"},
+            {"name": "项目管理", "key": "projectManagement", "description": "制定计划、任务分解、风险评估。"},
+            {"name": "人力资源", "key": "humanResources", "description": "撰写JD、设计面试题、绩效评估。"},
+            {"name": "专业领域", "key": "professionalFields", "description": "处理法律、财会、客服等特定专业事务。"}
           ]
         },
-        "content_and_marketing": {
-          "category_name": "内容创作与营销",
+        "creative_and_design": {
+          "category_name": "创意与设计",
           "labels": [
-            {"name": "文章写作", "key": "articleWriting", "description": "博客、新闻稿、深度分析文章。"},
-            {"name": "社交媒体", "key": "socialMedia", "description": "生成推文、小红书笔记、Facebook帖子。"},
-            {"name": "广告文案", "key": "advertisingCopy", "description": "广告语（Slogan）、产品卖点提炼、营销推文。"},
-            {"name": "SEO优化", "key": "seoOptimization", "description": "关键词研究、生成SEO标题和描述、内容优化。"},
-            {"name": "视频脚本", "key": "videoScript", "description": "短视频脚本、YouTube脚本、口播稿。"},
-            {"name": "市场策略", "key": "marketingStrategy", "description": "用户画像分析、营销活动策划、品牌定位。"},
-            {"name": "品牌命名", "key": "brandNaming", "description": "产品、公司、活动命名。"}
+            {"name": "内容营销", "key": "contentMarketing", "description": "撰写博客文章、社交媒体帖子、广告文案。"},
+            {"name": "图像生成", "key": "imageGeneration", "description": "创作数字艺术、设计素材、产品效果图。"},
+            {"name": "品牌创意", "key": "brandIdentity", "description": "品牌命名、广告语构思、市场定位分析。"},
+            {"name": "视频脚本", "key": "videoScript", "description": "创作短视频、口播稿、YouTube脚本。"},
+            {"name": "SEO优化", "key": "seoOptimization", "description": "关键词研究、生成SEO友好的标题和内容。"}
           ]
         },
         "technology_and_development": {
-          "category_name": "技术与开发",
+          "category_name": "技术开发",
           "labels": [
-            {"name": "代码编程", "key": "codeProgramming", "description": "生成代码片段、实现特定功能、算法编写。"},
-            {"name": "代码辅助", "key": "codeAssistance", "description": "解释代码、代码调试（Debug）、代码优化、代码重构。"},
-            {"name": "技术文档", "key": "technicalDocument", "description": "编写API文档、用户手册、开发日志。"},
-            {"name": "系统设计", "key": "systemDesign", "description": "架构设计、数据库模式生成。"}
+            {"name": "代码编程", "key": "codeProgramming", "description": "生成代码片段、实现算法、编写脚本。"},
+            {"name": "代码辅助", "key": "codeAssistance", "description": "解释、调试、优化或重构代码。"},
+            {"name": "技术文档", "key": "technicalDocumentation", "description": "编写API文档、用户手册、开发日志。"},
+            {"name": "系统设计", "key": "systemDesign", "description": "进行架构设计、生成数据库模式。"}
           ]
         },
         "learning_and_education": {
-          "category_name": "学习与教育",
+          "category_name": "学习教育",
           "labels": [
-            {"name": "概念解释", "key": "conceptExplanation", "description": "解释科学理论、专业术语、复杂概念。"},
-            {"name": "作业辅导", "key": "homeworkGuidance", "description": "解题思路、作文大纲、知识点梳理。"},
-            {"name": "课程设计", "key": "courseDesign", "description": "制定教学大纲、设计课堂活动、出题。"},
-            {"name": "语言学习", "key": "languageLearning", "description": "语法练习、口语对话模拟、单词记忆。"},
-            {"name": "学术研究", "key": "academicResearch", "description": "文献综述、论文润色、研究思路启发。"}
+            {"name": "知识问答", "key": "knowledgeQA", "description": "解释概念、回答问题、梳理知识点。"},
+            {"name": "学术研究", "key": "academicResearch", "description": "文献综述、论文润色、启发研究思路。"},
+            {"name": "教学设计", "key": "instructionalDesign", "description": "制定教学大纲、设计课堂活动、出题。"},
+            {"name": "语言学习", "key": "languageLearning", "description": "进行语法练习、口语模拟、翻译辅助。"}
           ]
         },
-        "personal_life_and_self_improvement": {
-          "category_name": "个人生活与提升",
+        "life_and_planning": {
+          "category_name": "生活与规划",
           "labels": [
-            {"name": "旅行计划", "key": "travelPlanning", "description": "制定行程、推荐景点和餐厅。"},
-            {"name": "健康健身", "key": "healthFitness", "description": "定制健身计划、生成健康食谱。"},
-            {"name": "职业规划", "key": "careerPlanning", "description": "简历优化、模拟面试、职业发展建议。"},
-            {"name": "决策辅助", "key": "decisionSupport", "description": "利弊分析（Pro-Con List）、提供不同视角。"},
-            {"name": "娱乐互动", "key": "entertainmentInteraction", "description": "角色扮演、文字游戏、写诗作对。"}
+            {"name": "旅行计划", "key": "travelPlanning", "description": "制定行程、推荐景点、预估预算。"},
+            {"name": "健康生活", "key": "healthAndWellness", "description": "定制健身计划、生成健康食谱。"},
+            {"name": "职业发展", "key": "careerDevelopment", "description": "简历优化、模拟面试、职业路径建议。"},
+            {"name": "决策分析", "key": "decisionMaking", "description": "进行利弊分析、提供多角度建议。"}
           ]
         }
       }
@@ -65,49 +57,38 @@
       "title": "意图标签",
       "description": "描述希望AI执行的具体动作或任务类型。",
       "categories": {
-        "generation_and_creation": {
-          "category_name": "生成与创作",
+        "creation": {
+          "category_name": "生成创作",
           "labels": [
-            {"name": "起草", "key": "drafting", "description": "从零开始生成初稿。"},
-            {"name": "构思", "key": "conception", "description": "头脑风暴，产生多个想法或选项。"},
-            {"name": "续写", "key": "continuation", "description": "在已有文本基础上继续写。"},
-            {"name": "仿写", "key": "imitation", "description": "模仿给定的风格、语气或结构进行创作。"}
+            {"name": "内容生成", "key": "generate", "description": "从零开始或根据要求创作文本、代码等。"},
+            {"name": "创意构思", "key": "brainstorm", "description": "头脑风暴，产生多个想法、选项或大纲。"},
+            {"name": "视觉化", "key": "visualize", "description": "根据文本描述生成图像、图表或设计。"}
           ]
         },
-        "analysis_and_extraction": {
-          "category_name": "分析与提炼",
+        "rewriting": {
+          "category_name": "编辑改写",
           "labels": [
-            {"name": "总结", "key": "summarization", "description": "将长文缩减为要点。"},
-            {"name": "提取", "key": "extraction", "description": "从文本中抽取关键信息（如人名、日期、数据）。"},
-            {"name": "分类", "key": "classification", "description": "将内容归入指定类别。"},
-            {"name": "情感分析", "key": "sentimentAnalysis", "description": "判断文本的情感倾向（正面/负面/中性）。"},
-            {"name": "对比分析", "key": "comparativeAnalysis", "description": "找出两段或多段文本的异同点。"}
+            {"name": "润色优化", "key": "refine", "description": "改善语言表达，使其更流畅、专业或有力。"},
+            {"name": "转述改写", "key": "rewrite", "description": "用不同的措辞或风格重写内容，保留核心意思。"},
+            {"name": "篇幅调整", "key": "changeLength", "description": "对内容进行扩写或缩写。"},
+            {"name": "语言翻译", "key": "translate", "description": "在不同语言之间进行转换。"}
           ]
         },
-        "editing_and_rewriting": {
-          "category_name": "编辑与改写",
+        "processing": {
+          "category_name": "处理分析",
           "labels": [
-            {"name": "润色", "key": "polishing", "description": "改善语言表达，使其更流畅、专业或优美。"},
-            {"name": "缩写", "key": "abbreviation", "description": "减少字数，保留核心意思。"},
-            {"name": "扩写", "key": "expansion", "description": "丰富细节，增加内容。"},
-            {"name": "转述", "key": "paraphrasing", "description": "用不同的话重说一遍。"},
-            {"name": "风格转换", "key": "styleConversion", "description": "将文本从一种风格（如口语化）转为另一种（如正式）。"}
+            {"name": "总结要点", "key": "summarize", "description": "将长篇内容精炼为核心摘要或要点。"},
+            {"name": "提取信息", "key": "extract", "description": "从文本中抽取指定类型的关键信息。"},
+            {"name": "分析洞察", "key": "analyze", "description": "进行情感判断、对比分析、逻辑推理等。"},
+            {"name": "分类归纳", "key": "classify", "description": "将信息按指定标准或自动发现的规律进行分类。"}
           ]
         },
-        "transformation_and_formatting": {
-          "category_name": "转换与格式化",
+        "utility": {
+          "category_name": "格式与交互",
           "labels": [
-            {"name": "翻译", "key": "translation", "description": "在不同语言间转换。"},
-            {"name": "格式化", "key": "formatting", "description": "按照指定格式输出，如JSON、Markdown、表格。"},
-            {"name": "代码转换", "key": "codeConversion", "description": "将一种编程语言的代码转换为另一种。"}
-          ]
-        },
-        "interaction_and_simulation": {
-          "category_name": "交互与模拟",
-          "labels": [
-            {"name": "角色扮演", "key": "rolePlaying", "description": "让AI扮演特定角色进行对话或执行任务。"},
-            {"name": "模拟推演", "key": "simulation", "description": "模拟某个场景的对话或事件发展。"},
-            {"name": "提问", "key": "questioning", "description": "让AI针对某段内容提出问题。"}
+            {"name": "解释说明", "key": "explain", "description": "对指定的概念、代码或文本进行详细解释。"},
+            {"name": "格式转换", "key": "format", "description": "按照指定格式（如JSON、Markdown、表格）输出内容。"},
+            {"name": "角色扮演", "key": "rolePlay", "description": "让AI扮演特定角色进行对话或执行任务。"}
           ]
         }
       }

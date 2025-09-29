@@ -2,61 +2,53 @@
   "prompt_tags_classification": {
     "scenario_tags": {
       "title": "Scenario Tags",
-      "description": "Describes the domain or context in which the user is applying the prompt.",
+      "description": "Describes the user's purpose for using the prompt in a specific domain or context.",
       "categories": {
         "office_and_professional": {
           "category_name": "Office & Professional",
           "labels": [
-            {"name": "Email Management", "key": "emailProcessing", "description": "Draft, reply to, polish, decline, or invite via email."},
-            {"name": "Meeting Assistant", "key": "meetingAssistant", "description": "Generate agendas, meeting minutes, and action item summaries."},
-            {"name": "Reports & Docs", "key": "reportDocument", "description": "Weekly reports, project reports, research documents, data analysis reports."},
-            {"name": "Presentations", "key": "presentationDocument", "description": "Generate presentation outlines, speech drafts, and slide content."},
-            {"name": "Project Management", "key": "projectManagement", "description": "Create plans, break down tasks (WBS), and assess risks."},
-            {"name": "Human Resources", "key": "humanResources", "description": "Write job descriptions, design interview questions, and draft performance reviews."},
-            {"name": "Legal Affairs", "key": "legalAffairs", "description": "Draft contracts, explain clauses, and provide legal consultation."},
-            {"name": "Finance & Accounting", "key": "financeAccounting", "description": "Financial analysis, market interpretation, and report explanation."},
-            {"name": "Customer Service", "key": "customerService", "description": "Respond to customer inquiries, handle complaints, and write FAQs."}
+            {"name": "Communication & Collaboration", "key": "communicationCollaboration", "description": "Writing emails, meeting minutes, instant messages, etc."},
+            {"name": "Documents & Reports", "key": "documentReport", "description": "Writing weekly reports, project reports, analysis reports, PPT outlines, etc."},
+            {"name": "Project Management", "key": "projectManagement", "description": "Creating plans, breaking down tasks, assessing risks."},
+            {"name": "Human Resources", "key": "humanResources", "description": "Writing JDs, designing interview questions, performance reviews."},
+            {"name": "Professional Fields", "key": "professionalFields", "description": "Handling specific professional tasks in legal, accounting, customer service, etc."}
           ]
         },
-        "content_and_marketing": {
-          "category_name": "Content & Marketing",
+        "creative_and_design": {
+          "category_name": "Creative & Design",
           "labels": [
-            {"name": "Article Writing", "key": "articleWriting", "description": "Blogs, press releases, in-depth analysis articles."},
-            {"name": "Social Media", "key": "socialMedia", "description": "Generate content for Twitter, Instagram, Facebook, etc."},
-            {"name": "Ad Copywriting", "key": "advertisingCopy", "description": "Slogans, product feature extraction, marketing copy."},
-            {"name": "SEO Optimization", "key": "seoOptimization", "description": "Keyword research, generate SEO titles and descriptions, content optimization."},
-            {"name": "Video Scripts", "key": "videoScript", "description": "Short video scripts, YouTube scripts, voice-over drafts."},
-            {"name": "Marketing Strategy", "key": "marketingStrategy", "description": "User persona analysis, campaign planning, brand positioning."},
-            {"name": "Brand Naming", "key": "brandNaming", "description": "Naming for products, companies, or events."}
+            {"name": "Content & Marketing", "key": "contentMarketing", "description": "Writing blog posts, social media posts, ad copy."},
+            {"name": "Image Generation", "key": "imageGeneration", "description": "Creating digital art, design assets, product mockups."},
+            {"name": "Brand & Strategy", "key": "brandIdentity", "description": "Naming brands, brainstorming slogans, market positioning analysis."},
+            {"name": "Video Scripting", "key": "videoScript", "description": "Creating short video scripts, voice-over scripts, YouTube scripts."},
+            {"name": "SEO Optimization", "key": "seoOptimization", "description": "Keyword research, generating SEO-friendly titles and content."}
           ]
         },
         "technology_and_development": {
           "category_name": "Technology & Development",
           "labels": [
-            {"name": "Coding", "key": "codeProgramming", "description": "Generate code snippets, implement functions, write algorithms."},
-            {"name": "Code Assistance", "key": "codeAssistance", "description": "Explain, debug, optimize, or refactor code."},
-            {"name": "Technical Docs", "key": "technicalDocument", "description": "Write API documentation, user manuals, and development logs."},
-            {"name": "System Design", "key": "systemDesign", "description": "Architectural design, database schema generation."}
+            {"name": "Code Programming", "key": "codeProgramming", "description": "Generating code snippets, implementing algorithms, writing scripts."},
+            {"name": "Code Assistance", "key": "codeAssistance", "description": "Explaining, debugging, optimizing, or refactoring code."},
+            {"name": "Technical Documentation", "key": "technicalDocumentation", "description": "Writing API docs, user manuals, development logs."},
+            {"name": "System Design", "key": "systemDesign", "description": "Conducting architectural design, generating database schemas."}
           ]
         },
         "learning_and_education": {
           "category_name": "Learning & Education",
           "labels": [
-            {"name": "Concept Explanation", "key": "conceptExplanation", "description": "Explain scientific theories, technical terms, complex concepts."},
-            {"name": "Homework Assistance", "key": "homeworkGuidance", "description": "Problem-solving approaches, essay outlines, knowledge summaries."},
-            {"name": "Lesson Planning", "key": "courseDesign", "description": "Create syllabi, design class activities, generate questions."},
-            {"name": "Language Learning", "key": "languageLearning", "description": "Grammar practice, conversational role-play, vocabulary memorization."},
-            {"name": "Academic Research", "key": "academicResearch", "description": "Literature reviews, paper polishing, research idea generation."}
+            {"name": "Knowledge Q&A", "key": "knowledgeQA", "description": "Explaining concepts, answering questions, organizing knowledge points."},
+            {"name": "Academic Research", "key": "academicResearch", "description": "Literature reviews, polishing papers, inspiring research ideas."},
+            {"name": "Instructional Design", "key": "instructionalDesign", "description": "Creating syllabuses, designing class activities, creating quizzes."},
+            {"name": "Language Learning", "key": "languageLearning", "description": "Grammar practice, conversation simulation, translation assistance."}
           ]
         },
-        "personal_life_and_self_improvement": {
-          "category_name": "Personal Life & Self-Improvement",
+        "life_and_planning": {
+          "category_name": "Life & Planning",
           "labels": [
-            {"name": "Travel Planning", "key": "travelPlanning", "description": "Create itineraries, recommend attractions and restaurants."},
-            {"name": "Health & Fitness", "key": "healthFitness", "description": "Customize workout plans, generate healthy recipes."},
-            {"name": "Career Planning", "key": "careerPlanning", "description": "Resume optimization, mock interviews, career development advice."},
-            {"name": "Decision Support", "key": "decisionSupport", "description": "Pro-con lists, providing different perspectives."},
-            {"name": "Entertainment", "key": "entertainmentInteraction", "description": "Role-playing, text-based games, writing poetry."}
+            {"name": "Travel Planning", "key": "travelPlanning", "description": "Creating itineraries, recommending attractions, estimating budgets."},
+            {"name": "Health & Wellness", "key": "healthAndWellness", "description": "Customizing fitness plans, generating healthy recipes."},
+            {"name": "Career Development", "key": "careerDevelopment", "description": "Resume optimization, mock interviews, career path advice."},
+            {"name": "Decision Making", "key": "decisionMaking", "description": "Conducting pro-con analysis, providing multi-perspective advice."}
           ]
         }
       }
@@ -65,49 +57,38 @@
       "title": "Intent Tags",
       "description": "Describes the specific action or task type the user wants the AI to perform.",
       "categories": {
-        "generation_and_creation": {
+        "creation": {
           "category_name": "Generation & Creation",
           "labels": [
-            {"name": "Drafting", "key": "drafting", "description": "Generate a first draft from scratch."},
-            {"name": "Ideation", "key": "conception", "description": "Brainstorm and generate multiple ideas or options."},
-            {"name": "Continuation", "key": "continuation", "description": "Continue writing based on existing text."},
-            {"name": "Imitation", "key": "imitation", "description": "Create content by imitating a given style, tone, or structure."}
+            {"name": "Generate Content", "key": "generate", "description": "Create text, code, etc., from scratch or based on requirements."},
+            {"name": "Brainstorm Ideas", "key": "brainstorm", "description": "Brainstorming multiple ideas, options, or outlines."},
+            {"name": "Visualize", "key": "visualize", "description": "Generate images, charts, or designs based on text descriptions."}
           ]
         },
-        "analysis_and_extraction": {
-          "category_name": "Analysis & Extraction",
-          "labels": [
-            {"name": "Summarization", "key": "summarization", "description": "Condense a long text into key points."},
-            {"name": "Extraction", "key": "extraction", "description": "Extract key information (e.g., names, dates, data) from text."},
-            {"name": "Classification", "key": "classification", "description": "Categorize content into predefined classes."},
-            {"name": "Sentiment Analysis", "key": "sentimentAnalysis", "description": "Determine the emotional tone (positive/negative/neutral) of a text."},
-            {"name": "Comparison", "key": "comparativeAnalysis", "description": "Identify similarities and differences between two or more texts."}
-          ]
-        },
-        "editing_and_rewriting": {
+        "rewriting": {
           "category_name": "Editing & Rewriting",
           "labels": [
-            {"name": "Polishing", "key": "polishing", "description": "Improve language to be more fluent, professional, or elegant."},
-            {"name": "Shortening", "key": "abbreviation", "description": "Reduce the word count while retaining the core meaning."},
-            {"name": "Expansion", "key": "expansion", "description": "Elaborate on details and add more content."},
-            {"name": "Paraphrasing", "key": "paraphrasing", "description": "Restate something in different words."},
-            {"name": "Style Transfer", "key": "styleConversion", "description": "Convert text from one style (e.g., informal) to another (e.g., formal)."}
+            {"name": "Refine & Polish", "key": "refine", "description": "Improve language to make it more fluent, professional, or impactful."},
+            {"name": "Rewrite & Paraphrase", "key": "rewrite", "description": "Rewrite content with different wording or style while preserving the core meaning."},
+            {"name": "Adjust Length", "key": "changeLength", "description": "Expand or shorten the content."},
+            {"name": "Translate", "key": "translate", "description": "Convert content between different languages."}
           ]
         },
-        "transformation_and_formatting": {
-          "category_name": "Transformation & Formatting",
+        "processing": {
+          "category_name": "Processing & Analysis",
           "labels": [
-            {"name": "Translation", "key": "translation", "description": "Convert text between different languages."},
-            {"name": "Formatting", "key": "formatting", "description": "Output content in a specific format, such as JSON, Markdown, or a table."},
-            {"name": "Code Conversion", "key": "codeConversion", "description": "Convert code from one programming language to another."}
+            {"name": "Summarize", "key": "summarize", "description": "Condense long content into a core summary or key points."},
+            {"name": "Extract Information", "key": "extract", "description": "Extract specific types of key information from text."},
+            {"name": "Analyze & Insight", "key": "analyze", "description": "Perform sentiment analysis, comparative analysis, logical reasoning, etc."},
+            {"name": "Classify & Categorize", "key": "classify", "description": "Organize information according to specified criteria or automatically discovered patterns."}
           ]
         },
-        "interaction_and_simulation": {
-          "category_name": "Interaction & Simulation",
+        "utility": {
+          "category_name": "Utility & Interaction",
           "labels": [
-            {"name": "Role-Playing", "key": "rolePlaying", "description": "Have the AI act as a specific character for dialogue or tasks."},
-            {"name": "Simulation", "key": "simulation", "description": "Simulate a conversation or the development of an event."},
-            {"name": "Questioning", "key": "questioning", "description": "Have the AI ask questions about a given piece of content."}
+            {"name": "Explain", "key": "explain", "description": "Provide a detailed explanation for a specified concept, code, or text."},
+            {"name": "Format Conversion", "key": "format", "description": "Output content in a specified format (e.g., JSON, Markdown, table)."},
+            {"name": "Role-play", "key": "rolePlay", "description": "Have the AI act as a specific character to perform dialogue or tasks."}
           ]
         }
       }
