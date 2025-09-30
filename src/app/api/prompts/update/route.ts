@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
     const requestData = {
       id: body.id,
       data: {
-        title: body.title?.trim(),
-        content: body.content?.trim(), 
-        description: body.description?.trim(),
-        tags: body.tags ? body.tags.map((tag: string) => tag.trim()) : undefined,
+        title: body.title !== undefined && body.title !== null ? body.title.trim() : body.title,
+        content: body.content !== undefined && body.content !== null ? body.content.trim() : body.content,
+        description: body.description !== undefined && body.description !== null ? body.description.trim() : body.description,
+        tags: body.tags !== undefined && body.tags !== null ? body.tags.map((tag: string) => tag.trim()) : body.tags,
         isPublic: body.isPublic
       }
     };
@@ -56,9 +56,17 @@ export async function POST(request: NextRequest) {
  
     const { id, data } = validation.data;
  
-    // 处理标签默认值
+    // 处理标签 - 当传入 null 时应清空标签，传入数组时使用该数组
     if (data.tags !== undefined) {
-      data.tags = data.tags && data.tags.length > 0 ? data.tags : [];
+      if (data.tags === null) {
+        data.tags = []; // 如果传入 null，将其转换为空数组以清空标签
+      } else {
+        data.tags = data.tags || []; // 保留数组或转换为默认空数组
+      }
+    }
+
+    if (data.description === undefined || data.description === null) {
+      data.description = ''; // 将 null 转换为空字符串，以清空描述
     }
  
     // 验证提示词所有权

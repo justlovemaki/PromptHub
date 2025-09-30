@@ -4,16 +4,16 @@ import type { User, LoginRequest, ApiResponse, LoginResponse, AiPointsPackageTyp
 import { api } from '../api-client';
 import { SUBSCRIPTION_STATUS, USER_ROLES } from '../types';
 
-// Token 过期时间设置（毫秒）
-const DEFAULT_TOKEN_EXPIRE_TIME = 10 * 60 * 1000; // 10 分钟
+// Token expiration time setting (in milliseconds)
+const DEFAULT_TOKEN_EXPIRE_TIME = 10 * 60 * 1000; // 10 minutes
 
-// ============== 认证状态接口 ==============
+// ============== Authentication State Interface ==============
 
 export interface AuthState {
   // 状态
   user: User | null;
   token: string | null;
-  userDataExpireTime: number | null; // Token 过期时间戳
+  userDataExpireTime: number | null; // Token expiration timestamp
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -44,7 +44,7 @@ export interface AuthState {
   setLanguage: (language: string | null) => void;
 }
 
-// ============== 创建认证Store ==============
+// ============== Create Authentication Store ==============
 
 export const useAuthStore = create<AuthState>()(  persist(
     (set, get) => ({
@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       error: null,
       language: null,
 
-      // ============== 认证操作 ==============
+      // ============== Authentication Operations ==============
 
       login: async (data: LoginRequest): Promise<boolean> => {
         set({ isLoading: true, error: null });
@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthState>()(  persist(
 
           if (response.success) {
             const { user, token } = response.data;
-            // 设置默认过期时间为24小时
+            // Set default expiration time to 24 hours
             const userDataExpireTime = Date.now() + DEFAULT_TOKEN_EXPIRE_TIME;
             set({
               user,
@@ -105,7 +105,7 @@ export const useAuthStore = create<AuthState>()(  persist(
 
           if (response.success) {
             const { user, token } = response.data;
-            // 设置默认过期时间为24小时
+            // Set default expiration time to 24 hours
             const userDataExpireTime = Date.now() + DEFAULT_TOKEN_EXPIRE_TIME;
             set({
               user,
@@ -137,9 +137,9 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ isLoading: true });
 
         try {
-          // 尝试调用后端登出API（可选）
+          // Try to call the backend logout API (optional)
           await api.logout().catch(() => {
-            // 忽略登出API错误，继续清理本地状态
+            // Ignore logout API errors, continue cleaning local state
           });
         } finally {
           set({
@@ -156,7 +156,7 @@ export const useAuthStore = create<AuthState>()(  persist(
       refreshUser: async (): Promise<void> => {
         const { token, isAuthenticated, isTokenExpired, language } = get();
         
-        // 检查token是否过期
+        // Check if token is expired
         if (isTokenExpired()) {
           console.log('refreshUser: Token has expired, clearing authentication state')
           set({
@@ -170,18 +170,18 @@ export const useAuthStore = create<AuthState>()(  persist(
           return;
         }
         
-        // 如果既没有token也没有认证状态，则不进行请求
+        // If there's no token and no authentication status, don't make the request
         if (!token && !isAuthenticated) {
           console.log('refreshUser: No token and authentication state, skipping request')
           return;
         }
 
-        // console.log('refreshUser: 开始获取用户信息', { hasToken: !!token, isAuthenticated })
+        // console.log('refreshUser: Starting to fetch user information', { hasToken: !!token, isAuthenticated })
         // set({ isLoading: true, error: null });
 
         try {
           const response = await api.getCurrentUser(language || undefined);
-          // console.log('refreshUser: API响应', response)
+          // console.log('refreshUser: API response', response)
 
           if (response.success) {
             console.log('refreshUser: Successfully retrieved user information', response.data)
@@ -192,7 +192,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             });
           } else {
             console.log('refreshUser: API returned error', response)
-            // Token可能已过期，清理认证状态
+            // Token may have expired, clearing authentication state
             set({
               user: null,
               token: null,
@@ -255,7 +255,7 @@ export const useAuthStore = create<AuthState>()(  persist(
           const response = await api.purchaseAiPoints(packageType, language || undefined);
 
           if (response.success) {
-            // 更新用户信息以反映新的AI点数余额
+            // Update user information to reflect the new AI points balance
             set({
               user: {
                 ...get().user,
@@ -294,7 +294,7 @@ export const useAuthStore = create<AuthState>()(  persist(
             set({
               user: {
                 ...get().user,
-                subscriptionStatus: response.data.subscriptionStatus as SubscriptionStatus, // 保留此处类型断言，因为API返回的是string类型
+                subscriptionStatus: response.data.subscriptionStatus as SubscriptionStatus, // Keep this type assertion because API returns string type
               },
               isLoading: false,
               error: null,
@@ -321,7 +321,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         set({ error: null });
       },
 
-      // ============== 权限检查 ==============
+      // ============== Permission Checks ==============
 
       isAdmin: (): boolean => {
         const { user } = get();
@@ -339,14 +339,14 @@ export const useAuthStore = create<AuthState>()(  persist(
 
         if (user.subscriptionStatus === SUBSCRIPTION_STATUS.FREE) return false;
         
-        // 检查订阅是否过期
+        // Check if subscription is expired
         if (user.subscriptionEndDate) {
           const now = new Date();
           const endDate = new Date(user.subscriptionEndDate);
           return endDate > now;
         }
 
-        // 如果没有结束日期，认为是永久订阅
+        // If there's no end date, consider it a permanent subscription
         return true;
       },
 
@@ -356,7 +356,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         return Date.now() > userDataExpireTime;
       },
 
-      // ============== 内部方法 ==============
+      // ============== Internal Methods ==============
 
       setUser: (user: User | null): void => {
         set({ user, isAuthenticated: !!user });
@@ -397,13 +397,13 @@ export const useAuthStore = create<AuthState>()(  persist(
       },
     }),
     {
-      name: 'auth-storage', // 持久化存储的键名
+      name: 'auth-storage', // Key name for persistent storage
       storage: createJSONStorage(() => {
-        // 确保只在客户端使用 localStorage
+        // Ensure localStorage is used only on the client side
         if (typeof window !== 'undefined') {
           return localStorage
         }
-        // 服务端返回一个空的存储实现
+        // Server returns an empty storage implementation
         return {
           getItem: () => null,
           setItem: () => {},
@@ -411,7 +411,7 @@ export const useAuthStore = create<AuthState>()(  persist(
         }
       }),
       partialize: (state) => ({
-        // 只持久化必要的状态
+        // Persist only necessary state
         user: state.user,
         token: state.token,
         userDataExpireTime: state.userDataExpireTime,
@@ -424,10 +424,10 @@ export const useAuthStore = create<AuthState>()(  persist(
           console.log('onRehydrateStorage: Token has expired, clearing state');
         }
         
-        // 重新加载后，如果有token但没有用户信息，尝试刷新用户信息
+        // After rehydration, if there's a token but no user info, try to refresh user info
         if (state?.token && !state?.user) {
           console.log('onRehydrateStorage: Attempting to refresh user information');
-          // 延迟执行，确保组件已挂载
+          // Delay execution to ensure components are mounted
           setTimeout(() => {
             state.refreshUser?.()
           }, 100)
@@ -439,7 +439,7 @@ export const useAuthStore = create<AuthState>()(  persist(
   )
 );
 
-// ============== 便捷 Hooks ==============
+// ============== Convenient Hooks ==============
 
 export const useAuth = () => {
   const store = useAuthStore();

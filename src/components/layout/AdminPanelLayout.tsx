@@ -25,28 +25,28 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
   const { t } = useTranslation(lang, 'admin')
   const truePath = getTruePathFromPathname(pathname, lang);
 
-  // 客户端 hydration 检查
+  // Client-side hydration check
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // 页面初始化时设置token（只在store没有token时执行，只执行一次）
+  // Set token on page initialization (only execute when store has no token, execute once only)
   useEffect(() => {
-    // 等待session加载完成
+    // Wait for session to finish loading
     if (isPending) {
-      console.log('AdminPanelLayout: session正在加载中，等待...')
+      console.log('AdminPanelLayout: session is loading, waiting...')
       return
     }
     
-    // 只有当store中没有token，但session中有token时，才设置token
+    // Only set token when store has no token but session has token
     if (session?.session?.token && isTokenExpired) {
-      console.log('AdminPanelLayout: store中无token但session有token，设置token', session.session.token)
+      console.log('AdminPanelLayout: store has no token but session has token, setting token', session.session.token)
       setToken(session.session.token)
       refreshUser()
     }
   }, [isClient, isPending, isTokenExpired])
 
-  // 设置语言属性
+  // Set language property
   useEffect(() => {
     setLanguage(lang)
   }, [lang, setLanguage])
@@ -100,11 +100,11 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
 
   return (
     <div className="min-h-screen bg-bg-200 flex flex-col">
-      {/* 顶栏 Header */}
+      {/* Header */}
       <header className="bg-white shadow-sm border-b border-bg-300 fixed top-0 left-0 right-0 z-50">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* 左侧 - Logo */}
+            {/* Left - Logo */}
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -123,14 +123,14 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
                 </div>
                 <span className="ml-2 text-lg font-semibold text-text-100">PromptHub</span>
               </button>
-              {/* 管理后台标识 */}
+              {/* Admin panel indicator */}
               <div className="ml-4 flex items-center">
                 <span className="text-text-300">|</span>
                 <span className="ml-3 px-2 py-1 text-xs bg-error-500 text-white rounded-full">{t('common.adminPanel')}</span>
               </div>
             </div>
 
-            {/* 右侧 - 价格、语言切换、登录 */}
+            {/* Right - Pricing, Language Switch, Login */}
             <div className="flex items-center space-x-4">
               {/* {t('common.returnToDashboard')} */}
               <button
@@ -140,12 +140,12 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
                 {t('common.returnToDashboard')}
               </button>
 
-              {/* 多语言切换 */}
+              {/* Language Switch */}
               <div className="flex items-center space-x-2">
                 <LanguageSwitcher lang={lang} />
               </div>
 
-              {/* 登录/用户信息 */}
+              {/* Login/User Info */}
               <LoginButton lng={lang} />
             </div>
           </div>
@@ -153,31 +153,31 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
       </header>
 
       <div className="flex flex-1 pt-16">
-        {/* 管理后台专用侧边栏 */}
+        {/* Admin panel specific sidebar */}
         <nav className={`fixed left-0 top-16 bottom-0 bg-bg-900 transition-all duration-300 z-40 ${
           sidebarCollapsed ? 'w-16' : 'w-48'
         } lg:translate-x-0 ${sidebarCollapsed ? '' : 'lg:block hidden'}`}>
           <div className="flex flex-col h-full">
             <div className="flex-1 px-4 py-6 overflow-y-auto">
               <nav className="space-y-2">
-                {/* 切换按钮 - 根据状态显示展开或折叠按钮 */}
+                {/* Toggle button - Show expand or collapse button based on state */}
                 <div className={`flex ${sidebarCollapsed ? 'justify-center' : 'justify-start'} mb-4`}>
                   <button
                     onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                     className={`${
                       sidebarCollapsed
-                        ? 'p-2 flex items-center justify-center w-8 h-8'  // 折叠状态下确保完全居中
+                        ? 'p-2 flex items-center justify-center w-8 h-8'  // Ensure centering in collapsed state
                         : 'p-2'
                     } text-text-300 hover:text-white hover:bg-bg-800 rounded-lg transition-colors`}
                     title={sidebarCollapsed ? t('common.sidebar.expand') : t('common.sidebar.collapse')}
                   >
                     {sidebarCollapsed ? (
-                      // 折叠状态显示展开图标（向右箭头）
+                      // Show expand icon (right arrow) in collapsed state
                       <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                       </svg>
                     ) : (
-                      // 展开状态显示折叠图标（向左箭头）
+                      // Show collapse icon (left arrow) in expanded state
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                       </svg>
@@ -212,7 +212,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
           </div>
         </nav>
 
-        {/* 主内容区 */}
+        {/* Main Content Area */}
         <main className={`flex-1 flex flex-col transition-all duration-300 ${
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-48'
         }`}>
@@ -222,7 +222,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
         </main>
       </div>
 
-      {/* 页脚 Footer - 固定在底部 */}
+      {/* Footer - Fixed at bottom */}
       <footer className={`bg-white border-t border-bg-300 transition-all duration-300 ${
         sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-48'
       }`}>

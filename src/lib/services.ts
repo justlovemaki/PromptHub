@@ -4,6 +4,7 @@ import { db } from './database';
 import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-schema';
 import { generateId } from './utils';
 import { SPACE_TYPES, USER_ROLES, LOG_LEVELS, LOG_CATEGORIES, AI_POINTS_TYPES, SORT_FIELDS, SORT_ORDERS } from './constants';
+const isSupabase = !!process.env.SUPABASE_URL;
 
 // ============== 日期时区处理服务 ==============
 
@@ -209,6 +210,7 @@ export class PromptService {
       tag?: string;  // 添加tag参数
       sortBy?: typeof SORT_FIELDS.PROMPTS[number];
       sortOrder?: typeof SORT_ORDERS[number];
+      getAll?: boolean; // 添加获取所有记录的选项
     }
   ) {
     const {
@@ -219,7 +221,8 @@ export class PromptService {
       isPublic,
       tag,  // 获取tag参数
       sortBy = SORT_FIELDS.PROMPTS[2], // 'updatedAt'
-      sortOrder = SORT_ORDERS[1] // 'desc'
+      sortOrder = SORT_ORDERS[1], // 'desc'
+      getAll = false // 获取所有记录的选项，默认为false
     } = options || {};
 
     // 构建查询条件
@@ -262,17 +265,28 @@ export class PromptService {
     // 默认子排序按 updatedAt 降序
     const secondaryOrderBy = sortBy !== SORT_FIELDS.PROMPTS[2] ? desc(prompt.updatedAt) : undefined;
 
-    // 计算偏移量
-    const offset = (page - 1) * limit;
-
     // 执行查询
     const orderByArray = secondaryOrderBy ? [orderByCondition, secondaryOrderBy] : [orderByCondition];
-    const prompts = await db.query.prompt.findMany({
-      where: and(...conditions),
-      orderBy: orderByArray,
-      limit: limit,
-      offset: offset,
-    });
+    let prompts;
+    
+    if (getAll) {
+      // 如果需要获取所有记录，不设置limit和offset
+      prompts = await db.query.prompt.findMany({
+        where: and(...conditions),
+        orderBy: orderByArray,
+      });
+    } else {
+      // 计算偏移量
+      const offset = (page - 1) * limit;
+      
+      // 执行带分页的查询
+      prompts = await db.query.prompt.findMany({
+        where: and(...conditions),
+        orderBy: orderByArray,
+        limit: limit,
+        offset: offset,
+      });
+    }
 
     // 获取总数
     const total = await db.$count(prompt, and(...conditions));
@@ -280,9 +294,9 @@ export class PromptService {
     return {
       prompts,
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit)
+      page: getAll ? 1 : page,
+      limit: getAll ? prompts.length : limit,
+      totalPages: getAll ? 1 : Math.ceil(total / limit)
     };
   }
   
@@ -452,7 +466,7 @@ export class DashboardService {
           totalPrompts: sql<number>`count(*)`,
           publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
           privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-          monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.toISOString()} then 1 else 0 end)`,
+          monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${isSupabase ? monthStart.toISOString() : monthStart.getTime()} then 1 else 0 end)`,
         })
         .from(prompt)
         .where(eq(prompt.spaceId, spaceId));
@@ -511,7 +525,7 @@ export class DashboardService {
         totalPrompts: sql<number>`count(*)`,
         publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
         privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${monthStart.toISOString()} then 1 else 0 end)`,
+        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${isSupabase ? monthStart.toISOString() : monthStart.getTime()} then 1 else 0 end)`,
       })
       .from(prompt)
       .where(eq(prompt.spaceId, spaceId));

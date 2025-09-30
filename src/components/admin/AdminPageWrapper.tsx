@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@promptmanager/core-logic'
+import { useTranslation } from '@/i18n/client'
 import AdminPanelLayout from '../layout/AdminPanelLayout'
 
 interface AdminPageWrapperProps {
@@ -25,6 +26,7 @@ export default function AdminPageWrapper({
 }: AdminPageWrapperProps) {
   const [isClient, setIsClient] = useState(false)
   const { user, isLoading, isAdmin, setLanguage } = useAuth()
+  const { t } = useTranslation(lang, 'admin')
 
   // 客户端 hydration 检查
   useEffect(() => {
@@ -44,8 +46,8 @@ export default function AdminPageWrapper({
           <div className="mx-auto w-16 h-16 bg-brand-blue/100 rounded-full flex items-center justify-center mb-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">系统加载中</h2>
-          <p className="text-gray-600">请稍候，正在为您准备内容...</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.systemLoading')}</h2>
+          <p className="text-gray-600">{t('loading.preparingContent')}</p>
         </div>
       </div>
     )
@@ -63,12 +65,12 @@ export default function AdminPageWrapper({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-text-100 mb-2">访问被拒绝</h2>
+            <h2 className="text-xl font-semibold text-text-100 mb-2">{t('error.accessDenied')}</h2>
             <button
               onClick={() => window.location.href = '/'}
               className="bg-bg-500 hover:bg-bg-600 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
             >
-              返回首页
+              {t('button.returnHome')}
             </button>
           </div>
         </div>
@@ -87,13 +89,13 @@ export default function AdminPageWrapper({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-text-100 mb-2">加载失败</h2>
+            <h2 className="text-xl font-semibold text-text-100 mb-2">{t('error.loadingFailed')}</h2>
             <p className="text-text-200 mb-6">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-primary-100 hover:bg-primary-100/90 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
             >
-              刷新页面
+              {t('button.refreshPage')}
             </button>
           </div>
         </div>

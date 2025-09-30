@@ -76,7 +76,7 @@ export function getLanguageFromNextRequest(request: NextRequest): string {
       return detectedLng;
     }
   }
-  console.log(fallbackLng)
+  // console.log('fallback to default: '+fallbackLng)
   // 如果未找到支持的语言，则返回默认语言
   return fallbackLng;
 }

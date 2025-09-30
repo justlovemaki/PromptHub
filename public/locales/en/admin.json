@@ -185,7 +185,9 @@
   "error": {
     "forbidden": "Access denied, you do not have permission to perform this operation",
     "notFound": "The specified resource was not found",
-    "internalServer": "Internal server error, please try again later"
+    "internalServer": "Internal server error, please try again later",
+    "accessDenied": "Access Denied",
+    "loadingFailed": "Loading Failed"
   },
   "validation": {
     "invalidPageOrLimit": "Invalid pagination parameters, please check page number and limit"
@@ -197,5 +199,13 @@
     "statsRetrieved": "Statistics data retrieved successfully",
     "usersRetrieved": "User data retrieved successfully",
     "operationCompleted": "Operation completed successfully"
+  },
+  "loading": {
+    "systemLoading": "System Loading",
+    "preparingContent": "Please wait, preparing content for you..."
+  },
+  "button": {
+    "returnHome": "Return Home",
+    "refreshPage": "Refresh Page"
   }
 }

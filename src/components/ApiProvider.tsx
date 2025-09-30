@@ -6,27 +6,27 @@ import { FALLBACK_DEFAULT_CONFIG } from "@/lib/constants";
 
 export function ApiProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // 获取baseURL
+    // Get base URL
     const baseURL = process.env.NEXT_PUBLIC_APP_URL ||
                    process.env.BETTER_AUTH_URL?.replace(/\/$/, '') ||
                    (typeof window !== 'undefined' ? window.location.origin : FALLBACK_DEFAULT_CONFIG.APP_BASE_URL)
     
-    // 初始化API客户端
+    // Initialize API client
     createApiClient({
       baseURL,
       getToken: () => {
-        // 从auth store获取token
+        // Get token from auth store
         return useAuthStore.getState().token
       },
       onUnauthorized: () => {
-        // 当收到401错误时，清理认证状态
+        // When receiving 401 error, clear authentication state
         const { setUser, setToken } = useAuthStore.getState()
         setUser(null)
         setToken(null)
-        console.log('API客户端: 认证失败，已清理用户状态')
+        console.log('API Client: Authentication failed, user state cleared')
       },
       onError: (error) => {
-        console.error('API客户端错误:', error)
+        console.error('API Client Error:', error)
       },
     })
   }, [])

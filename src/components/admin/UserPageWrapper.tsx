@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@promptmanager/core-logic'
-import { signIn, signOut, useSession } from '../../lib/auth-client'
+import { useTranslation } from '@/i18n/client'
+import { useSession } from '../../lib/auth-client'
 import AdminLayout from '../layout/AdminLayout'
 
 interface UserPageWrapperProps {
@@ -14,8 +15,8 @@ interface UserPageWrapperProps {
 }
 
 /**
- * 普通用户页面通用包装组件
- * 提供统一的错误处理和用户session检查
+ * General wrapper component for user pages
+ * Provides unified error handling and user session checking
  */
 
 export default function UserPageWrapper({
@@ -28,36 +29,37 @@ export default function UserPageWrapper({
   const { isAuthenticated, isLoading, user, setLanguage } = useAuth()
   const { data: session, isPending } = useSession()
   const [isInitialized, setIsInitialized] = useState(false)
+  const { t } = useTranslation(lang, 'admin')
 
   // 获取session信息
   useEffect(() => {
     setIsInitialized(true)
-    // console.log('UserPageWrapper: Session状态', {
+    // console.log('UserPageWrapper: Session Status', {
     //   hasSession: !!session,
     //   sessionUser: session?.user?.id,
-    //   sessionStatus: session?.user ? '已登录' : '未登录'
+    //   sessionStatus: session?.user ? 'Logged In' : 'Not Logged In'
     // })
   }, [session])
 
-  // 设置语言属性
+  // Set language attribute
   useEffect(() => {
     setLanguage(lang)
   }, [lang, setLanguage])
 
-  // 监听用户状态变化
+  // Listen for user status changes
   useEffect(() => {
     if (user && isInitialized) {
-      console.log('UserPageWrapper: 用户已登录', user.id)
-      // 这里可以添加用户登录时的副作用逻辑
-      // 比如：更新页面标题、触发数据刷新、发送分析事件等
+      console.log('UserPageWrapper: User logged in', user.id)
+      // Here you can add side effects logic when user logs in
+      // For example: update page title, trigger data refresh, send analytics events, etc.
     } else if (isInitialized && !isAuthenticated && !isLoading) {
-      console.log('UserPageWrapper: 用户未登录或已登出')
-      // 这里可以添加用户登出时的副作用逻辑
-      // 比如：清理缓存、停止定时器、清除敏感数据等
+      console.log('UserPageWrapper: User not logged in or logged out')
+      // Here you can add side effects logic when user logs out
+      // For example: clear cache, stop timers, clear sensitive data, etc.
     }
   }, [user, isAuthenticated, isLoading, isInitialized])
 
-  // 正在加载中
+  // Loading in progress
   if ((isLoading || isPending)) {
     return (
       <div className="min-h-screen bg-bg-200 flex items-center justify-center">
@@ -65,14 +67,14 @@ export default function UserPageWrapper({
           <div className="mx-auto w-16 h-16 bg-brand-blue/100 rounded-full flex items-center justify-center mb-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">系统加载中</h2>
-          <p className="text-gray-600">请稍候，正在为您准备内容...</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.systemLoading')}</h2>
+          <p className="text-gray-600">{t('loading.preparingContent')}</p>
         </div>
       </div>
     )
   }
 
-  // 错误状态
+  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-bg-200 flex items-center justify-center">
@@ -83,13 +85,13 @@ export default function UserPageWrapper({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-text-100 mb-2">加载失败</h2>
+            <h2 className="text-xl font-semibold text-text-100 mb-2">{t('error.loadingFailed')}</h2>
             <p className="text-text-200 mb-6">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-primary-100 hover:bg-primary-100/90 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
             >
-              刷新页面
+              {t('button.refreshPage')}
             </button>
           </div>
         </div>
@@ -97,10 +99,10 @@ export default function UserPageWrapper({
     )
   }
 
-  // 检查最终的认证状态 (优先使用useAuth，fallback到session)
+  // Check final authentication status (prioritize useAuth, fallback to session)
   const finalIsAuthenticated = isAuthenticated || !!session?.user
 
-  // 用户未登录
+  // User not logged in
   if (!finalIsAuthenticated) {
     return (
       <div className="min-h-screen bg-bg-200 flex items-center justify-center">
@@ -112,12 +114,12 @@ export default function UserPageWrapper({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-text-100 mb-2">用户未登录</h2>
+            <h2 className="text-xl font-semibold text-text-100 mb-2">{t('error.accessDenied')}</h2>
             <button
               onClick={() => window.location.href = '/'}
               className="bg-bg-500 hover:bg-bg-600 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
             >
-              返回首页
+              {t('button.returnHome')}
             </button>
           </div>
         </div>

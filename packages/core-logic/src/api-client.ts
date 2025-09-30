@@ -27,7 +27,7 @@ import type {
  } from './types';
  import { useAuthStore } from './stores/auth-store';
 
-// ============== 辅助函数 ==============
+// ============== Utility Functions ==============
 
 function createUrlWithQuery(baseUrl: string, query?: Record<string, any>): string {
  if (!query) return baseUrl;
@@ -52,7 +52,7 @@ function createUrlWithQuery(baseUrl: string, query?: Record<string, any>): strin
  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
 }
 
-// ============== API 客户端配置 ==============
+// ============== API Client Configuration ==============
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -68,8 +68,8 @@ export class ApiClient {
     this.config = config;
   }
 
-  // ============== 通用请求方法 ==============
-
+  // ============== Generic Request Method ==============
+  
   private async request<T>(
     endpoint: string,
     options: RequestInit & {
@@ -87,14 +87,14 @@ export class ApiClient {
         Object.entries(fetchOptions.headers || {}).map(([k, v]) => [k, String(v)])
       ),
     };
+// Add language header
+if (lang) {
 
-    // 添加语言header
-    if (lang) {
       headers['x-next-locale'] = lang;
     }
+// Add authentication token
+if (requireAuth) {
 
-    // 添加认证token
-    if (requireAuth) {
       const token = this.config.getToken();
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -103,7 +103,7 @@ export class ApiClient {
           success: false,
           error: {
             code: 'UNAUTHORIZED',
-            message: '未授权访问，请先登录',
+            message: 'Unauthorized access, please log in first',
           },
         };
       }
@@ -126,7 +126,7 @@ export class ApiClient {
             success: false,
             error: {
               code: 'UNAUTHORIZED',
-              message: '认证失败，请重新登录',
+              message: 'Authentication failed, please log in again',
             },
           };
         }
@@ -135,7 +135,7 @@ export class ApiClient {
           success: false,
           error: {
             code: `HTTP_${response.status}`,
-            message: data.message || `请求失败 (${response.status})`,
+            message: data.message || `Request failed (${response.status})`,
             details: data,
           },
         };
@@ -154,7 +154,7 @@ export class ApiClient {
         success: false,
         error: {
           code: 'NETWORK_ERROR',
-          message: '网络请求失败，请检查网络连接',
+          message: 'Network request failed, please check your network connection',
           details: error,
         },
       };
@@ -174,8 +174,8 @@ export class ApiClient {
     return this.request<T>(endpoint, { method: 'POST', body, requireAuth, lang });
   }
 
-  // ============== 认证相关 API ==============
-
+  // ============== Authentication Related APIs ==============
+  
   async login(data: LoginRequest, lang?: string): Promise<ApiResponse<LoginResponse>> {
     return this.post<LoginResponse>('/api/auth/login', data, false, lang);
   }
@@ -196,8 +196,8 @@ export class ApiClient {
     return this.post<User>('/api/user/update', data, true, lang);
   }
 
-  // ============== 提示词相关 API ==============
-
+  // ============== Prompt Related APIs ==============
+  
   async getPrompts(query?: PromptListQuery, lang?: string): Promise<ApiResponse<PromptListResponse>> {
     const params = new URLSearchParams();
     
@@ -290,7 +290,7 @@ export class ApiClient {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this.config.getToken() || ''}`,
     };
-        // 添加语言header
+        // Add language header
     if (lang) {
       headers['x-next-locale'] = lang;
     }
@@ -343,8 +343,8 @@ export class ApiClient {
     }>('/api/user/subscription', { action }, true, lang);
   }
 
-  // ============== 管理员相关 API ==============
-
+  // ============== Administrator Related APIs ==============
+  
   async getAdminStats(lang?: string): Promise<ApiResponse<AdminStats>> {
     return this.get<AdminStats>('/api/admin/stats/get', true, lang);
   }
@@ -411,8 +411,8 @@ export class ApiClient {
     return this.get<PromptListResponse>(endpoint, true, lang);
   }
 
-  // ============== 系统日志相关 API ==============
-
+  // ============== System Log Related APIs ==============
+  
   async getSystemLogs(query?: SystemLogListQuery, lang?: string): Promise<ApiResponse<SystemLogListResponse>> {
     const params = new URLSearchParams();
 
@@ -436,8 +436,8 @@ export class ApiClient {
     return this.get<SystemLogListResponse>(endpoint, true, lang);
   }
 
-  // ============== 计费相关 API ==============
-
+  // ============== Billing Related APIs ==============
+  
   async createCheckoutSession(
     data: CreateCheckoutSessionRequest,
     lang?: string
@@ -445,18 +445,18 @@ export class ApiClient {
     return this.post<CheckoutSessionResponse>('/api/billing/create-checkout-session', data, true, lang);
   }
 
-  // ============== 健康检查 API ==============
-
+  // ============== Health Check API ==============
+  
   async healthCheck(lang?: string): Promise<ApiResponse<{ status: string; timestamp: string }>> {
     return this.get<{ status: string; timestamp: string }>('/api/health', false, lang);
   }
 
-  // ============== SSE 连接 ==============
-
+  // ============== SSE Connection ==============
+  
   createSSEConnection(onMessage: (event: MessageEvent) => void, onError?: (error: Event) => void): EventSource | null {
     const token = this.config.getToken();
     if (!token) {
-      console.error('无法建立SSE连接：缺少认证token');
+      console.error('Unable to establish SSE connection: Missing authentication token');
       return null;
     }
 
@@ -465,45 +465,45 @@ export class ApiClient {
       
       eventSource.onmessage = onMessage;
       eventSource.onerror = (error) => {
-        console.error('SSE连接错误:', error);
+        console.error('SSE connection error:', error);
         onError?.(error);
       };
 
       eventSource.onopen = () => {
-        console.log('SSE连接已建立');
+        console.log('SSE connection established');
       };
 
       return eventSource;
     } catch (error) {
-      console.error('创建SSE连接失败:', error);
+      console.error('Failed to create SSE connection:', error);
       onError?.(error as Event);
       return null;
     }
   }
 }
 
-// ============== 创建默认客户端实例 ==============
+// ============== Create Default Client Instance ==============
 
 let defaultApiClient: ApiClient | null = null;
 
 export const createApiClient = (config: ApiClientConfig): ApiClient => {
-  // 如果已经有默认客户端，直接返回（避免重复初始化）
+  // If there's already a default client, return directly (to avoid duplicate initialization)
   if (defaultApiClient) {
-    console.log('API客户端已存在，跳过重复初始化');
+    console.log('API client already exists, skipping duplicate initialization');
     return defaultApiClient;
   }
   
   const client = new ApiClient(config);
   defaultApiClient = client;
-  console.log('API客户端已初始化，baseURL:', config.baseURL);
+  console.log('API client initialized, baseURL:', config.baseURL);
   return client;
 };
 
 export const getApiClient = (): ApiClient => {
   if (!defaultApiClient) {
-    // 如果在客户端环境且尚未初始化，则自动初始化
+    // If in client environment and not yet initialized, initialize automatically
     if (typeof window !== 'undefined') {
-      console.log('API客户端未初始化，自动初始化...');
+      console.log('API client not initialized, auto initializing...');
       const baseURL = process.env.NEXT_PUBLIC_APP_URL ||
                      process.env.BETTER_AUTH_URL?.replace(/\/$/, '') ||
                      window.location.origin || 'http://localhost:3000';
@@ -511,52 +511,52 @@ export const getApiClient = (): ApiClient => {
       return createApiClient({
         baseURL,
         getToken: () => {
-          // 从auth store获取token
+          // Get token from auth store
           try {
             return useAuthStore.getState().token;
           } catch (error) {
-            console.warn('获取token时出错:', error);
+            console.warn('Error getting token:', error);
             return null;
           }
         },
         onUnauthorized: () => {
-          // 当收到401错误时，清理认证状态
+          // When a 401 error is received, clear the authentication state
           try {
             const { setUser, setToken } = useAuthStore.getState();
             setUser(null);
             setToken(null);
-            console.log('API客户端: 认证失败，已清理用户状态');
+            console.log('API client: Authentication failed, user state cleared');
           } catch (error) {
-            console.warn('清理认证状态时出错:', error);
+            console.warn('Error clearing authentication state:', error);
           }
         },
         onError: (error) => {
-          console.error('API客户端错误:', error);
+          console.error('API client error:', error);
         },
       });
     }
-    // 在服务端或无法自动初始化时抛出错误
-    throw new Error('API客户端未初始化，请先调用 createApiClient()');
+    // Throw an error on the server side or when auto-initialization is not possible
+    throw new Error('API client not initialized, please call createApiClient() first');
   }
   return defaultApiClient;
 };
 
-// ============== 便捷方法 ==============
+// ============== Convenient Methods ==============
 
 export const api = {
   get client() {
     return getApiClient();
   },
-  
-  // 认证
+  // Authentication
   login: (data: LoginRequest, lang?: string) => getApiClient().login(data, lang),
+
   register: (data: LoginRequest & { name: string }, lang?: string) => getApiClient().register(data, lang),
   logout: () => getApiClient().logout(),
   getCurrentUser: (lang?: string) => getApiClient().getCurrentUser(lang),
   updateUser: (data: { name?: string }, lang?: string) => getApiClient().updateUser(data, lang),
-  
-  // 提示词
+  // Prompts
   getPrompts: (query?: PromptListQuery, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/prompts/list', query), true, lang),
+
   createPrompt: (data: CreatePromptRequest, lang?: string) => getApiClient().post<Prompt>('/api/prompts/create', data, true, lang),
   updatePrompt: (data: UpdatePromptRequest, lang?: string) => getApiClient().post<Prompt>('/api/prompts/update', data, true, lang),
   deletePrompt: (data: DeletePromptRequest, lang?: string) => getApiClient().post<void>('/api/prompts/delete', data, true, lang),
@@ -570,9 +570,9 @@ export const api = {
   getAiPointsUsage: (lang?: string) => getApiClient().get<{ totalPoints: number; usedPoints: number; remainingPoints: number; usageRecords: any[] }>('/api/user/ai-points', true, lang),
   purchaseAiPoints: (packageType: AiPointsPackageType, lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),
   manageSubscription: (action: SubscriptionAction, lang?: string) => getApiClient().post<{ userId: string; subscriptionStatus: string }>('/api/user/subscription', { action }, true, lang),
-  
-  // 管理员
+  // Administrator
   getAdminStats: (lang?: string) => getApiClient().get<AdminStats>('/api/admin/stats/get', true, lang),
+
   getAdminUsers: (query?: AdminUserListQuery, lang?: string) => getApiClient().get<AdminUserListResponse>(createUrlWithQuery('/api/admin/users/list', query), true, lang),
   updateAdminUser: (data: AdminUpdateUserRequest, lang?: string) => getApiClient().post<User>('/api/admin/users/update', data, true, lang),
   getAdminPopularPrompts: (limit?: number, lang?: string) => {
@@ -585,11 +585,11 @@ export const api = {
   getAdminPrompts: (query?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; spaceId?: string; isPublic?: boolean; }, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/admin/prompts/list', query), true, lang),
   getSystemLogs: (query?: SystemLogListQuery, lang?: string) => getApiClient().get<SystemLogListResponse>(createUrlWithQuery('/api/admin/logs/list', query), true, lang),
   
-  // 计费
+  // Billing
   createCheckoutSession: (data: CreateCheckoutSessionRequest, lang?: string) => getApiClient().post<CheckoutSessionResponse>('/api/billing/create-checkout-session', data, true, lang),
-  
-  // 工具
+  // Utilities
   healthCheck: (lang?: string) => getApiClient().get<{ status: string; timestamp: string }>('/api/health', false, lang),
+
   createSSEConnection: (onMessage: (event: MessageEvent) => void, onError?: (error: Event) => void) =>
     getApiClient().createSSEConnection(onMessage, onError),
 };

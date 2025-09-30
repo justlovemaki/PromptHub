@@ -11,6 +11,7 @@ export interface PromptData {
   content: string;
   isPublic: boolean;
   tags: string[];
+  description?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
       await PromptService.createPrompt({
         title: promptData.title,
         content: promptData.content,
+        description: promptData.description || '',
         tags: promptData.tags ? promptData.tags : [],
         isPublic: promptData.isPublic,
         spaceId: spaceId,
