@@ -49,6 +49,7 @@ async function handleApiRoutes(request: NextRequest) {
     '/api/auth',
     '/api/billing/webhook', // Stripe webhook
     '/api/health', // 健康检查
+    '/api/mcp', // MCP服务
   ];
   
   // 检查是否为公开路由

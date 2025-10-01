@@ -169,6 +169,23 @@ export const systemLogs = sqliteTable("system_logs", {
   userIdIndex: index("system_logs_user_id_idx").on(table.userId),
 }));
 
+// 访问令牌表（专门存储MCP等外部工具的访问令牌）
+export const accessTokens = sqliteTable("access_tokens", {
+	id: text("id").primaryKey().notNull(),
+	userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+	accessToken: text("access_token").notNull(),
+	refreshToken: text("refresh_token"), // 可选的刷新令牌
+	accessTokenExpiresAt: integer("access_token_expires_at", { mode: 'timestamp_ms' }),
+	refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: 'timestamp_ms' }),
+	scope: text("scope"),
+	createdAt: integer("created_at", { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+	updatedAt: integer("updated_at", { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+}, (table) => ({
+	accessTokenIndex: index("access_token_idx").on(table.accessToken),
+	userIdIndex: index("access_token_user_id_idx").on(table.userId),
+	createdAtIndex: index("access_token_created_at_idx").on(table.createdAt),
+}));
+
 // ============== 类型导出 ==============
 
 export type User = typeof user.$inferSelect;
@@ -187,3 +204,5 @@ export type PromptUsage = typeof promptUsage.$inferSelect;
 export type NewPromptUsage = typeof promptUsage.$inferInsert;
 export type SystemLogs = typeof systemLogs.$inferSelect;
 export type NewSystemLogs = typeof systemLogs.$inferInsert;
+export type AccessToken = typeof accessTokens.$inferSelect;
+export type NewAccessToken = typeof accessTokens.$inferInsert;

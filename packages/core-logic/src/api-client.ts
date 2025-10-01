@@ -174,6 +174,10 @@ if (requireAuth) {
     return this.request<T>(endpoint, { method: 'POST', body, requireAuth, lang });
   }
 
+  public delete<T>(endpoint: string, requireAuth = true, lang?: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE', requireAuth, lang });
+  }
+
   // ============== Authentication Related APIs ==============
   
   async login(data: LoginRequest, lang?: string): Promise<ApiResponse<LoginResponse>> {
@@ -451,6 +455,44 @@ if (requireAuth) {
     return this.get<{ status: string; timestamp: string }>('/api/health', false, lang);
   }
 
+  // ============== Access Token Related APIs ==============
+
+  async getAccessToken(lang?: string): Promise<ApiResponse<{
+    token: string;
+    refreshToken?: string;
+    expiresAt: Date | null;
+    refreshTokenExpiresAt?: Date | null;
+    scope?: string;
+  }>> {
+    return this.get<{
+      token: string;
+      refreshToken?: string;
+      expiresAt: Date | null;
+      refreshTokenExpiresAt?: Date | null;
+      scope?: string;
+    }>('/api/user/access-token', true, lang);
+  }
+
+  async refreshAccessToken(refreshToken?: string, expiresIn?: number, refreshExpiresIn?: number, lang?: string): Promise<ApiResponse<{
+    token: string;
+    expiresAt: Date | null;
+    refreshToken?: string;
+    refreshTokenExpiresAt?: Date | null;
+    scope?: string;
+  }>> {
+    return this.post<{
+      token: string;
+      expiresAt: Date | null;
+      refreshToken?: string;
+      refreshTokenExpiresAt?: Date | null;
+      scope?: string;
+    }>('/api/user/access-token', { refreshToken, expiresIn, refreshExpiresIn }, true, lang);
+  }
+
+  async deleteAccessToken(lang?: string): Promise<ApiResponse<void>> {
+    return this.delete<void>('/api/user/access-token', true, lang);
+  }
+
   // ============== SSE Connection ==============
   
   createSSEConnection(onMessage: (event: MessageEvent) => void, onError?: (error: Event) => void): EventSource | null {
@@ -587,6 +629,24 @@ export const api = {
   
   // Billing
   createCheckoutSession: (data: CreateCheckoutSessionRequest, lang?: string) => getApiClient().post<CheckoutSessionResponse>('/api/billing/create-checkout-session', data, true, lang),
+  
+  // Access Token
+  getAccessToken: (lang?: string) => getApiClient().get<{
+    token: string;
+    refreshToken?: string;
+    expiresAt: Date | null;
+    refreshTokenExpiresAt?: Date | null;
+    scope?: string;
+  }>('/api/user/access-token', true, lang),
+  refreshAccessToken: (refreshToken?: string, expiresIn?: number, refreshExpiresIn?: number, lang?: string) => getApiClient().post<{
+    token: string;
+    expiresAt: Date | null;
+    refreshToken?: string;
+    refreshTokenExpiresAt?: Date | null;
+    scope?: string;
+  }>('/api/user/access-token', { refreshToken, expiresIn, refreshExpiresIn }, true, lang),
+  deleteAccessToken: (lang?: string) => getApiClient().delete<void>('/api/user/access-token', true, lang),
+  
   // Utilities
   healthCheck: (lang?: string) => getApiClient().get<{ status: string; timestamp: string }>('/api/health', false, lang),
 

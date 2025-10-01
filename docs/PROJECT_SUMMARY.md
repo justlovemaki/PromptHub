@@ -40,6 +40,9 @@
 - `POST /api/prompts/delete` - 删除提示词
 - `GET /api/prompts/stats` - 获取提示词统计
 - `POST /api/prompts/use` - 使用提示词（增加使用次数）
+- `POST /api/prompts/export` - 导出提示词
+- `POST /api/prompts/import` - 导入提示词
+- `GET /api/prompts/tags` - 获取提示词标签
 
 #### 管理后台
 - `GET /api/admin/users/list` - 用户列表管理
@@ -54,12 +57,23 @@
 - `POST /api/user/subscription` - 获取/更新用户订阅
 - `GET /api/user/ai-points` - 获取AI点数
 - `POST /api/user/purchase-ai-points` - 购买AI点数
+- `POST /api/user/access-token` - 获取用户访问令牌
 
 #### 仪表盘
 - `GET /api/dashboard/stats` - 仪表盘统计信息
 
+#### 计费与支付
+- `POST /api/billing/create-checkout-session` - 创建Stripe支付会话
+- `POST /api/billing/webhook` - Stripe支付Webhook处理
+
+#### 实时通信
+- `GET /api/sse` - Server-Sent Events实时通信连接
+
 #### 健康检查
 - `GET /api/health` - 健康检查端点
+
+#### MCP服务
+- `POST /api/mcp` - MCP服务集成接口
 
 ### 4. 实时通信系统 ✅
 
@@ -76,13 +90,27 @@
 - **多层级订阅**: FREE、PRO、TEAM 支持
 - **AI点数系统**: 完整的点数管理机制
 
-### 6. 系统功能 ✅
+### 7. 服务层架构 ✅
+
+- **UserService**: 用户管理服务
+- **PromptService**: 提示词管理服务
+- **LogService**: 系统日志服务
+- **DashboardService**: 仪表盘统计服务
+- **AIPointsService**: AI点数管理服务
+- **DateService**: 日期时区处理服务
+- **事务支持**: 数据库事务处理
+- **类型安全**: 完整的 TypeScript 类型定义
+
+### 8. 系统功能 ✅
 
 - **国际化支持**: 支持中文、英文、日文多语言
 - **系统日志**: 完整的操作和错误日志记录
 - **健康检查**: API 健康状态监控
 - **数据统计**: 提示词使用统计和分析
 - **标签系统**: 提示词标签管理
+- **导入导出**: 提示词批量导入导出功能
+- **MCP服务集成**: MCP服务接口支持
+- **中间件**: 全局认证和国际化中间件
 
 ## 🏗 架构特点
 
@@ -154,6 +182,7 @@ graph TB
 - 扩展表（aiPointTransaction, systemLogs）
 - 完整的索引和外键约束
 - 详细的类型定义和枚举支持
+- 多数据库支持（SQLite, PostgreSQL）
 
 ### 工具函数
 
@@ -165,6 +194,8 @@ graph TB
 - 认证助手函数
 - 数据库连接管理
 - 路径处理工具
+- 日期时区处理
+- MCP认证工具
 
 ### 服务层
 

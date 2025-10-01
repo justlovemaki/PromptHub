@@ -15,6 +15,20 @@
       "when": 1759057426505,
       "tag": "0001_fearless_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1759307219210,
+      "tag": "0002_open_clint_barton",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759307302125,
+      "tag": "0003_curvy_zodiak",
+      "breakpoints": true
     }
   ]
 }

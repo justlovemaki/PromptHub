@@ -466,3 +466,28 @@ export const USER_ROLES = {
 } as const;
 
 export type GetPromptTagsResponse = TagWithCount[];
+
+// 访问令牌相关类型
+export interface AccessToken {
+  id: string;
+  userId: string;
+  accessToken: string;
+  refreshToken?: string;
+  accessTokenExpiresAt?: Date;
+  refreshTokenExpiresAt?: Date;
+  scope?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NewAccessToken {
+  id?: string;
+  userId: string;
+  accessToken: string;
+  refreshToken?: string;
+  accessTokenExpiresAt?: Date;
+  refreshTokenExpiresAt?: Date;
+  scope?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

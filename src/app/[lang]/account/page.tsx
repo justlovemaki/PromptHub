@@ -19,11 +19,18 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isRefreshingToken, setIsRefreshingToken] = useState(false);
+  const [showSetExpiration, setShowSetExpiration] = useState(false);
+  const [expirationValue, setExpirationValue] = useState(7); // 默认7天
   const [aiPointsData, setAiPointsData] = useState<{
     totalPoints: number;
     usedPoints: number;
     remainingPoints: number;
   } | null>({ totalPoints: 0, usedPoints: 0, remainingPoints: 0 });
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
+  const [refreshExpiresIn, setRefreshExpiresIn] = useState(30); // 刷新令牌过期时间，默认30天
   
   // 获取所有可用标签
   const { allTags } = useTags(params.lang);
@@ -32,6 +39,26 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   useEffect(() => {
     setLanguage(params.lang);
   }, [params.lang, setLanguage]);
+
+  // 获取访问令牌信息
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      try {
+        const response = await api.getAccessToken(params.lang);
+        if (response.success) {
+          setAccessToken(response.data.token);
+          setRefreshToken(response.data.refreshToken || null);
+          setExpiresAt(response.data.expiresAt ? new Date(response.data.expiresAt) : null);
+        }
+      } catch (error) {
+        console.error('获取访问令牌失败:', error);
+      }
+    };
+
+    if (user) {
+      fetchAccessToken();
+    }
+  }, [user, params.lang]);
 
   // 获取AI点数信息
   useEffect(() => {
@@ -69,6 +96,41 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
       }
     } finally {
       setIsSaving(false);
+    }
+  };
+  
+  // 刷新访问令牌
+  const handleRefreshAccessToken = async () => {
+    setIsRefreshingToken(true);
+    try {
+      let expiresIn: number | undefined;
+      let refreshExpiresInValue: number | undefined;
+      
+      // 如果设置了过期时间
+      if (showSetExpiration) {
+        expiresIn = expirationValue * 24 * 60 * 60; // 转换为秒
+        refreshExpiresInValue = refreshExpiresIn * 24 * 60 * 60; // 刷新令牌过期时间转换为秒
+      } else {
+        expiresIn = undefined; // 永不过期
+        refreshExpiresInValue = undefined;
+      }
+      
+      const response = await api.refreshAccessToken(refreshToken, expiresIn, refreshExpiresInValue, params.lang);
+      if (response.success) {
+        setAccessToken(response.data.token);
+        setRefreshToken(response.data.refreshToken || null);
+        setExpiresAt(response.data.expiresAt ? new Date(response.data.expiresAt) : null);
+        showSuccess(t('accessTokenRefreshed'), t('accountUpdated'));
+      } else {
+        // TypeScript: response在success为false时保证有error属性
+        showError(t('accessTokenRefreshError') + ((response as { success: false; error: { message: string } }).error.message || ''));
+      }
+    } catch (error) {
+      console.error(t('accessTokenRefreshError'), error);
+      showError(t('accessTokenRefreshError') + (error instanceof Error ? error.message : error));
+    } finally {
+      setIsRefreshingToken(false);
+      setShowSetExpiration(false);
     }
   };
   
@@ -341,6 +403,158 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
           </div>
         </div>
 
+        {/* 访问令牌 */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-lg font-semibold text-text-100 mb-4">{t('accessTokenSection')}</h2>
+          <p className="text-text-200 mb-6">{t('accessTokenDescription')}</p>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="border border-bg-300 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-text-200">{t('accessTokenLabel')}</label>
+                  <span className="text-xs text-text-300">Access Token</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="password"
+                    value={accessToken || ''}
+                    readOnly
+                    className="flex-1 px-3 py-2 border border-bg-300 rounded-md bg-bg-200"
+                  />
+                  <button
+                    onClick={() => {
+                      if (accessToken) {
+                        navigator.clipboard.writeText(accessToken);
+                        showSuccess(t('copied'), t('accessTokenCopied'));
+                      }
+                    }}
+                    className="bg-bg-200 hover:bg-bg-300 text-text-200 px-3 py-2 rounded-md font-medium transition-colors"
+                    disabled={!accessToken}
+                  >
+                    {t('copy')}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="border border-bg-300 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-text-200">{t('refreshTokenLabel')}</label>
+                  <span className="text-xs text-text-300">Refresh Token</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="password"
+                    value={refreshToken || ''}
+                    readOnly
+                    className="flex-1 px-3 py-2 border border-bg-300 rounded-md bg-bg-200"
+                  />
+                  <button
+                    onClick={() => {
+                      if (refreshToken) {
+                        navigator.clipboard.writeText(refreshToken);
+                        showSuccess(t('copied'), t('refreshTokenCopied'));
+                      }
+                    }}
+                    className="bg-bg-200 hover:bg-bg-300 text-text-200 px-3 py-2 rounded-md font-medium transition-colors"
+                    disabled={!refreshToken}
+                  >
+                    {t('copy')}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="border border-bg-300 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-text-200">{t('expiresAtLabel')}</label>
+                <span className="text-xs text-text-300">Expiration</span>
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <input
+                  type="text"
+                  value={expiresAt ? new Date(expiresAt).toLocaleString() : t('permanent')}
+                  readOnly
+                  className="flex-1 px-3 py-2 border border-bg-300 rounded-md bg-bg-200"
+                />
+                <button
+                  onClick={() => setShowSetExpiration(!showSetExpiration)}
+                  className="bg-bg-200 hover:bg-bg-300 text-text-200 px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  {showSetExpiration ? t('cancel') : t('setExpirationButton')}
+                </button>
+              </div>
+              
+              {showSetExpiration && (
+                <div className="mt-4 p-4 bg-bg-200 rounded-lg border border-bg-300">
+                  <h3 className="text-md font-medium text-text-100 mb-3">{t('setExpirationTitle')}</h3>
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
+                      <label className="text-sm font-medium text-text-200 sm:w-48">{t('accessTokenExpiryDays')}：</label>
+                      <div className="flex items-center space-x-2 flex-1">
+                        <input
+                          type="number"
+                          value={expirationValue}
+                          onChange={(e) => setExpirationValue(Math.max(1, Number(e.target.value)))}
+                          min="1"
+                          className="w-24 px-3 py-2 border border-bg-300 rounded-md bg-white"
+                        />
+                        <span className="text-text-200">{t('days')}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
+                      <label className="text-sm font-medium text-text-200 sm:w-48">{t('refreshTokenExpiryDays')}：</label>
+                      <div className="flex items-center space-x-2 flex-1">
+                        <input
+                          type="number"
+                          value={refreshExpiresIn}
+                          onChange={(e) => setRefreshExpiresIn(Math.max(1, Number(e.target.value)))}
+                          min="1"
+                          className="w-24 px-3 py-2 border border-bg-300 rounded-md bg-white"
+                        />
+                        <span className="text-text-200">{t('days')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex flex-wrap gap-3 pt-2 justify-end">
+              <button
+                onClick={handleRefreshAccessToken}
+                disabled={isRefreshingToken}
+                className="bg-primary-100 hover:bg-primary-100/90 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+              >
+                {isRefreshingToken ? t('refreshing') : t('refreshAccessTokenButton')}
+              </button>
+              <button
+                onClick={async () => {
+                  if (window.confirm(t('deleteTokenConfirm'))) {
+                    try {
+                      const response = await api.deleteAccessToken(params.lang);
+                      if (response.success) {
+                        setAccessToken(null);
+                        setRefreshToken(null);
+                        setExpiresAt(null);
+                        showSuccess(t('tokenDeleted'), t('accessTokenDeleted'));
+                      } else {
+                        showError(t('deleteFailed') + ': ' + ((response as { success: false; error: { message: string } }).error.message || ''));
+                      }
+                    } catch (error) {
+                      console.error('删除访问令牌失败:', error);
+                      showError(t('deleteAccessTokenFailed') + ': ' + (error instanceof Error ? error.message : error));
+                    }
+                  }
+                }}
+                className="bg-red-100 hover:bg-red-200 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                {t('deleteTokenButton')}
+              </button>
+            </div>
+          </div>
+        </div>
+        
         {/* 个人信息 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-text-100 mb-4">{t('personalInfoSection')}</h2>
