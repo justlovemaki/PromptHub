@@ -1,78 +1,66 @@
-import { z } from 'zod';
-
 // 提示词类型 - 这是Palette组件实际需要的类型
-export const PromptSchema = z.object({
-  id: z.string(),
-  title: z.string().default(''),
-  content: z.string().default(''),
-  description: z.string().default('').optional(),
-  tags: z.array(z.string()).default([]).optional(), // 字符串数组存储标签
-  isPublic: z.boolean().default(false),
-  useCount: z.number().default(0),
-  spaceId: z.string(),
-  createdBy: z.string(),
-  createdAt: z.string(), // API返回的是ISO字符串格式，而非Date对象
-  updatedAt: z.string(), // API返回的是ISO字符串格式，而非Date对象
-});
-
-export type Prompt = z.infer<typeof PromptSchema>;
+export interface Prompt {
+  id: string;
+  title: string;
+  content: string;
+  description?: string;
+  tags?: string[]; // 字符串数组存储标签
+  isPublic: boolean;
+  useCount: number;
+  spaceId: string;
+  createdBy: string;
+  createdAt: string; // API返回的是ISO字符串格式，而非Date对象
+  updatedAt: string; // API返回的是ISO字符串格式，而非Date对象
+}
 
 // 用户类型
-export const UserSchema = z.object({
-  id: z.string(),
-  name: z.string().nullable(),
-  email: z.string().email(),
-  emailVerified: z.boolean().default(false),
-  image: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  username: z.string().nullable(),
-  displayUsername: z.string().nullable(),
-  role: z.enum(['USER', 'ADMIN']).default('USER'),
-  subscriptionStatus: z.enum(['FREE', 'PRO', 'TEAM']).default('FREE'),
-  subscriptionAiPoints: z.number().default(0), // 用户的AI点数
-  personalSpaceId: z.string().nullable(), // 用户的个人空间ID
-});
-
-export type User = z.infer<typeof UserSchema>;
+export interface User {
+  id: string;
+  name: string | null;
+  email: string;
+  emailVerified: boolean;
+  image: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  username: string | null;
+  displayUsername: string | null;
+  role: 'USER' | 'ADMIN';
+  subscriptionStatus: 'FREE' | 'PRO' | 'TEAM';
+  subscriptionAiPoints: number; // 用户的AI点数
+  personalSpaceId: string | null; // 用户的个人空间ID
+}
 
 // 空间类型
-export const SpaceSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  type: z.enum(['PERSONAL', 'TEAM']),
-  ownerId: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export type Space = z.infer<typeof SpaceSchema>;
+export interface Space {
+  id: string;
+  name: string;
+  type: 'PERSONAL' | 'TEAM';
+  ownerId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // 提示词列表查询参数
-export const PromptListQuerySchema = z.object({
-  spaceId: z.string().optional(),
-  id: z.string().optional(), // 添加ID查询参数
-  search: z.string().optional(),
-  tag: z.string().optional(),
-  isPublic: z.boolean().optional(),
-  page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(20),
-  sortBy: z.enum(['createdAt', 'updatedAt', 'title', 'useCount']).default('updatedAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
-
-export type PromptListQuery = z.infer<typeof PromptListQuerySchema>;
+export interface PromptListQuery {
+  spaceId?: string;
+  id?: string; // 添加ID查询参数
+  search?: string;
+  tag?: string;
+  isPublic?: boolean;
+  page: number;
+  limit: number;
+  sortBy: 'createdAt' | 'updatedAt' | 'title' | 'useCount';
+  sortOrder: 'asc' | 'desc';
+}
 
 // 提示词列表响应
-export const PromptListResponseSchema = z.object({
-  prompts: z.array(PromptSchema),
-  total: z.number(),
-  page: z.number(),
-  limit: z.number(),
-  totalPages: z.number(),
-});
-
-export type PromptListResponse = z.infer<typeof PromptListResponseSchema>;
+export interface PromptListResponse {
+  prompts: Prompt[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 // 通用API响应类型
 export type ApiResponse<T> = 

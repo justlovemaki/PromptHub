@@ -142,7 +142,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
       {/* 标签显示区域 */}
       {prompt.tags && prompt.tags.length > 0 && (
         <div className="mt-2 flex flex-row flex-wrap gap-1 items-center min-h-[22px]">
-          {prompt.tags.map((tag, index) => (
+          {prompt.tags.map((tag: string, index: number) => (
             <Tag key={index} className="bg-default text-main hover:bg-default transition-colors duration-200 p-2 rounded text-xs">
               {localizedTagsMap[tag] || tag}
             </Tag>
@@ -179,7 +179,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
               </label>
               <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 min-h-[120px] max-h-60 overflow-y-auto transition-all duration-200">
                 <pre className="whitespace-pre-wrap break-words font-sans text-sm text-gray-700">
-                  {prompt.content.split(/(\{\{[^}]+\}\})/g).map((part, index) => {
+                  {prompt.content.split(/(\{\{[^}]+\}\})/g).map((part: string, index: number) => {
                     // 检查是否是变量标记
                     if (part.startsWith('{{') && part.endsWith('}}')) {
                       const variableName = part.slice(2, -2).trim();
