@@ -1,0 +1,254 @@
+{
+  "appName": {
+    "message": "PromptHub",
+    "description": "The title of the application"
+  },
+  "commandPalette": {
+    "message": "PromptHub",
+    "description": "Window title for command palette"
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Settings menu item"
+  },
+  "quit": {
+    "message": "Quit",
+    "description": "Quit menu item"
+  },
+  "unpinWindow": {
+    "message": "Unpin Window",
+    "description": "Tooltip for unpinning window"
+  },
+  "pinWindow": {
+    "message": "Pin Window",
+    "description": "Tooltip for pinning window"
+  },
+  "setAccessToken": {
+    "message": "Set Access Token",
+    "description": "Title for token setup page"
+  },
+  "enterToken": {
+    "message": "Please enter your access token...",
+    "description": "Placeholder for token input"
+  },
+  "saveAndGetPrompts": {
+    "message": "Save and Get Prompts",
+    "description": "Button text for saving token"
+  },
+  "validating": {
+    "message": "Validating...",
+    "description": "Text shown during token validation"
+  },
+  "skipUseCurrent": {
+    "message": "Skip, continue using current token",
+    "description": "Button text to skip token setup"
+  },
+  "enterValidToken": {
+    "message": "Please enter a valid token",
+    "description": "Error message for empty token"
+  },
+  "tokenValidationFailed": {
+    "message": "Token validation failed, please check if the token is valid",
+    "description": "Error message for invalid token"
+  },
+  "cannotConnectServer": {
+    "message": "Cannot connect to server, please check network connection",
+    "description": "Error message for connection failure"
+  },
+  "tokenInfo": {
+    "message": "You can get your access token from the web app account page",
+    "description": "Info text for getting token"
+  },
+  "refreshData": {
+    "message": "Failed to refresh data",
+    "description": "Error message when refresh fails"
+  },
+  "refresh": {
+    "message": "Refresh",
+    "description": "Refresh button tooltip"
+  },
+  "changeToken": {
+    "message": "Change Token",
+    "description": "Menu item for changing token"
+  },
+  "logout": {
+    "message": "Logout",
+    "description": "Logout button text"
+  },
+  "promptsTab": {
+    "message": "Prompts",
+    "description": "Label for prompts tab"
+  },
+  "usageTab": {
+    "message": "Usage",
+    "description": "Label for usage tab"
+  },
+  "subscriptionStatus": {
+    "message": "Subscription Status",
+    "description": "Subscription status label"
+  },
+  "aiPoints": {
+    "message": "AI Points",
+    "description": "AI points label"
+  },
+  "totalPrompts": {
+    "message": "Total Prompts",
+    "description": "Label for total prompts count"
+  },
+  "monthlyCreated": {
+    "message": "Monthly Created",
+    "description": "Label for monthly created prompts count"
+  },
+  "publicPrompts": {
+    "message": "Public Prompts",
+    "description": "Label for public prompts count"
+  },
+  "tagsCount": {
+    "message": "Tags Count",
+    "description": "Label for tags count"
+  },
+  "searchPrompts": {
+    "message": "Search prompts...",
+    "description": "Search prompts placeholder"
+  },
+  "selectTag": {
+    "message": "Select Tag",
+    "description": "Tooltip for the tag selection button"
+  },
+  "clearTag": {
+    "message": "Clear Tag",
+    "description": "Tooltip for the clear tag button"
+  },
+  "promptTags": {
+    "message": "Prompt Tags",
+    "description": "Title for the prompt tags dropdown"
+  },
+  "noTagsAvailable": {
+    "message": "No tags available",
+    "description": "Message when no tags are available"
+  },
+  "loading": {
+    "message": "Loading",
+    "description": "Loading message"
+  },
+  "noPromptsFound": {
+    "message": "No matching prompts found",
+    "description": "No prompts found message"
+  },
+  "noPromptsAvailable": {
+    "message": "No prompts available",
+    "description": "No prompts available message"
+  },
+  "loadingMore": {
+    "message": "Loading more...",
+    "description": "Loading more prompts text"
+  },
+  "noMorePrompts": {
+    "message": "No more prompts",
+    "description": "Message when there are no more prompts to load"
+  },
+  "usageExamples": {
+    "message": "Usage Examples",
+    "description": "Usage examples heading"
+  },
+  "usageExample1": {
+    "message": "1. Click the \"Use\" button on a prompt card to automatically fill the prompt into the active window.",
+    "description": "First usage example"
+  },
+  "usageExample2": {
+    "message": "2. Use Ctrl+Shift+P (Windows) or Cmd+Shift+P (Mac) to quickly open the panel.",
+    "description": "Second usage example"
+  },
+  "usageExample3": {
+    "message": "3. Use {{variable}} syntax in prompts to add variables, making prompts more flexible.",
+    "description": "Third usage example"
+  },
+  "usageExample4": {
+    "message": "4. Use tags to categorize and manage prompts for easier searching and use.",
+    "description": "Fourth usage example"
+  },
+  "keyboardShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Keyboard shortcuts heading"
+  },
+  "openPanel": {
+    "message": "Open Panel",
+    "description": "Shortcut description for opening panel"
+  },
+  "closePanel": {
+    "message": "Close Panel",
+    "description": "Shortcut description for closing panel"
+  },
+  "navigateUpDown": {
+    "message": "Navigate Up/Down",
+    "description": "Shortcut description for navigation"
+  },
+  "usePrompt": {
+    "message": "Use Prompt",
+    "description": "Shortcut description for using prompt"
+  },
+  "language": {
+    "message": "Language",
+    "description": "Language label"
+  },
+  "switchLanguage": {
+    "message": "Switch Language",
+    "description": "Language switcher tooltip"
+  },
+  "promptCopied": {
+    "message": "Prompt copied",
+    "description": "Notification when prompt is copied"
+  },
+  "pleaseFillAllVariables": {
+    "message": "Please fill all variables",
+    "description": "Error message when not all variables are filled"
+  },
+  "promptProcessedAndCopied": {
+    "message": "Prompt processed and copied",
+    "description": "Notification when prompt with variables is processed and copied"
+  },
+  "errorProcessingPrompt": {
+    "message": "Error processing prompt",
+    "description": "Error message when processing prompt fails"
+  },
+  "usePromptTooltip": {
+    "message": "Use prompt",
+    "description": "Tooltip for use prompt button"
+  },
+  "copyPromptTooltip": {
+    "message": "Copy prompt",
+    "description": "Tooltip for copy prompt button"
+  },
+  "editPromptTooltip": {
+    "message": "Edit prompt",
+    "description": "Tooltip for edit prompt button"
+  },
+  "fillPromptVariables": {
+    "message": "Fill prompt variables",
+    "description": "Title for the variable filling modal"
+  },
+  "enterValueFor": {
+    "message": "Please enter value for",
+    "description": "Placeholder text for variable input"
+  },
+  "realTimePreview": {
+    "message": "Real-time Preview",
+    "description": "Real time preview label in variable modal"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel button text in variable modal"
+  },
+  "apply": {
+    "message": "Apply",
+    "description": "Apply button text in variable modal"
+  },
+  "processing": {
+    "message": "Processing",
+    "description": "Processing state text"
+  },
+  "clickHere": {
+    "message": "Click here",
+    "description": "Click here link text"
+  }
+}

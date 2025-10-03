@@ -1,0 +1,254 @@
+{
+  "appName": {
+    "message": "PromptHub",
+    "description": "The title of the application"
+  },
+  "commandPalette": {
+    "message": "PromptHub",
+    "description": "Window title for command palette"
+  },
+  "settings": {
+    "message": "設定",
+    "description": "Settings menu item"
+  },
+  "quit": {
+    "message": "終了",
+    "description": "Quit menu item"
+  },
+  "unpinWindow": {
+    "message": "最前面解除",
+    "description": "Tooltip for unpinning window"
+  },
+  "pinWindow": {
+    "message": "ウィンドウを最前面に固定",
+    "description": "Tooltip for pinning window"
+  },
+  "setAccessToken": {
+    "message": "アクセストークンの設定",
+    "description": "Title for token setup page"
+  },
+  "enterToken": {
+    "message": "アクセストークンを入力してください...",
+    "description": "Placeholder for token input"
+  },
+  "saveAndGetPrompts": {
+    "message": "保存してプロンプトを取得",
+    "description": "Button text for saving token"
+  },
+  "validating": {
+    "message": "検証中...",
+    "description": "Text shown during token validation"
+  },
+  "skipUseCurrent": {
+    "message": "スキップし、現在のトークンを引き続き使用",
+    "description": "Button text to skip token setup"
+  },
+  "enterValidToken": {
+    "message": "有効なトークンを入力してください",
+    "description": "Error message for empty token"
+  },
+  "tokenValidationFailed": {
+    "message": "トークンの検証に失敗しました。トークンが有効かどうか確認してください",
+    "description": "Error message for invalid token"
+  },
+  "cannotConnectServer": {
+    "message": "サーバーに接続できません。ネットワーク接続を確認してください",
+    "description": "Error message for connection failure"
+  },
+  "tokenInfo": {
+    "message": "Webアカウントページでアクセストークンを取得できます",
+    "description": "Info text for getting token"
+  },
+  "refreshData": {
+    "message": "データの更新に失敗しました",
+    "description": "Error message when refresh fails"
+  },
+  "refresh": {
+    "message": "更新",
+    "description": "Refresh button tooltip"
+  },
+  "changeToken": {
+    "message": "トークンの変更",
+    "description": "Menu item for changing token"
+  },
+  "logout": {
+    "message": "ログアウト",
+    "description": "Logout button text"
+  },
+  "promptsTab": {
+    "message": "プロンプト",
+    "description": "Label for prompts tab"
+  },
+  "usageTab": {
+    "message": "使用方法",
+    "description": "Label for usage tab"
+  },
+  "subscriptionStatus": {
+    "message": "サブスクリプション状況",
+    "description": "Subscription status label"
+  },
+  "aiPoints": {
+    "message": "AIポイント",
+    "description": "AI points label"
+  },
+  "totalPrompts": {
+    "message": "総プロンプト数",
+    "description": "Label for total prompts count"
+  },
+  "monthlyCreated": {
+    "message": "今月作成",
+    "description": "Label for monthly created prompts count"
+  },
+  "publicPrompts": {
+    "message": "公開プロンプト",
+    "description": "Label for public prompts count"
+  },
+  "tagsCount": {
+    "message": "タグ数",
+    "description": "Label for tags count"
+  },
+  "searchPrompts": {
+    "message": "プロンプトを検索...",
+    "description": "Search prompts placeholder"
+  },
+  "selectTag": {
+    "message": "タグを選択",
+    "description": "Tooltip for the tag selection button"
+  },
+  "clearTag": {
+    "message": "タグをクリア",
+    "description": "Tooltip for the clear tag button"
+  },
+  "promptTags": {
+    "message": "プロンプトタグ",
+    "description": "Title for the prompt tags dropdown"
+  },
+  "noTagsAvailable": {
+    "message": "利用可能なタグがありません",
+    "description": "Message when no tags are available"
+  },
+  "loading": {
+    "message": "読み込み中",
+    "description": "Loading message"
+  },
+  "noPromptsFound": {
+    "message": "一致するプロンプトが見つかりません",
+    "description": "No prompts found message"
+  },
+  "noPromptsAvailable": {
+    "message": "利用可能なプロンプトがありません",
+    "description": "No prompts available message"
+  },
+  "loadingMore": {
+    "message": "さらに読み込み中...",
+    "description": "Loading more prompts text"
+  },
+  "noMorePrompts": {
+    "message": "これ以上のプロンプトはありません",
+    "description": "Message when there are no more prompts to load"
+  },
+  "usageExamples": {
+    "message": "使用例",
+    "description": "Usage examples heading"
+  },
+  "usageExample1": {
+    "message": "1. プロンプトカードの「使用」ボタンをクリックすると、プロンプト内容が現在のアクティブウィンドウに自動入力されます。",
+    "description": "First usage example"
+  },
+  "usageExample2": {
+    "message": "2. ショートカットキー Ctrl+Shift+P (Windows) または Cmd+Shift+P (Mac) を使用してパネルをすばやく開きます。",
+    "description": "Second usage example"
+  },
+  "usageExample3": {
+    "message": "3. プロンプトで {{variable}} 構文を使用して変数を追加し、プロンプトをより柔軟にします。",
+    "description": "Third usage example"
+  },
+  "usageExample4": {
+    "message": "4. タグを使用してプロンプトを分類・管理し、検索と使用を容易にします。",
+    "description": "Fourth usage example"
+  },
+  "keyboardShortcuts": {
+    "message": "キーボードショートカット",
+    "description": "Keyboard shortcuts heading"
+  },
+  "openPanel": {
+    "message": "パネルを開く",
+    "description": "Shortcut description for opening panel"
+  },
+  "closePanel": {
+    "message": "パネルを閉じる",
+    "description": "Shortcut description for closing panel"
+  },
+  "navigateUpDown": {
+    "message": "上下選択",
+    "description": "Shortcut description for navigation"
+  },
+  "usePrompt": {
+    "message": "プロンプトを使用",
+    "description": "Shortcut description for using prompt"
+  },
+  "language": {
+    "message": "言語",
+    "description": "Language label"
+  },
+  "switchLanguage": {
+    "message": "言語を切り替える",
+    "description": "Language switcher tooltip"
+  },
+  "promptCopied": {
+    "message": "プロンプトをコピーしました",
+    "description": "Notification when prompt is copied"
+  },
+  "pleaseFillAllVariables": {
+    "message": "すべての変数を入力してください",
+    "description": "Error message when not all variables are filled"
+  },
+  "promptProcessedAndCopied": {
+    "message": "プロンプトが処理され、コピーされました",
+    "description": "Notification when prompt with variables is processed and copied"
+  },
+  "errorProcessingPrompt": {
+    "message": "プロンプトの処理中にエラーが発生しました",
+    "description": "Error message when processing prompt fails"
+  },
+  "usePromptTooltip": {
+    "message": "プロンプトを使用",
+    "description": "Tooltip for use prompt button"
+  },
+  "copyPromptTooltip": {
+    "message": "プロンプトをコピー",
+    "description": "Tooltip for copy prompt button"
+  },
+  "editPromptTooltip": {
+    "message": "プロンプトを編集",
+    "description": "Tooltip for edit prompt button"
+  },
+  "fillPromptVariables": {
+    "message": "プロンプト変数の入力",
+    "description": "Title for the variable filling modal"
+  },
+  "enterValueFor": {
+    "message": "値を入力してください：",
+    "description": "Placeholder text for variable input"
+  },
+  "realTimePreview": {
+    "message": "リアルタイムプレビュー",
+    "description": "Real time preview label in variable modal"
+  },
+  "cancel": {
+    "message": "キャンセル",
+    "description": "Cancel button text in variable modal"
+  },
+  "apply": {
+    "message": "適用",
+    "description": "Apply button text in variable modal"
+  },
+  "processing": {
+    "message": "処理中",
+    "description": "Processing state text"
+  },
+  "clickHere": {
+    "message": "ここをクリック",
+    "description": "Click here link text"
+  }
+}

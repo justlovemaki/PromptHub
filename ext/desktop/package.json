@@ -1,0 +1,47 @@
+{
+  "name": "prompt-manager-desktop",
+  "version": "1.0.0",
+  "description": "AI提示词管理平台桌面端应用",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "tsc && xcopy /Y \"index.html\" \"dist\\\" && xcopy /E /I /Y \"assets\" \"dist\\assets\" && xcopy /E /I /Y \"public\" \"dist\\public\" && xcopy /Y \"config.ts\" \"dist\\\" && xcopy /E /I /Y \"..\\..\\src\\tags\" \"dist\\tags\" && electron .",
+    "build": "tsc && xcopy /E /I /Y \"assets\" \"dist\\assets\" && xcopy /E /I /Y \"public\" \"dist\\public\" && xcopy /Y \"index.html\" \"dist\\\" && xcopy /Y \"config.ts\" \"dist\\\" && xcopy /E /I /Y \"..\\..\\src\\tags\" \"dist\\tags\"",
+    "build:linux": "npm run build && electron-builder --linux",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "package": "electron-builder"
+  },
+  "dependencies": {
+    "electron": "^31.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@nut-tree/nut-js": "^3.1.0",
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/node": "^18.17.0",
+    "typescript": "^5.0.0",
+    "electron-builder": "^24.6.0"
+  },
+  "build": {
+    "appId": "com.promptmanager.desktop",
+    "productName": "Prompt Manager Desktop",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets/",
+        "to": "assets/",
+        "filter": ["**/*"]
+      }
+    ]
+  }
+}
