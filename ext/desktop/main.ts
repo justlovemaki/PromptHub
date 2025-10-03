@@ -7,8 +7,8 @@ import { initI18n, t, getCurrentLanguage } from './utils/i18n';
 let tray: any;
 let commandPaletteWindow: any;
 let lastMousePosition: { x: number; y: number } | null = null;
-const width= 1280;
-const height = 800;
+const width= 400;
+const height = 1280;
 
 // 创建系统托盘
 function createTray() {
@@ -67,7 +67,7 @@ function createCommandPaletteWindow() {
     show: false,
     frame: false,
     resizable: false,
-    skipTaskbar: false,
+    skipTaskbar: true,
     alwaysOnTop: false,
     icon: path.join(__dirname, 'assets', 'icon.png'), // 添加窗口图标
     webPreferences: {
@@ -109,7 +109,7 @@ function createCommandPaletteWindow() {
 
   // 当窗口失去焦点时自动隐藏
   commandPaletteWindow.on('blur', () => {
-    // commandPaletteWindow.hide();
+    commandPaletteWindow.hide();
   });
 }
 

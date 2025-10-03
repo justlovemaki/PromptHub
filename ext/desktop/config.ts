@@ -1,14 +1,24 @@
 import { SupportedLanguage } from './utils/i18n';
 
-// 定义不同语言对应的API基础URL映射
-const LANGUAGE_BASE_URLS: Record<SupportedLanguage, string> = {
+// 环境判断
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// 定义不同环境和语言对应的API基础URL映射
+const DEVELOPMENT_LANGUAGE_BASE_URLS: Record<SupportedLanguage, string> = {
   'en': 'http://localhost:3000',
   'zh-CN': 'http://localhost:3000/zh-CN',
   'ja': 'http://localhost:3000/ja',
 };
 
+const PRODUCTION_LANGUAGE_BASE_URLS: Record<SupportedLanguage, string> = {
+  'en': 'https://prompt.hubtoday.app',
+  'zh-CN': 'https://prompt.hubtoday.app/zh-CN',
+  'ja':'https://prompt.hubtoday.app/ja',
+};
+
 // 通用的API基础URL（默认）
-const DEFAULT_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+const DEFAULT_BASE_URL = isProduction ? 'https://prompt.hubtoday.app' : 'http://localhost:3000';
 
 export const API_CONFIG = {
   BASE_URL: DEFAULT_BASE_URL,
@@ -21,7 +31,9 @@ export const API_CONFIG = {
     PROMPTS_TAGS: `/api/prompts/tags`,
     USER_STATS: `/api/dashboard/stats`,
     USER_INFO: `/api/auth/me`,
-  }
+  },
+  IS_PRODUCTION: isProduction,
+  IS_DEVELOPMENT: isDevelopment,
 };
 
 /**
@@ -30,7 +42,8 @@ export const API_CONFIG = {
  * @returns 对应语言的API基础URL
  */
 export function getBaseUrlByLanguage(language: SupportedLanguage): string {
-  return LANGUAGE_BASE_URLS[language] || DEFAULT_BASE_URL;
+  const languageUrls = isProduction ? PRODUCTION_LANGUAGE_BASE_URLS : DEVELOPMENT_LANGUAGE_BASE_URLS;
+  return languageUrls[language] || DEFAULT_BASE_URL;
 }
 
 /**

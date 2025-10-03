@@ -91,7 +91,7 @@ const CommandPalette: React.FC = () => {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROMPTS_TAGS}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Token ${token}`,
             'Content-Type': 'application/json',
           }
         });
@@ -146,7 +146,7 @@ const CommandPalette: React.FC = () => {
       const promptsResponse = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROMPTS_LIST}?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',
         }
       });
@@ -174,7 +174,7 @@ const CommandPalette: React.FC = () => {
         const statsResponse = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USER_STATS}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Token ${token}`,
             'Content-Type': 'application/json',
           }
         });
@@ -214,7 +214,7 @@ const CommandPalette: React.FC = () => {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USER_INFO}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Token ${token}`,
             'Content-Type': 'application/json',
           }
         });
@@ -312,7 +312,7 @@ const CommandPalette: React.FC = () => {
       const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROMPTS_LIST}?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${tokenInput.trim()}`,
+          'Authorization': `Token ${tokenInput.trim()}`,
           'Content-Type': 'application/json',
         }
       });

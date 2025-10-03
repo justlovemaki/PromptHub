@@ -98,8 +98,8 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
     <Card className="p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex justify-between items-start">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-800 truncate">{prompt.title}</h3>
-          <p className="text-sm text-gray-600 mt-1 line-clamp-4">
+          <h3 className="font-semibold text-gray-800 text-sm truncate">{prompt.title}</h3>
+          <p className="text-xs text-gray-600 mt-1 line-clamp-4">
             {prompt.content.substring(0, 100) + (prompt.content.length > 100 ? '...' : '')}
           </p>
         </div>
@@ -143,7 +143,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
       {prompt.tags && prompt.tags.length > 0 && (
         <div className="mt-2 flex flex-row flex-wrap gap-1 items-center min-h-[22px]">
           {prompt.tags.map((tag, index) => (
-            <Tag key={index} className="bg-default text-main hover:bg-default transition-colors duration-200 p-2 rounded">
+            <Tag key={index} className="bg-default text-main hover:bg-default transition-colors duration-200 p-2 rounded text-xs">
               {localizedTagsMap[tag] || tag}
             </Tag>
           ))}
@@ -159,14 +159,14 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
         <div className="space-y-6 p-2">
           {hasVariables && extractVariables(prompt.content).map((variable, index) => (
             <div key={index} className="space-y-3">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 {variable}
               </label>
               <input
                 type="text"
                 value={variableValues[variable] || ''}
                 onChange={(e) => handleVariableChange(variable, e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg  focus:outline-none focus:ring-2 focus:ring-main focus:border-main transition-all duration-200 text-base"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg  focus:outline-none focus:ring-2 focus:ring-main focus:border-main transition-all duration-200 text-sm"
                 placeholder={`${t('enterValueFor')} ${variable}`}
               />
             </div>
@@ -174,11 +174,11 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
           {/* 实时预览区域 */}
           {hasVariables && (
             <div className="mt-8 space-y-3">
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-2">
                 {t('realTimePreview')}
               </label>
               <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 min-h-[120px] max-h-60 overflow-y-auto transition-all duration-200">
-                <pre className="whitespace-pre-wrap break-words font-sans text-base text-gray-700">
+                <pre className="whitespace-pre-wrap break-words font-sans text-sm text-gray-700">
                   {prompt.content.split(/(\{\{[^}]+\}\})/g).map((part, index) => {
                     // 检查是否是变量标记
                     if (part.startsWith('{{') && part.endsWith('}}')) {

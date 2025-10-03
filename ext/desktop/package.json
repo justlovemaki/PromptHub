@@ -5,25 +5,27 @@
   "main": "dist/main.js",
   "scripts": {
     "start": "tsc && xcopy /Y \"index.html\" \"dist\\\" && xcopy /E /I /Y \"assets\" \"dist\\assets\" && xcopy /E /I /Y \"public\" \"dist\\public\" && xcopy /Y \"config.ts\" \"dist\\\" && xcopy /E /I /Y \"..\\..\\src\\tags\" \"dist\\tags\" && electron .",
-    "build": "tsc && xcopy /E /I /Y \"assets\" \"dist\\assets\" && xcopy /E /I /Y \"public\" \"dist\\public\" && xcopy /Y \"index.html\" \"dist\\\" && xcopy /Y \"config.ts\" \"dist\\\" && xcopy /E /I /Y \"..\\..\\src\\tags\" \"dist\\tags\"",
-    "build:linux": "npm run build && electron-builder --linux",
-    "build:win": "npm run build && electron-builder --win",
-    "build:mac": "npm run build && electron-builder --mac",
-    "package": "electron-builder"
+    "dev": "cross-env NODE_ENV=development ELECTRON_ENV=development tsc && xcopy /Y \"index.html\" \"dist\\\" && xcopy /E /I /Y \"assets\" \"dist\\assets\" && xcopy /E /I /Y \"public\" \"dist\\public\" && xcopy /Y \"config.ts\" \"dist\\\" && xcopy /E /I /Y \"..\\..\\src\\tags\" \"dist\\tags\" && electron .",
+    "build": "cross-env NODE_ENV=production ELECTRON_ENV=production tsc && xcopy /E /I /Y \"assets\" \"dist\\assets\" && xcopy /E /I /Y \"public\" \"dist\\public\" && xcopy /Y \"index.html\" \"dist\\\" && xcopy /Y \"config.ts\" \"dist\\\" && xcopy /E /I /Y \"..\\..\\src\\tags\" \"dist\\tags\"",
+    "build:linux": "npm run build && electron-builder --linux --config electron-builder.config.js",
+    "build:win": "npm run build && electron-builder --win --config electron-builder.config.js",
+    "build:mac": "npm run build && electron-builder --mac --config electron-builder.config.js",
+    "package": "electron-builder --config electron-builder.config.js"
   },
   "dependencies": {
-    "electron": "^31.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@nut-tree/nut-js": "^3.1.0",
-    "electron-store": "^8.1.0"
+    "cross-env": "^7.0.3",
+    "electron-store": "^8.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/node": "^18.17.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/node": "^18.17.0",
-    "typescript": "^5.0.0",
-    "electron-builder": "^24.6.0"
+    "electron": "^31.0.0",
+    "electron-builder": "^24.6.0",
+    "typescript": "^5.0.0"
   },
   "build": {
     "appId": "com.promptmanager.desktop",
@@ -40,7 +42,9 @@
       {
         "from": "assets/",
         "to": "assets/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }
