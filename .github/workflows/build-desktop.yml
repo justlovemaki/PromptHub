@@ -49,13 +49,6 @@ jobs:
         cd ext/desktop
         npm ci
 
-    - name: Copy tags files (required for build)
-      run: |
-        cd ext/desktop
-        mkdir -p src/renderer/public/tags
-        cp -r ../../src/tags/* src/renderer/public/tags/ || true
-      shell: bash
-
     - name: Setup Python (for native modules)
       uses: actions/setup-python@v4
       if: matrix.os == 'ubuntu-latest'
@@ -123,12 +116,24 @@ jobs:
           platform=$(basename "$dir" | cut -d'-' -f2)
           echo "Processing platform: $platform"
           
-          # 1. 压缩整个构建目录为 zip 文件
-          zip -r "release-assets/build-${platform}-${{ env.VERSION }}.zip" "$dir"
+          # 1. 查找并压缩以 unpacked 结尾的文件夹
+          for unpacked_dir in "$dir"/*unpacked; do
+            if [ -d "$unpacked_dir" ]; then
+              platform_suffix=$(basename "$dir" | cut -d'-' -f2)
+              zip -r "release-assets/build-${platform_suffix}-unpacked-${{ env.VERSION }}.zip" "$unpacked_dir"
+            fi
+          done
           
-          # 2. 查找并复制可执行文件
-          # 使用 find -print -quit 来找到第一个匹配项并复制
-          find "$dir" -maxdepth 1 -type f \( -name "*.AppImage" -o -name "*.exe" -o -name "*.dmg" \) -exec cp {} release-assets/ \;
+          # 2. 查找并复制可执行文件，增加版本号到文件名
+          # 使用 find 遍历所有可执行文件并重命名添加版本号
+          find "$dir" -maxdepth 1 -type f \( -name "*.AppImage" -o -name "*.exe" -o -name "*.dmg" \) -exec bash -c ' \
+            for file; do \
+              dir=$(dirname "$file"); \
+              name=$(basename "$file"); \
+              ext="${name##*.}"; \
+              name_without_ext="${name%.*}"; \
+              cp "$file" "release-assets/${name_without_ext}-${{ env.VERSION }}.${ext}"; \
+            done' _ {} +
         done
 
     - name: Display final release assets

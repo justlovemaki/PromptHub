@@ -40,6 +40,15 @@ function createTray() {
     throw error;
   }
 
+  // 创建托盘上下文菜单
+  updateTrayMenu();
+
+  // 设置托盘工具提示
+  tray.setToolTip(t('appName'));
+}
+
+// 更新托盘菜单的函数
+function updateTrayMenu() {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: t('openPanel'),
@@ -309,6 +318,9 @@ app.whenReady().then(() => {
   // 设置语言
   ipcMain.handle('set-language', async (event: any, language: string) => {
     store.set('language', language);
+    // 语言更改后，重新初始化多语言并更新托盘菜单
+    await initI18n(language as any);
+    updateTrayMenu();
   });
 
   // 打开外部链接

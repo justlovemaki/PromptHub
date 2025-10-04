@@ -11,7 +11,7 @@ import { fetchProxy } from './utils/api';
 const { ipcRenderer, shell } = (window as any).electron;
 
 const CommandPalette: React.FC = () => {
-  const [currentLang, setCurrentLang] = useState<SupportedLanguage>(() => initI18n());
+  const [currentLang, setCurrentLang] = useState(() => initI18n());
   const [token, setToken] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
@@ -41,7 +41,7 @@ const CommandPalette: React.FC = () => {
     setCurrentLang(lang);
     setShowLanguageDropdown(false);
     // 强制重新渲染以更新所有文案
-    window.location.reload();
+    handleRefresh();
   };
 
   // 关闭窗口
