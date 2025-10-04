@@ -73,6 +73,7 @@
   "refreshTokenExpiryDays": "刷新令牌过期时间（天）",
   "days": "天",
   "refreshing": "刷新中...",
+  "refreshTokenConfirm": "确定要刷新访问令牌吗？当前令牌将失效。",
   "deleteTokenConfirm": "确定要删除访问令牌吗？此操作不可撤销。",
   "tokenDeleted": "令牌已删除",
   "accessTokenDeleted": "访问令牌已成功删除",

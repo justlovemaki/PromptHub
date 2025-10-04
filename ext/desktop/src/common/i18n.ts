@@ -30,12 +30,12 @@ async function loadMessages(language: SupportedLanguage): Promise<void> {
       const { app } = await import('electron');
 
       let messagesPath: string;
-      if (!app.isPackaged) {
+      // if (!app.isPackaged) {
         messagesPath = path.join(__dirname, '../renderer', '_locales', language, 'messages.json');
-      } else {
-        // 生产环境：使用 process.resourcesPath
-        messagesPath = path.join(process.resourcesPath, '_locales', language, 'messages.json');
-      }
+      // } else {
+      //   // 生产环境：使用 process.resourcesPath
+      //   messagesPath = path.join(process.resourcesPath, '_locales', language, 'messages.json');
+      // }
 
       const messagesContent = fs.readFileSync(messagesPath, 'utf-8');
       messagesCache[language] = JSON.parse(messagesContent);

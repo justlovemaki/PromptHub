@@ -156,7 +156,7 @@
     "description": "First usage example"
   },
   "usageExample2": {
-    "message": "2. ショートカットキー Ctrl+Shift+P (Windows) または Cmd+Shift+P (Mac) を使用してパネルをすばやく開きます。",
+    "message": "2. ショートカットキー Ctrl+Alt+O (Windows) または Cmd+Alt+O (Mac) を使用してパネルをすばやく開きます。",
     "description": "Second usage example"
   },
   "usageExample3": {
@@ -250,5 +250,21 @@
   "clickHere": {
     "message": "ここをクリック",
     "description": "Click here link text"
+  },
+  "quickSaveSelection": {
+    "message": "選択したテキストを素早く保存",
+    "description": "Quick save selection shortcut description"
+  },
+  "quickSaveSelectionSuccess": {
+    "message": "選択したテキストがプロンプトとして保存されました",
+    "description": "Success message when selected text is saved as prompt"
+  },
+  "quickSaveSelectionFailed": {
+    "message": "クイック保存に失敗しました",
+    "description": "Error message when quick save fails"
+  },
+  "noTextSelected": {
+    "message": "テキストが選択されていません",
+    "description": "Error message when no text is selected"
   }
 }

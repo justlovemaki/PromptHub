@@ -4,9 +4,9 @@ name: Build and Release Desktop App
 # 工作流触发器
 on:
   push:
-    # 只有当 'version' 文件被推送到 main 或 master 分支时才触发
+    # 只有当 'ext/desktop/package.json' 文件被推送到 main 或 master 分支时才触发
     paths:
-      - 'version'
+      - 'ext/desktop/package.json'
     branches:
       - main
       - master
@@ -102,9 +102,9 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -R artifacts
 
-    - name: Read version from file
+    - name: Read version from package.json
       id: get_version
-      run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(node -p "require('./ext/desktop/package.json').version")" >> $GITHUB_ENV
 
     - name: Prepare release assets
       run: |
@@ -132,7 +132,7 @@ jobs:
               name=$(basename "$file"); \
               ext="${name##*.}"; \
               name_without_ext="${name%.*}"; \
-              cp "$file" "release-assets/${name_without_ext}-${{ env.VERSION }}.${ext}"; \
+              cp "$file" "release-assets/${name_without_ext}.${ext}"; \
             done' _ {} +
         done
 

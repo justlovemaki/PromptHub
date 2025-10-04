@@ -69,6 +69,7 @@
   "refreshTokenExpiryDays": "リフレッシュトークンの有効期限（日数）",
   "days": "日",
   "refreshing": "更新中...",
+  "refreshTokenConfirm": "アクセストークンを更新してもよろしいですか？現在のトークンは無効になります。",
   "deleteTokenConfirm": "アクセストークンを削除してもよろしいですか？この操作は元に戻せません。",
   "tokenDeleted": "トークンを削除しました",
   "accessTokenDeleted": "アクセストークンが正常に削除されました",

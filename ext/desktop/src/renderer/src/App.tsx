@@ -8,10 +8,19 @@ import { initI18n, t, getCurrentLanguage, setLanguage, getLanguageDisplayName, S
 import { fetchProxy } from './utils/api';
 
 // 使用 preload 暴露的 API
-const { ipcRenderer, shell } = (window as any).electron;
+const { ipcRenderer, shell } = (window as unknown as { electron: { ipcRenderer: any; shell: any } }).electron;
 
 const CommandPalette: React.FC = () => {
-  const [currentLang, setCurrentLang] = useState(() => initI18n());
+  const [currentLang, setCurrentLang] = useState<SupportedLanguage>('en');
+  
+  useEffect(() => {
+    const initializeI18n = async () => {
+      const initialLang = await initI18n();
+      setCurrentLang(initialLang);
+    };
+    initializeI18n();
+  }, []);
+
   const [token, setToken] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
@@ -42,6 +51,7 @@ const CommandPalette: React.FC = () => {
     setShowLanguageDropdown(false);
     // 强制重新渲染以更新所有文案
     handleRefresh();
+    // ipcRenderer.send('set-language', lang);
   };
 
   // 关闭窗口
@@ -67,6 +77,33 @@ const CommandPalette: React.FC = () => {
   useEffect(() => {
     loadAuthToken();
   }, []);
+
+  // 监听快速保存结果
+  useEffect(() => {
+    const handleQuickSaveResult = (event: any, result: { success: boolean; error?: string }) => {
+      if (result.success) {
+        // 显示成功通知
+        console.log('[Renderer] 快速保存成功');
+        // 可以添加一个成功提示，例如临时显示一个通知
+        setError(null);
+        // 自动切换到提示词标签页并刷新数据
+        setActiveTab('prompts');
+        // 刷新提示词列表
+        loadData(true, false);
+      } else {
+        // 显示错误通知
+        console.error('[Renderer] 快速保存失败:', result.error);
+        const errorKey = result.error || 'quickSaveSelectionFailed';
+        setError(t(errorKey));
+      }
+    };
+
+    ipcRenderer.on('quick-save-result', handleQuickSaveResult);
+
+    return () => {
+      ipcRenderer.removeAllListeners('quick-save-result');
+    };
+  }, [token, currentLang]);
 
   // 加载认证 token
   const loadAuthToken = async () => {
@@ -740,11 +777,15 @@ const CommandPalette: React.FC = () => {
               <div className="grid grid-cols-1 gap-2 text-gray-700">
                 <div className="flex justify-between items-center py-2 ">
                   <span>{t('openPanel')}</span>
-                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Shift+P</span>
+                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Alt+O</span>
                 </div>
                 <div className="flex justify-between items-center py-2 ">
                   <span>{t('closePanel')}</span>
-                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Shift+P</span>
+                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Alt+O</span>
+                </div>
+                <div className="flex justify-between items-center py-2 ">
+                  <span>{t('quickSaveSelection')}</span>
+                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Alt+P</span>
                 </div>
                 <div className="flex justify-between items-center py-2 ">
                   <span>{t('navigateUpDown')}</span>

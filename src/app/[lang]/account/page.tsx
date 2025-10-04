@@ -8,6 +8,16 @@ import UserPageWrapper from '../../../components/admin/UserPageWrapper'
 import { useTranslation } from '@/i18n/client'
 import { useTags } from '../../../hooks/useTags'
 import { AiPointsPackageType } from '@/lib/constants';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalClose
+} from '@promptmanager/ui-components'
+import { Button } from '@promptmanager/ui-components'
 
 export default function AccountPage({ params }: { params: { lang: string } }) {
   const { t } = useTranslation(params.lang, 'account')
@@ -21,6 +31,8 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   const [isExporting, setIsExporting] = useState(false);
   const [isRefreshingToken, setIsRefreshingToken] = useState(false);
   const [showSetExpiration, setShowSetExpiration] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [expirationValue, setExpirationValue] = useState(7); // 默认7天
   const [aiPointsData, setAiPointsData] = useState<{
     totalPoints: number;
@@ -131,6 +143,26 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
     } finally {
       setIsRefreshingToken(false);
       setShowSetExpiration(false);
+    }
+  };
+  
+  // 删除访问令牌
+  const handleDeleteAccessToken = async () => {
+    try {
+      const response = await api.deleteAccessToken(params.lang);
+      if (response.success) {
+        setAccessToken(null);
+        setRefreshToken(null);
+        setExpiresAt(null);
+        showSuccess(t('tokenDeleted'), t('accessTokenDeleted'));
+      } else {
+        showError(t('deleteFailed') + ': ' + ((response as { success: false; error: { message: string } }).error.message || ''));
+      }
+    } catch (error) {
+      console.error('删除访问令牌失败:', error);
+      showError(t('deleteAccessTokenFailed') + ': ' + (error instanceof Error ? error.message : error));
+    } finally {
+      setShowDeleteModal(false);
     }
   };
   
@@ -522,31 +554,14 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
             
             <div className="flex flex-wrap gap-3 pt-2 justify-end">
               <button
-                onClick={handleRefreshAccessToken}
+                onClick={() => setShowConfirmModal(true)}
                 disabled={isRefreshingToken}
                 className="bg-primary-100 hover:bg-primary-100/90 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
               >
                 {isRefreshingToken ? t('refreshing') : t('refreshAccessTokenButton')}
               </button>
               <button
-                onClick={async () => {
-                  if (window.confirm(t('deleteTokenConfirm'))) {
-                    try {
-                      const response = await api.deleteAccessToken(params.lang);
-                      if (response.success) {
-                        setAccessToken(null);
-                        setRefreshToken(null);
-                        setExpiresAt(null);
-                        showSuccess(t('tokenDeleted'), t('accessTokenDeleted'));
-                      } else {
-                        showError(t('deleteFailed') + ': ' + ((response as { success: false; error: { message: string } }).error.message || ''));
-                      }
-                    } catch (error) {
-                      console.error('删除访问令牌失败:', error);
-                      showError(t('deleteAccessTokenFailed') + ': ' + (error instanceof Error ? error.message : error));
-                    }
-                  }
-                }}
+              onClick={() => setShowDeleteModal(true)}
                 className="bg-red-100 hover:bg-red-200 text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 {t('deleteTokenButton')}
@@ -589,6 +604,67 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
           </div>
         </div>
 
+        {/* 刷新令牌确认模态框 */}
+        <Modal open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+          <ModalContent size="md">
+            <ModalClose onClick={() => setShowConfirmModal(false)} />
+            <ModalHeader>
+              <ModalTitle>{t('refreshAccessTokenButton')}</ModalTitle>
+              <ModalDescription>{t('refreshTokenConfirm')}</ModalDescription>
+            </ModalHeader>
+            <ModalFooter className="px-6 py-4 border-t border-bg-200 bg-bg-200/50 rounded-b-2xl">
+              <div className="flex justify-end space-x-3 w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={isRefreshingToken}
+                >
+                  {t('cancel')}
+                </Button>
+                <Button
+                  onClick={async () => {
+                    await handleRefreshAccessToken();
+                    setShowConfirmModal(false);
+                  }}
+                  disabled={isRefreshingToken}
+                  isLoading={isRefreshingToken}
+                  variant="destructive"
+                >
+                  {isRefreshingToken ? t('refreshing') : t('refreshAccessTokenButton')}
+                </Button>
+              </div>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* 删除令牌确认模态框 */}
+        <Modal open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+          <ModalContent size="md">
+            <ModalClose onClick={() => setShowDeleteModal(false)} />
+            <ModalHeader>
+              <ModalTitle>{t('deleteTokenButton')}</ModalTitle>
+              <ModalDescription>{t('deleteTokenConfirm')}</ModalDescription>
+            </ModalHeader>
+            <ModalFooter className="px-6 py-4 border-t border-bg-200 bg-bg-200/50 rounded-b-2xl">
+              <div className="flex justify-end space-x-3 w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  {t('cancel')}
+                </Button>
+                <Button
+                  onClick={handleDeleteAccessToken}
+                  isLoading={isRefreshingToken} // 使用isRefreshingToken作为加载状态，可能需要单独的删除状态
+                  variant="destructive"
+                >
+                  {t('deleteTokenButton')}
+                </Button>
+              </div>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+ 667 |
       </div>
     </UserPageWrapper>
   )

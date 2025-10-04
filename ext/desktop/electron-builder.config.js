@@ -5,9 +5,6 @@
 const config = {
   appId: "com.prompthub.desktop",
   productName: "PromptHub Desktop",
-  // 确保构建的应用不使用 package.json 中的版本号
-  publish: null, // 防止发布相关的版本信息
-  generateUpdatesFilesForAllChannels: false, // 不为所有渠道生成更新文件
   directories: {
     output: 'dist-electron'
   },

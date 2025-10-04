@@ -73,6 +73,7 @@
   "refreshTokenExpiryDays": "Refresh token expiry days",
   "days": "days",
   "refreshing": "Refreshing...",
+  "refreshTokenConfirm": "Are you sure you want to refresh the access token? The current token will become invalid.",
   "deleteTokenConfirm": "Are you sure you want to delete the access token? This action cannot be undone.",
   "tokenDeleted": "Token Deleted",
   "accessTokenDeleted": "Access token deleted successfully",

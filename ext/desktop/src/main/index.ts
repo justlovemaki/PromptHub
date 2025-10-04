@@ -4,7 +4,7 @@ import { keyboard, Key, mouse, Button } from '@nut-tree/nut-js';
 import Store from 'electron-store';
 import fetch from 'node-fetch';
 import { getCurrentLanguageBaseUrl } from '../renderer/src/config';
-import { initI18n, t, getCurrentLanguage } from './i18n';
+import { initI18n, t, getCurrentLanguage, SUPPORTED_LANGUAGES } from './i18n';
 import { writeLog, clearLog, getLogFilePath } from './logger';
 
 // 获取资源路径
@@ -27,7 +27,6 @@ const height = 960;
 function createTray() {
   try {
     // 初始化多语言
-    writeLog('Initializing i18n...');
     initI18n();
     
     const iconPath = getResourcePath('icon.png');
@@ -42,13 +41,20 @@ function createTray() {
 
   // 创建托盘上下文菜单
   updateTrayMenu();
-
-  // 设置托盘工具提示
-  tray.setToolTip(t('appName'));
 }
 
 // 更新托盘菜单的函数
-function updateTrayMenu() {
+async function updateTrayMenu() {
+  // 从store获取最新的语言设置
+  const store = new Store();
+  const savedLanguage = store.get('language') as string | undefined;
+  writeLog(`Saved language: ${savedLanguage}`);
+  
+  // 如果store中有语言设置且是支持的语言，则更新当前语言
+  if (savedLanguage && SUPPORTED_LANGUAGES.includes(savedLanguage as any)) {
+    await initI18n(savedLanguage as any);
+  }
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: t('openPanel'),
@@ -175,9 +181,165 @@ function createCommandPaletteWindow() {
   });
 }
 
+// 获取系统选中的文本
+async function getSelectedText(): Promise<string | null> {
+  try {
+    // 保存当前剪贴板内容
+    const originalClipboard = clipboard.readText();
+    
+    // 模拟复制操作 (Ctrl/Cmd+C) 来获取选中文本
+    if (process.platform === 'darwin') {
+      // macOS: Cmd+C
+      await keyboard.pressKey(Key.LeftSuper);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(Key.LeftSuper);
+    } else {
+      // Windows/Linux: Ctrl+C
+      await keyboard.pressKey(Key.LeftControl);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(Key.LeftControl);
+    }
+    
+    // 等待剪贴板更新，使用更可靠的方案
+    let attempts = 0;
+    const maxAttempts = 10;
+    let selectedText = '';
+    
+    // 循环等待剪贴板内容变化
+    while (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      selectedText = clipboard.readText();
+      
+      // 如果剪贴板内容发生变化且不为空，认为是新复制的内容
+      if (selectedText !== originalClipboard && selectedText.trim()) {
+        break;
+      }
+      
+      attempts++;
+    }
+    
+    // 恢复原始剪贴板内容
+    clipboard.writeText(originalClipboard);
+    
+    return selectedText && selectedText.trim() ? selectedText.trim() : null;
+  } catch (error) {
+    console.error('[Main] 获取选中文本失败:', error);
+    return null;
+  }
+}
+
+// 快速保存选中文案为提示词
+async function quickImportPrompt(content: string): Promise<boolean> {
+  const store = new Store();
+  const authToken = store.get('authToken') as string | undefined;
+  
+  if (!authToken) {
+    console.error('[Main] 未找到认证Token');
+    // 通知渲染进程显示错误
+    if (commandPaletteWindow && !commandPaletteWindow.isDestroyed()) {
+      commandPaletteWindow.webContents.send('quick-save-result', {
+        success: false,
+        error: 'authenticationRequired'
+      });
+    }
+    return false;
+  }
+
+  try {
+    // const currentLang = getCurrentLanguage();
+    const baseUrl = getCurrentLanguageBaseUrl('en');
+    
+    const response = await fetch(`${baseUrl}/api/prompts/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${authToken}`
+      },
+      body: JSON.stringify({
+        title: 'Quickly: ' + content.substring(0, 15),
+        content: content,
+        description: 'Quickly imported from system selection'
+      })
+    });
+
+    const result = await response.json() as { success: boolean; data?: any; error?: any };
+    
+    if (response.ok && result.success) {
+      console.log('[Main] 提示词导入成功:', result);
+      
+      // 通知渲染进程保存成功
+      if (commandPaletteWindow && !commandPaletteWindow.isDestroyed()) {
+        commandPaletteWindow.webContents.send('quick-save-result', {
+          success: true
+        });
+      }
+      
+      return true;
+    } else {
+      console.error('[Main] 提示词导入失败:', result);
+      
+      // 通知渲染进程显示错误
+      if (commandPaletteWindow && !commandPaletteWindow.isDestroyed()) {
+        commandPaletteWindow.webContents.send('quick-save-result', {
+          success: false,
+          error: 'saveFailed'
+        });
+      }
+      
+      return false;
+    }
+  } catch (error: any) {
+    console.error('[Main] 快速导入提示词失败:', error);
+    
+    // 通知渲染进程显示错误
+    if (commandPaletteWindow && !commandPaletteWindow.isDestroyed()) {
+      commandPaletteWindow.webContents.send('quick-save-result', {
+        success: false,
+        error: error.message
+      });
+    }
+    
+    return false;
+  }
+}
+
+// 处理快速保存选中文案的快捷键
+async function handleQuickSaveSelection(): Promise<void> {
+  console.log('[Main] 快速保存选中文案快捷键触发');
+  
+  try {
+    // 获取选中的文本
+    const selectedText = await getSelectedText();
+    
+    if (!selectedText) {
+      console.log('[Main] 未选中任何文字');
+      
+      // 通知渲染进程显示错误
+      if (commandPaletteWindow && !commandPaletteWindow.isDestroyed()) {
+        commandPaletteWindow.webContents.send('quick-save-result', {
+          success: false,
+          error: 'noTextSelected'
+        });
+      }
+      
+      return;
+    }
+    
+    console.log('[Main] 获取到选中文字:', selectedText.substring(0, 50) + '...');
+    
+    // 保存为提示词
+    await quickImportPrompt(selectedText);
+  } catch (error) {
+    console.error('[Main] 处理快速保存失败:', error);
+  }
+}
+
 // 注册全局快捷键
 function registerGlobalShortcut() {
-  const ret = globalShortcut.register('CmdOrCtrl+Shift+P', async () => {
+  // 注册打开面板的快捷键
+  const ret = globalShortcut.register('CmdOrCtrl+Alt+O', async () => {
     // 切换窗口显示/隐藏状态
     if (commandPaletteWindow.isVisible()) {
       commandPaletteWindow.hide();
@@ -210,6 +372,15 @@ function registerGlobalShortcut() {
 
   if (!ret) {
     console.log('全局快捷键注册失败');
+  }
+
+  // 注册快速保存选中文案的快捷键
+  const quickSaveRet = globalShortcut.register('CmdOrCtrl+Alt+P', async () => {
+    await handleQuickSaveSelection();
+  });
+
+  if (!quickSaveRet) {
+    console.log('快速保存快捷键注册失败');
   }
 }
 
