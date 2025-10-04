@@ -3,22 +3,28 @@
  * 用于构建跨平台的桌面应用程序
  */
 const config = {
-  appId: 'com.promptmanager.desktop',
-  productName: 'Prompt Manager Desktop',
+  appId: "com.prompthub.desktop",
+  productName: "PromptHub Desktop",
   directories: {
     output: 'dist-electron'
   },
   files: [
-    'dist/**/*',
-    'node_modules/**/*',
-    'package.json'
+    'out/**/*'
   ],
   extraResources: [
     {
-      from: 'assets/',
-      to: 'assets/',
+      from: 'resources/',
+      to: './',
+      filter: ['**/*']
+    },
+    {
+      from: 'resources/',
+      to: 'resources/',
       filter: ['**/*']
     }
+  ],
+  asarUnpack: [
+    'resources/**'
   ],
   win: {
     target: [
@@ -27,7 +33,7 @@ const config = {
         arch: ['x64']
       }
     ],
-    icon: 'assets/icon.png',
+    icon: 'resources/icon.png',
     publisherName: 'PromptHub'
   },
   mac: {
@@ -41,12 +47,12 @@ const config = {
         arch: ['x64', 'arm64']
       }
     ],
-    icon: 'assets/icon.png',  // electron-builder 会自动转换为 .icns
+    icon: 'resources/icon.png',  // electron-builder 会自动转换为 .icns
     category: 'public.app-category.productivity',
     hardenedRuntime: true,
     gatekeeperAssess: false,
-    entitlements: './build/entitlements.mac.plist',
-    entitlementsInherit: './build/entitlements.mac.plist'
+    entitlements: 'resources/build/entitlements.mac.plist',
+    entitlementsInherit: 'resources/build/entitlements.mac.plist'
   },
   linux: {
     target: [
@@ -63,8 +69,9 @@ const config = {
         arch: ['x64']
       }
     ],
-    icon: 'assets/icon.png',
-    category: 'Utility'
+    icon: 'resources/icon.png',
+    category: 'Utility',
+    maintainer: 'PromptHub <justlikemaki@foxmail.com>'
   },
   dmg: {
     sign: false,

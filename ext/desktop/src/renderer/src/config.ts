@@ -1,8 +1,8 @@
 import { SupportedLanguage } from './utils/i18n';
 
 // 环境判断
-const isProduction = process.env.NODE_ENV === 'production';
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = import.meta.env.PROD;
+const isDevelopment = import.meta.env.DEV;
 
 // 定义不同环境和语言对应的API基础URL映射
 const DEVELOPMENT_LANGUAGE_BASE_URLS: Record<SupportedLanguage, string> = {

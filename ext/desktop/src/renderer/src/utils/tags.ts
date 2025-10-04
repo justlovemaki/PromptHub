@@ -21,6 +21,19 @@ export function getCurrentLocale(): string {
   return 'en';
 }
 
+export function getFileLocale(language: string): string {
+  // 从 navigator.language 获取语言环境
+  const browserLang = language;
+  if (browserLang.startsWith('zh')) {
+    return 'cn';
+  } else if (browserLang.startsWith('ja')) {
+    return 'ja';
+  }
+  
+  // 默认返回英文
+  return 'en';
+}
+
 /**
  * 获取标签配置文件的路径
  * @param locale 语言环境，默认为当前语言环境
@@ -155,6 +168,7 @@ export async function getAllTagCategories(locale: string = getCurrentLocale()): 
  * @returns 所有标签数组
  */
 export async function getAllTags(locale: string = getCurrentLocale()): Promise<TagLabel[]> {
+  locale  = getFileLocale(locale)
   const categories = await getAllTagCategories(locale);
   
   return categories.flatMap(category => category.labels);

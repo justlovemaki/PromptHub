@@ -6,9 +6,33 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const requestHeaders = new Headers(request.headers);
 
+  // 处理预检请求 (CORS)
+  if (request.method === 'OPTIONS') {
+    const response = new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+        'Access-Control-Max-Age': '86400', // 24小时
+      },
+    });
+    return response; 
+  }
+
   // API 路由保护
   if (pathname.startsWith('/api/')) {
-    return await handleApiRoutes(request);
+    // 添加CORS头部到所有API响应
+    const response = await handleApiRoutes(request);
+    
+    // 为API路由添加CORS头部
+    if (response.headers) {
+      response.headers.set('Access-Control-Allow-Origin', '*');
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    }
+    
+    return response;
   }
 
   // 国际化路由处理

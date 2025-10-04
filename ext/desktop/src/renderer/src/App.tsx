@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './components/ui';
 import PromptCard from './components/PromptCard';
 import type { Prompt, UserStats, UserInfo, PromptTag } from './types/types';
-import { API_CONFIG } from './config';
+import { API_CONFIG, getCurrentLanguageBaseUrl} from './config';
 import { findTagByKey } from './utils/tags';
 import { initI18n, t, getCurrentLanguage, setLanguage, getLanguageDisplayName, SUPPORTED_LANGUAGES, type SupportedLanguage } from './utils/i18n';
-import { getCurrentLanguageBaseUrl } from './config';
+import { fetchProxy } from './utils/api';
 
-// 直接导入electron
-const { ipcRenderer, shell } = require('electron');
+// 使用 preload 暴露的 API
+const { ipcRenderer, shell } = (window as any).electron;
 
 const CommandPalette: React.FC = () => {
   const [currentLang, setCurrentLang] = useState<SupportedLanguage>(() => initI18n());
@@ -105,7 +105,7 @@ const CommandPalette: React.FC = () => {
             // 预加载这些标签的本地化文本
             const localizedTagsMap: Record<string, string> = {};
             for (const tag of fetchedTags) {
-              const tagInfo = await findTagByKey(tag.name);
+              const tagInfo = await findTagByKey(tag.name, getCurrentLanguage());
               localizedTagsMap[tag.name] = tagInfo?.name || tag.name;
             }
             setLocalizedTags(localizedTagsMap);
@@ -259,7 +259,7 @@ const CommandPalette: React.FC = () => {
 
   // 添加滚动加载更多功能
   useEffect(() => {
-    if (loading || loadingMore || !hasMore || showTokenPage) return;
+    if (loading || loadingMore || !hasMore || showTokenPage || activeTab !== 'prompts') return;
 
     const currentRef = lastPromptRef.current;
 
@@ -282,7 +282,7 @@ const CommandPalette: React.FC = () => {
         observer.current.unobserve(currentRef);
       }
     };
-  }, [loading, loadingMore, hasMore, showTokenPage]);
+  }, [loading, loadingMore, hasMore, showTokenPage, activeTab]);
 
   // 当页码变化时加载更多数据
   useEffect(() => {
@@ -477,7 +477,7 @@ const CommandPalette: React.FC = () => {
               title={t('switchLanguage')}
             >
               <span className="text-sm font-medium text-gray-700">
-                {currentLang === 'zh-CN' ? '中文' : currentLang === 'ja' ? '日本語' : 'EN'}
+                {getCurrentLanguage() === 'zh-CN' ? '中文' : getCurrentLanguage() === 'ja' ? '日本語' : 'EN'}
               </span>
             </button>
             
@@ -581,30 +581,30 @@ const CommandPalette: React.FC = () => {
       {userStats && activeTab === 'prompts' && (
         <div className="p-4 grid grid-cols-2 gap-4 bg-gray-50">
           {userInfo?.role === 'ADMIN' && (
-            <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+            <Card className="p-5 rounded-xl transition-transform duration-200 hover:shadow-md">
               <h3 className="text-sm font-medium text-gray-600">{t('subscriptionStatus')}</h3>
               <p className="text-xl font-semibold mt-1 text-gray-900">{userInfo?.subscriptionStatus}</p>
             </Card>
           )}
           {userInfo?.role === 'ADMIN' && (
-            <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+            <Card className="p-5 rounded-xl transition-transform duration-200 hover:shadow-md">
               <h3 className="text-sm font-medium text-gray-600">{t('aiPoints')}</h3>
               <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.remainingCredits}</p>
             </Card>
           )}
-          <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+          <Card className="p-5 rounded-xl transition-transform duration-200 hover:shadow-md">
             <h3 className="text-sm font-medium text-gray-600">{t('totalPrompts')}</h3>
             <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.totalPrompts}</p>
           </Card>
-          <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+          <Card className="p-5 rounded-xl transition-transform duration-200 hover:shadow-md">
             <h3 className="text-sm font-medium text-gray-600">{t('monthlyCreated')}</h3>
             <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.monthlyCreated}</p>
           </Card>
-          <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+          <Card className="p-5 rounded-xl transition-transform duration-200 hover:shadow-md">
             <h3 className="text-sm font-medium text-gray-600">{t('publicPrompts')}</h3>
             <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.publicPrompts}</p>
           </Card>
-          <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+          <Card className="p-5 rounded-xl transition-transform duration-200 hover:shadow-md">
             <h3 className="text-sm font-medium text-gray-600">{t('tagsCount')}</h3>
             <p className="text-xl font-semibold mt-1 text-gray-900">{userStats.tagsCount}</p>
           </Card>

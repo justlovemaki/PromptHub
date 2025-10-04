@@ -1,21 +1,44 @@
-const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, clipboard, screen, shell } = require('electron');
+import { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, clipboard, screen, shell, dialog } from 'electron';
 import * as path from 'path';
 import { keyboard, Key, mouse, Button } from '@nut-tree/nut-js';
-import { API_CONFIG, getCurrentLanguageBaseUrl } from './config';
-import { initI18n, t, getCurrentLanguage } from './utils/i18n';
+import Store from 'electron-store';
+import fetch from 'node-fetch';
+import { getCurrentLanguageBaseUrl } from '../renderer/src/config';
+import { initI18n, t, getCurrentLanguage } from './i18n';
+import { writeLog, clearLog, getLogFilePath } from './logger';
+
+// 获取资源路径
+function getResourcePath(relativePath: string): string {
+  if (!app.isPackaged) {
+    writeLog(`Resource path dev: ${path.join(__dirname, '../../resources', relativePath)}`);
+    return path.join(__dirname, '../../resources', relativePath);
+  }
+  writeLog(`Resource path prod  : ${path.join(process.resourcesPath, relativePath)}`);
+  return path.join(process.resourcesPath, relativePath);
+}
 
 let tray: any;
 let commandPaletteWindow: any;
 let lastMousePosition: { x: number; y: number } | null = null;
 const width= 400;
-const height = 1280;
+const height = 960;
 
 // 创建系统托盘
 function createTray() {
-  // 初始化多语言
-  initI18n();
-  
-  tray = new Tray(path.join(__dirname, 'assets', 'icon.png'));
+  try {
+    // 初始化多语言
+    writeLog('Initializing i18n...');
+    initI18n();
+    
+    const iconPath = getResourcePath('icon.png');
+    writeLog(`Tray icon path: ${iconPath}`);
+    
+    tray = new Tray(iconPath);
+    writeLog('Tray created successfully');
+  } catch (error: any) {
+    writeLog(`Failed to create tray: ${error.message}`, 'ERROR');
+    throw error;
+  }
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -41,7 +64,6 @@ function createTray() {
       label: t('settings'),
       click: () => {
         // 打开Web端用户设置页面
-        const { shell } = require('electron');
         const currentLang = getCurrentLanguage();
         const baseUrl = getCurrentLanguageBaseUrl(currentLang);
         shell.openExternal(baseUrl + '/account');
@@ -61,7 +83,16 @@ function createTray() {
 
 // 创建隐藏的命令面板窗口
 function createCommandPaletteWindow() {
-  commandPaletteWindow = new BrowserWindow({
+  try {
+    writeLog('Creating BrowserWindow...');
+    
+    const iconPath = getResourcePath('icon.png');
+    const preloadPath = path.join(__dirname, '../preload/index.js');
+    
+    writeLog(`Window icon path: ${iconPath}`);
+    writeLog(`Preload script path: ${preloadPath}`);
+    
+    commandPaletteWindow = new BrowserWindow({
     width: width,
     height: height,
     show: false,
@@ -69,12 +100,19 @@ function createCommandPaletteWindow() {
     resizable: false,
     skipTaskbar: true,
     alwaysOnTop: false,
-    icon: path.join(__dirname, 'assets', 'icon.png'), // 添加窗口图标
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    }
-  });
+      icon: iconPath,
+      webPreferences: {
+        preload: preloadPath,
+        nodeIntegration: false,
+        contextIsolation: true,
+      }
+    });
+
+    writeLog('BrowserWindow created');
+  } catch (error: any) {
+    writeLog(`Failed to create BrowserWindow: ${error.message}`, 'ERROR');
+    throw error;
+  }
 
   // 禁用 DevTools 中的 Autofill 警告
   commandPaletteWindow.webContents.on('devtools-opened', () => {
@@ -92,7 +130,22 @@ function createCommandPaletteWindow() {
   });
 
   // 加载命令面板UI
-  commandPaletteWindow.loadFile(path.join(__dirname, 'index.html'));
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      writeLog('Loading dev URL...');
+      commandPaletteWindow.loadURL('http://localhost:5173');
+      commandPaletteWindow.webContents.openDevTools();
+    } else {
+      const htmlPath = path.join(__dirname, '../renderer/index.html');
+      writeLog(`Loading production HTML: ${htmlPath}`);
+      commandPaletteWindow.loadFile(htmlPath);
+    }
+    
+    writeLog('UI loaded successfully');
+  } catch (error: any) {
+    writeLog(`Failed to load UI: ${error.message}`, 'ERROR');
+    throw error;
+  }
 
   // 当窗口获得焦点时保存鼠标位置（从其他窗口切换过来时）
   commandPaletteWindow.on('focus', async () => {
@@ -153,6 +206,26 @@ function registerGlobalShortcut() {
 
 // IPC通信处理
 app.whenReady().then(() => {
+  // 清空旧日志并开始记录新日志
+  clearLog();
+  writeLog('=== Application Starting ===');
+  writeLog(`NODE_ENV: ${process.env.NODE_ENV}`);
+  writeLog(`Platform: ${process.platform}`);
+  writeLog(`__dirname: ${__dirname}`);
+  writeLog(`process.resourcesPath: ${process.resourcesPath}`);
+  writeLog(`App path: ${app.getAppPath()}`);
+  writeLog(`User data path: ${app.getPath('userData')}`);
+  writeLog(`Log file path: ${getLogFilePath()}`);
+
+  // 设置错误处理（在 app ready 之后）
+  process.on('uncaughtException', (error) => {
+    writeLog(`Uncaught Exception: ${error.message}\n${error.stack}`, 'ERROR');
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    writeLog(`Unhandled Rejection: ${reason}`, 'ERROR');
+  });
+
   ipcMain.on('copy-to-active-window', (event: any, content: string) => {
     console.log('[Main] 收到 copy-to-active-window 事件, 内容长度:', content.length);
     
@@ -215,38 +288,128 @@ app.whenReady().then(() => {
     return !currentState;
   });
 
+  // 创建 store 实例
+  const store = new Store();
+
   // 从electron-store获取认证Token
   ipcMain.handle('get-auth-token', async () => {
-    const Store = require('electron-store');
-    const store = new Store();
     return store.get('authToken');
   });
 
   // 存储认证Token
   ipcMain.handle('set-auth-token', async (event: any, token: string) => {
-    const Store = require('electron-store');
-    const store = new Store();
     store.set('authToken', token);
   });
 
-  // 不创建主窗口
-  createTray();
-  registerGlobalShortcut();
-  createCommandPaletteWindow();
+  // 获取语言设置
+  ipcMain.handle('get-language', async () => {
+    return store.get('language');
+  });
+
+  // 设置语言
+  ipcMain.handle('set-language', async (event: any, language: string) => {
+    store.set('language', language);
+  });
+
+  // 打开外部链接
+  ipcMain.handle('shell-open-external', async (event: any, url: string) => {
+    await shell.openExternal(url);
+  });
+
+  // 获取日志文件路径
+  ipcMain.handle('get-log-path', async () => {
+    return getLogFilePath();
+  });
+
+  // 打开日志文件所在目录
+  ipcMain.handle('open-log-directory', async () => {
+    const logPath = getLogFilePath();
+    const logDir = path.dirname(logPath);
+    await shell.openPath(logDir);
+  });
+
+  // API 请求代理（避免 CORS 问题）
+  ipcMain.handle('api-request', async (event: any, options: {
+    url: string;
+    method: string;
+    headers?: Record<string, string>;
+    body?: any;
+  }) => {
+    try {
+      const { url, method, headers, body } = options;
+      
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      
+      const data = await response.json();
+      
+      return {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        data,
+      };
+    } catch (error: any) {
+      console.error('API request failed:', error);
+      return {
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        data: { success: false, error: { message: error.message } },
+      };
+    }
+  });
+
+  // 初始化应用
+  try {
+    writeLog('Creating tray...');
+    createTray();
+    
+    writeLog('Registering global shortcut...');
+    registerGlobalShortcut();
+    
+    writeLog('Creating command palette window...');
+    createCommandPaletteWindow();
+    
+    writeLog('Application initialized successfully');
+  } catch (error: any) {
+    writeLog(`Failed to initialize application: ${error.message}\n${error.stack}`, 'ERROR');
+    throw error;
+  }
 
   // macOS特殊处理
   if (process.platform === 'darwin') {
     app.dock.hide();
   }
+}).catch((error) => {
+  writeLog(`App ready failed: ${error.message}\n${error.stack}`, 'ERROR');
+  // 显示错误对话框
+  dialog.showErrorBox(
+    'Application Startup Error',
+    `Failed to start application.\n\nLog file location:\n${getLogFilePath()}\n\nError: ${error.message}`
+  );
+  app.quit();
 });
 
 // 应用退出处理
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  // 桌面应用不需要在关闭所有窗口时退出（托盘应用）
+  // 注释掉默认退出行为
+  // if (process.platform !== 'darwin') {
+  //   app.quit();
+  // }
 });
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+});
+
+// 当应用激活时（macOS）
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createCommandPaletteWindow();
+  }
 });

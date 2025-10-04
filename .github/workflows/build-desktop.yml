@@ -1,13 +1,18 @@
-name: Build Desktop App
+# 工作流名称
+name: Build and Release Desktop App
 
+# 工作流触发器
 on:
   push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ main, master ]
+    # 只有当 'version' 文件被推送到 main 或 master 分支时才触发
+    paths:
+      - 'version'
+    branches:
+      - main
+      - master
 
 jobs:
+  # 构建任务：与之前基本相同，在三个平台上构建应用
   build:
     runs-on: ${{ matrix.os }}
     
@@ -18,12 +23,15 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             target: AppImage
+            ext: AppImage
           - os: windows-latest
             platform: win
             target: nsis
+            ext: exe
           - os: macos-latest
             platform: mac
             target: dmg
+            ext: dmg
 
     steps:
     - name: Checkout code
@@ -40,6 +48,13 @@ jobs:
       run: |
         cd ext/desktop
         npm ci
+
+    - name: Copy tags files (required for build)
+      run: |
+        cd ext/desktop
+        mkdir -p src/renderer/public/tags
+        cp -r ../../src/tags/* src/renderer/public/tags/ || true
+      shell: bash
 
     - name: Setup Python (for native modules)
       uses: actions/setup-python@v4
@@ -58,43 +73,76 @@ jobs:
       run: |
         brew install create-dmg
 
-    - name: Build application
+    - name: Build application (electron-vite + electron-builder)
       run: |
         cd ext/desktop
-        npm run build
         npm run build:${{ matrix.platform }}
+      env:
+        NODE_ENV: production
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.platform }}-build
-        path: ext/desktop/dist-electron/**
+        name: build-${{ matrix.platform }}
+        path: ext/desktop/dist-electron/**/*
         if-no-files-found: error
 
+  # 发布任务：构建完成后，整理产物并创建 Release
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    
+    # 授予创建 Release 所需的权限
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout code
+      # 需要检出代码以读取 version 文件
       uses: actions/checkout@v4
 
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: dist-electron
+        path: artifacts
 
     - name: Display structure of downloaded files
-      run: ls -R dist-electron
+      run: ls -R artifacts
 
-    - name: Create GitHub Release
+    - name: Read version from file
+      id: get_version
+      run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
+
+    - name: Prepare release assets
+      run: |
+        # 创建一个用于存放最终发布文件的目录
+        mkdir release-assets
+        # 遍历所有下载的构建产物子目录 (build-linux, build-win, etc.)
+        for dir in artifacts/*/; do
+          # 提取平台名称，例如 "linux"
+          platform=$(basename "$dir" | cut -d'-' -f2)
+          echo "Processing platform: $platform"
+          
+          # 1. 压缩整个构建目录为 zip 文件
+          zip -r "release-assets/build-${platform}-${{ env.VERSION }}.zip" "$dir"
+          
+          # 2. 查找并复制可执行文件
+          # 使用 find -print -quit 来找到第一个匹配项并复制
+          find "$dir" -maxdepth 1 -type f \( -name "*.AppImage" -o -name "*.exe" -o -name "*.dmg" \) -exec cp {} release-assets/ \;
+        done
+
+    - name: Display final release assets
+      run: ls -l release-assets
+
+    - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: |
-          dist-electron/**/*
-        name: Release ${{ github.ref_name }}
-        tag_name: ${{ github.ref }}
-        draft: false
-        prerelease: false
-        generate_release_notes: true
+        # 使用 version 文件内容作为标签名和 Release 名称
+        tag_name: v${{ env.VERSION }}
+        name: Release v${{ env.VERSION }}
+        # 指向 release-assets 目录下的所有文件
+        files: release-assets/*
+        # 如果标签已存在，会更新对应的 Release。如果不存在，则创建。
+        # 注意: softprops/action-gh-release 默认会覆盖已存在的 release 的资源文件
+        # 它不会删除旧的，而是上传新的。如果需要更精细的控制，可能需要更复杂的脚本。
+        generate_release_notes: true # 自动生成更新日志

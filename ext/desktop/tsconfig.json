@@ -1,33 +1,31 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": ".",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "jsx": "react-jsx",
-    "allowJs": true,
-    "sourceMap": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@core-logic/*": ["node_modules/@core-logic/*"],
-      "@ui-components/*": ["../../packages/ui-components/src/*"],
-      "@/*": ["../../src/*"]
+      "@renderer/*": ["src/renderer/src/*"],
+      "@/*": ["src/*"]
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "assets/**/*"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "electron.vite.config.ts"
   ],
   "exclude": [
     "node_modules",
+    "out",
     "dist",
     "dist-electron"
   ]

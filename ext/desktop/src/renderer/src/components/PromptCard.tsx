@@ -5,7 +5,7 @@ import { copyToClipboard, processPromptWithVariables, extractVariables } from '.
 import { t, getCurrentLanguage } from '../utils/i18n';
 import { getCurrentLanguageBaseUrl } from '../config';
 
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell } = (window as any).electron;
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -51,7 +51,6 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, localizedTagsMap = {} }
     const editUrl = `${baseUrl}/dashboard?editid=${prompt.id}`;
     
     // 使用 Electron shell 打开URL
-    const { shell } = require('electron');
     shell.openExternal(editUrl);
   };
 

@@ -67,7 +67,7 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
   // Handle listPrompts method
   if (message.method === 'listPrompts') {
     console.log('[MCP] Processing listPrompts');
-    const personalSpaceId = authResult.user.personalSpaceId;
+    const personalSpaceId = authResult.personalSpaceId;
     const userPrompts = await db.select().from(prompt).where(eq(prompt.spaceId, personalSpaceId));
     
     yield createMCPResult(message.id, {
@@ -117,7 +117,7 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
   // Handle getPromptById tool execution
   if (message.method === 'tools/call' && message.params?.name === 'getPromptById') {
     const { id } = message.params.arguments || message.params;
-    const personalSpaceId = authResult.user.personalSpaceId;
+    const personalSpaceId = authResult.personalSpaceId;
     console.log('[MCP] Processing getPromptById for personal space:', personalSpaceId);
     console.log('[MCP] Prompt ID:', id);
 
@@ -147,7 +147,7 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
 
   // Handle listPrompt tool execution
   if (message.method === 'tools/call' && message.params?.name === 'listPrompt') {
-    const personalSpaceId = authResult.user.personalSpaceId;
+    const personalSpaceId = authResult.personalSpaceId;
     console.log('[MCP] Processing listPrompt for personal space:', personalSpaceId);
 
     const userPrompts = await db.select({
@@ -185,6 +185,7 @@ export async function POST(request: NextRequest) {
     
     // For All requests, require authentication
     const authResult = await authenticateRequest(request);
+    console.log('[MCP] Authentication result:', authResult);
     if (!authResult) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -221,9 +222,6 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'no-cache, no-transform',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no', // 禁用 nginx 缓冲
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       }
     });
   } catch (error) {
@@ -235,13 +233,4 @@ export async function POST(request: NextRequest) {
       }
     );
   }
-}
-
-// CORS preflight handler
-export async function OPTIONS() {
-  const response = new Response(null, { status: 200 });
-  response.headers.set('Access-Control-Allow-Origin', '*');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  return response;
 }
