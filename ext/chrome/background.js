@@ -192,6 +192,9 @@ async function handleIncomingMessage(message, sender, sendResponse) {
         }
       });
       return true; // 保持消息通道开放以支持异步响应
+    case 'getPromptByIndex':
+      getPromptByIndex(message.index, sendResponse);
+      return true; // 保持消息通道开放以支持异步响应
     default:
       sendResponse({ error: 'Unknown action' });
   }
@@ -403,3 +406,57 @@ const fillInputFieldInTab = async (tabId, selector, content) => {
     return { success: false, error: scriptingError.message };
   }
 };
+
+// 根据索引获取提示词
+async function getPromptByIndex(index, sendResponse) {
+  if (!authToken) {
+    sendResponse({ success: false, error: 'No authentication token' });
+    return;
+  }
+
+  try {
+    // 使用正确的API端点获取提示词列表，按照使用次数降序排列，与侧边面板中的排序一致
+    const response = await fetch(baseUrl + '/api/prompts/list?page=1&limit=100&sortBy=useCount&sortOrder=desc', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+
+    const result = await response.json();
+    handlePromptResponse(result, index, sendResponse);
+  } catch (error) {
+    console.error('Error fetching prompts by index:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+// 处理API响应结果的辅助函数
+function handlePromptResponse(result, index, sendResponse) {
+  if (result && result.prompts && Array.isArray(result.prompts)) {
+    const prompts = result.prompts;
+    if (index >= 0 && index < prompts.length) {
+      // 返回指定索引的提示词内容
+      console.log(`Sending prompt content for index ${index} (ID: ${prompts[index].id}): ${prompts[index].title}`);
+      sendResponse({ success: true, content: prompts[index].content });
+    } else {
+      console.log(`Prompt index ${index} is out of range. Available range: 0-${prompts.length-1}`);
+      sendResponse({ success: false, error: `Prompt index ${index} is out of range. Available range: 0-${prompts.length-1}` });
+    }
+  } else if (result && result.data && Array.isArray(result.data.prompts)) {
+    // 处理另一种API响应格式
+    const prompts = result.data.prompts;
+    if (index >= 0 && index < prompts.length) {
+      // 返回指定索引的提示词内容
+      console.log(`Sending prompt content for index ${index} (ID: ${prompts[index].id}): ${prompts[index].title}`);
+      sendResponse({ success: true, content: prompts[index].content });
+    } else {
+      console.log(`Prompt index ${index} is out of range. Available range: 0-${prompts.length-1}`);
+      sendResponse({ success: false, error: `Prompt index ${index} is out of range. Available range: 0-${prompts.length-1}` });
+    }
+  } else {
+    console.error('Failed to retrieve prompts from API:', result);
+    sendResponse({ success: false, error: 'Failed to retrieve prompts from API' });
+  }
+}

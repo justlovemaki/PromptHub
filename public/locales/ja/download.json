@@ -1,0 +1,20 @@
+{
+  "title": "ダウンロード",
+  "description": "プラットフォーム用のアプリケーションをダウンロードして、生産性を向上させる強力なツールの使用を開始してください。",
+  "platformDownloadsTitle": "プラットフォームダウンロード",
+  "windowsDescription": "Windows 10以降用にダウンロード",
+  "macDescription": "macOS 10.15以降用にダウンロード",
+  "linuxDescription": "人気のLinuxディストリビューション用にダウンロード",
+  "windowsDownloadUrl": "#",
+  "macDownloadUrl": "#",
+  "linuxDownloadUrl": "#",
+  "downloadButton": "ダウンロード",
+  "chromeExtensionTitle": "Chrome拡張機能",
+  "chromeExtensionName": "Prompt Manager 拡張機能",
+  "chromeExtensionDescription": "Chrome拡張機能を使用してブラウジング体験を強化し、すべてのプロンプトにすばやくアクセスできます。",
+  "chromeExtensionUrl": "https://chromewebstore.google.com/detail/prompthub/agfndihommcfegdgglfgepoeecakllfn",
+  "installChromeExtensionButton": "Chrome拡張機能をインストール",
+  "mcpExamplesTitle": "MCP 設定例",
+  "mcpExampleConfig": "MCP連携の設定例：",
+  "mcpDocumentationNote": "MCPコマンドの詳細については、ドキュメントを参照してください。"
+}

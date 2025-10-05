@@ -156,15 +156,11 @@
     "description": "First usage example"
   },
   "usageExample2": {
-    "message": "2. 使用快捷键 Ctrl+Alt+O (Windows) 或 Cmd+Alt+O (Mac) 快速打开面板。",
-    "description": "Second usage example"
-  },
-  "usageExample3": {
-    "message": "3. 在提示词中使用 {{variable}} 语法添加变量，使提示词更灵活。",
+    "message": "2. 在提示词中使用 {{variable}} 语法添加变量，使提示词更灵活。",
     "description": "Third usage example"
   },
-  "usageExample4": {
-    "message": "4. 使用标签对提示词进行分类管理，便于查找和使用。",
+  "usageExample3": {
+    "message": "3. 使用标签对提示词进行分类管理，便于查找和使用。",
     "description": "Fourth usage example"
   },
   "keyboardShortcuts": {
@@ -266,5 +262,125 @@
   "noTextSelected": {
     "message": "未选中任何文字",
     "description": "Error message when no text is selected"
+  },
+  "settingsTab": {
+    "message": "设置",
+    "description": "Label for settings tab"
+  },
+  "keyboardShortcutsSettings": {
+    "message": "键盘快捷键设置",
+    "description": "Title for keyboard shortcuts settings section"
+  },
+  "editShortcut": {
+    "message": "编辑",
+    "description": "Button text for editing shortcut"
+  },
+  "resetToDefault": {
+    "message": "重置为默认",
+    "description": "Button text for resetting shortcuts to default"
+  },
+  "shortcutSettingsHint": {
+    "message": "自定义快捷键将在保存后生效。",
+    "description": "Hint text for shortcut settings"
+  },
+  "currentShortcutsPreview": {
+    "message": "当前快捷键预览",
+    "description": "Title for current shortcuts preview section"
+  },
+  "currentShortcutsInfo": {
+    "message": "要自定义这些快捷键，请切换到上方的",
+    "description": "First part of current shortcuts info message"
+  },
+  "currentShortcutsInfo2": {
+    "message": "选项卡进行修改。",
+    "description": "Second part of current shortcuts info message"
+  },
+  "recordingShortcut": {
+    "message": "录制快捷键中...",
+    "description": "Text shown when recording a shortcut"
+  },
+  "pressKeysToRecord": {
+    "message": "请按下您想要的按键组合",
+    "description": "Instruction text for recording shortcut"
+  },
+  "recordingCancelled": {
+    "message": "录制已取消",
+    "description": "Message when shortcut recording is cancelled"
+  },
+  "shortcutRecorded": {
+    "message": "快捷键录制完成",
+    "description": "Message when shortcut is successfully recorded"
+  },
+  "invalidShortcut": {
+    "message": "无效的快捷键组合",
+    "description": "Error message for invalid shortcut"
+  },
+  "shortcutConflict": {
+    "message": "快捷键与现有快捷键冲突",
+    "description": "Error message for shortcut conflict"
+  },
+  "startRecording": {
+    "message": "点击录制",
+    "description": "Button text to start recording shortcut"
+  },
+  "cancelRecording": {
+    "message": "取消",
+    "description": "Button text to cancel recording"
+  },
+  "saveShortcut": {
+    "message": "保存",
+    "description": "Button text to save recorded shortcut"
+  },
+  "shortcutInstructions": {
+    "message": "可同时按最多3个键 (例如: Ctrl+Alt+X)",
+    "description": "Instructions for recording shortcuts with max 3 keys"
+  },
+  "maxThreeKeys": {
+    "message": "最多支持3个键",
+    "description": "Message indicating max 3 keys limit"
+  },
+  "recordingStatus": {
+    "message": "录制模式已激活",
+    "description": "Status message when recording is active"
+  },
+  "keysDetected": {
+    "message": "检测到按键",
+    "description": "Label for detected keys count"
+  },
+  "pressDesiredKeys": {
+    "message": "请按下您想要的按键组合",
+    "description": "Instruction to press keys"
+  },
+  "sameAsOpenPanel": {
+    "message": "与打开面板相同",
+    "description": "Text indicating shortcut is same as open panel"
+  },
+  "shortcutKeysCount": {
+    "message": "按键数",
+    "description": "Label for keys count display"
+  },
+  "maxKeysAllowed": {
+    "message": "最多3个按键",
+    "description": "Maximum keys allowed message"
+  },
+  "recordingModeActive": {
+    "message": "录制模式已激活",
+    "description": "Message indicating recording mode is active"
+  },
+  "readyToRecord": {
+    "message": "准备录制快捷键",
+    "description": "Message when ready to record"
+  },
+  "loadingDataFailed": {
+    "message": "加载数据失败",
+    "description": "Error message when loading data fails"
+  },
+  "notSet": {
+    "message": "未设置",
+    "description": "Text indicating something is not set"
+  },
+  "openWebApp": {
+    "message": "打开网页应用",
+    "description": "Menu item for opening the web application"
   }
 }

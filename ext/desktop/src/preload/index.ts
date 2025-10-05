@@ -42,5 +42,23 @@ contextBridge.exposeInMainWorld('electron', {
     }) => {
       return ipcRenderer.invoke('api-request', options)
     }
+  },
+  // 快捷键设置相关 API
+  shortcuts: {
+    getSettings: () => {
+      return ipcRenderer.invoke('get-shortcut-settings')
+    },
+    setSettings: (settings: any) => {
+      return ipcRenderer.invoke('set-shortcut-settings', settings)
+    },
+    resetSettings: () => {
+      return ipcRenderer.invoke('reset-shortcut-settings')
+    },
+    getDefaultShortcuts: () => {
+      return ipcRenderer.invoke('get-default-shortcuts')
+    },
+    updateShortcuts: () => {
+      return ipcRenderer.invoke('update-shortcuts')
+    }
   }
 })

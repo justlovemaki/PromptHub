@@ -197,8 +197,53 @@ export interface TagClassification {
 }
 
 export interface TagsConfig {
-  prompt_tags_classification: {
-    scenario_tags: TagClassification;
-    intent_tags: TagClassification;
-  };
-}
+   prompt_tags_classification: {
+     scenario_tags: TagClassification;
+     intent_tags: TagClassification;
+   };
+ }
+
+// 快捷键配置类型
+export interface ShortcutConfig {
+   id: string;
+   name: string;
+   key: string;
+   description: string;
+   defaultKey: string;
+   action: string;
+ }
+
+// 快捷键配置映射类型
+export interface ShortcutsConfig {
+   [key: string]: ShortcutConfig;
+ }
+
+// 用户快捷键设置类型
+export interface UserShortcutSettings {
+   shortcuts: {
+     [action: string]: string; // action -> key combination
+   };
+ }
+
+// 支持的快捷键动作类型
+export type ShortcutAction = 'openPanel' | 'quickSaveSelection';
+
+// 默认快捷键配置
+export const DEFAULT_SHORTCUTS: ShortcutsConfig = {
+   openPanel: {
+     id: 'openPanel',
+     name: '打开面板',
+     key: 'openPanel',
+     description: '打开/关闭命令面板',
+     defaultKey: 'CmdOrCtrl+Alt+O',
+     action: 'openPanel'
+   },
+   quickSaveSelection: {
+     id: 'quickSaveSelection',
+     name: '快速保存选中文案',
+     key: 'quickSaveSelection',
+     description: '快速保存选中的文本为提示词',
+     defaultKey: 'CmdOrCtrl+Alt+P',
+     action: 'quickSaveSelection'
+   }
+ };

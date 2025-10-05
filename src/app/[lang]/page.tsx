@@ -218,11 +218,14 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
 
             {/* 桌面端导航 */}
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="#features" className="hover:text-purple-400 transition-colors">
+              <Link href="#management" className="hover:text-purple-400 transition-colors">
                 {t('nav.features')}
               </Link>
               <Link href="#pricing" className="hover:text-purple-400 transition-colors">
                 {t('nav.pricing')}
+              </Link>
+              <Link href={`/${params.lang}/download`} className="hover:text-purple-400 transition-colors">
+                {t('nav.download')}
               </Link>
               <LanguageSwitcher lang={params.lang} textClassName="text-white" />
               <LoginButton lng={params.lang} textClassName="text-white" />
@@ -266,6 +269,13 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {t('nav.pricing')}
+                  </Link>
+                  <Link
+                    href={`/${params.lang}/download`}
+                    className="hover:text-purple-400 transition-colors py-2 px-4 rounded-lg hover:bg-gray-800/50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('nav.download')}
                   </Link>
                   <div className="flex flex-col space-y-3 py-2">
                     <LanguageSwitcher lang={params.lang} textClassName="text-white" />

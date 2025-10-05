@@ -156,15 +156,11 @@
     "description": "First usage example"
   },
   "usageExample2": {
-    "message": "2. ショートカットキー Ctrl+Alt+O (Windows) または Cmd+Alt+O (Mac) を使用してパネルをすばやく開きます。",
-    "description": "Second usage example"
-  },
-  "usageExample3": {
-    "message": "3. プロンプトで {{variable}} 構文を使用して変数を追加し、プロンプトをより柔軟にします。",
+    "message": "2. プロンプトで {{variable}} 構文を使用して変数を追加し、プロンプトをより柔軟にします。",
     "description": "Third usage example"
   },
-  "usageExample4": {
-    "message": "4. タグを使用してプロンプトを分類・管理し、検索と使用を容易にします。",
+  "usageExample3": {
+    "message": "3. タグを使用してプロンプトを分類・管理し、検索と使用を容易にします。",
     "description": "Fourth usage example"
   },
   "keyboardShortcuts": {
@@ -266,5 +262,125 @@
   "noTextSelected": {
     "message": "テキストが選択されていません",
     "description": "Error message when no text is selected"
+  },
+  "settingsTab": {
+    "message": "設定",
+    "description": "Label for settings tab"
+  },
+  "keyboardShortcutsSettings": {
+    "message": "キーボードショートカット設定",
+    "description": "Title for keyboard shortcuts settings section"
+  },
+  "editShortcut": {
+    "message": "編集",
+    "description": "Button text for editing shortcut"
+  },
+  "resetToDefault": {
+    "message": "デフォルトにリセット",
+    "description": "Button text for resetting shortcuts to default"
+  },
+  "shortcutSettingsHint": {
+    "message": "カスタムショートカットは保存後に有効になります。",
+    "description": "Hint text for shortcut settings"
+  },
+  "currentShortcutsPreview": {
+    "message": "現在のショートカットプレビュー",
+    "description": "Title for current shortcuts preview section"
+  },
+  "currentShortcutsInfo": {
+    "message": "これらのショートカットをカスタマイズするには、上記の",
+    "description": "First part of current shortcuts info message"
+  },
+  "currentShortcutsInfo2": {
+    "message": "タブに切り替えて変更してください。",
+    "description": "Second part of current shortcuts info message"
+  },
+  "recordingShortcut": {
+    "message": "ショートカット録画中...",
+    "description": "Text shown when recording a shortcut"
+  },
+  "pressKeysToRecord": {
+    "message": "目的のキーの組み合わせを押してください",
+    "description": "Instruction text for recording shortcut"
+  },
+  "recordingCancelled": {
+    "message": "録画がキャンセルされました",
+    "description": "Message when shortcut recording is cancelled"
+  },
+  "shortcutRecorded": {
+    "message": "ショートカットが録画されました",
+    "description": "Message when shortcut is successfully recorded"
+  },
+  "invalidShortcut": {
+    "message": "無効なショートカット組み合わせです",
+    "description": "Error message for invalid shortcut"
+  },
+  "shortcutConflict": {
+    "message": "ショートカットが既存のショートカットと競合します",
+    "description": "Error message for shortcut conflict"
+  },
+  "startRecording": {
+    "message": "録画を開始",
+    "description": "Button text to start recording shortcut"
+  },
+  "cancelRecording": {
+    "message": "キャンセル",
+    "description": "Button text to cancel recording"
+  },
+  "saveShortcut": {
+    "message": "保存",
+    "description": "Button text to save recorded shortcut"
+  },
+  "shortcutInstructions": {
+    "message": "最大3つのキーまで同時押しできます (例: Ctrl+Alt+X)",
+    "description": "Instructions for recording shortcuts with max 3 keys"
+  },
+  "maxThreeKeys": {
+    "message": "最大3つのキーまで対応",
+    "description": "Message indicating max 3 keys limit"
+  },
+  "recordingStatus": {
+    "message": "録画モードがアクティブです",
+    "description": "Status message when recording is active"
+  },
+  "keysDetected": {
+    "message": "キーが検出されました",
+    "description": "Label for detected keys count"
+  },
+  "pressDesiredKeys": {
+    "message": "目的のキーの組み合わせを押してください",
+    "description": "Instruction to press keys"
+  },
+  "sameAsOpenPanel": {
+    "message": "パネルを開くと同じ",
+    "description": "Text indicating shortcut is same as open panel"
+  },
+  "shortcutKeysCount": {
+    "message": "キー数",
+    "description": "Label for keys count display"
+  },
+  "maxKeysAllowed": {
+    "message": "最大3キー",
+    "description": "Maximum keys allowed message"
+  },
+  "recordingModeActive": {
+    "message": "録画モードがアクティブです",
+    "description": "Message indicating recording mode is active"
+  },
+  "readyToRecord": {
+    "message": "ショートカットを録画する準備ができました",
+    "description": "Message when ready to record"
+  },
+  "loadingDataFailed": {
+    "message": "データの読み込みに失敗しました",
+    "description": "Error message when loading data fails"
+  },
+  "notSet": {
+    "message": "未設定",
+    "description": "Text indicating something is not set"
+  },
+  "openWebApp": {
+    "message": "ウェブアプリを開く",
+    "description": "Menu item for opening the web application"
   }
 }

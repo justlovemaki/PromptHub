@@ -156,15 +156,11 @@
     "description": "First usage example"
   },
   "usageExample2": {
-    "message": "2. Use Ctrl+Alt+O (Windows) or Cmd+Alt+O (Mac) to quickly open the panel.",
-    "description": "Second usage example"
-  },
-  "usageExample3": {
-    "message": "3. Use {{variable}} syntax in prompts to add variables, making prompts more flexible.",
+    "message": "2. Use {{variable}} syntax in prompts to add variables, making prompts more flexible.",
     "description": "Third usage example"
   },
-  "usageExample4": {
-    "message": "4. Use tags to categorize and manage prompts for easier searching and use.",
+  "usageExample3": {
+    "message": "3. Use tags to categorize and manage prompts for easier searching and use.",
     "description": "Fourth usage example"
   },
   "keyboardShortcuts": {
@@ -266,5 +262,125 @@
   "noTextSelected": {
     "message": "No text selected",
     "description": "Error message when no text is selected"
+  },
+  "settingsTab": {
+    "message": "Settings",
+    "description": "Label for settings tab"
+  },
+  "keyboardShortcutsSettings": {
+    "message": "Keyboard Shortcuts Settings",
+    "description": "Title for keyboard shortcuts settings section"
+  },
+  "editShortcut": {
+    "message": "Edit",
+    "description": "Button text for editing shortcut"
+  },
+  "resetToDefault": {
+    "message": "Reset to Default",
+    "description": "Button text for resetting shortcuts to default"
+  },
+  "shortcutSettingsHint": {
+    "message": "Custom shortcuts will be applied after saving.",
+    "description": "Hint text for shortcut settings"
+  },
+  "currentShortcutsPreview": {
+    "message": "Current Shortcuts Preview",
+    "description": "Title for current shortcuts preview section"
+  },
+  "currentShortcutsInfo": {
+    "message": "To customize these shortcuts, switch to the",
+    "description": "First part of current shortcuts info message"
+  },
+  "currentShortcutsInfo2": {
+    "message": "tab above to modify them.",
+    "description": "Second part of current shortcuts info message"
+  },
+  "recordingShortcut": {
+    "message": "Recording shortcut...",
+    "description": "Text shown when recording a shortcut"
+  },
+  "pressKeysToRecord": {
+    "message": "Press your desired key combination",
+    "description": "Instruction text for recording shortcut"
+  },
+  "recordingCancelled": {
+    "message": "Recording cancelled",
+    "description": "Message when shortcut recording is cancelled"
+  },
+  "shortcutRecorded": {
+    "message": "Shortcut recorded",
+    "description": "Message when shortcut is successfully recorded"
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut combination",
+    "description": "Error message for invalid shortcut"
+  },
+  "shortcutConflict": {
+    "message": "Shortcut conflicts with existing shortcuts",
+    "description": "Error message for shortcut conflict"
+  },
+  "startRecording": {
+    "message": "Click to record",
+    "description": "Button text to start recording shortcut"
+  },
+  "cancelRecording": {
+    "message": "Cancel",
+    "description": "Button text to cancel recording"
+  },
+  "saveShortcut": {
+    "message": "Save",
+    "description": "Button text to save recorded shortcut"
+  },
+  "shortcutInstructions": {
+    "message": "Press up to 3 keys (e.g., Ctrl+Alt+X)",
+    "description": "Instructions for recording shortcuts with max 3 keys"
+  },
+  "maxThreeKeys": {
+    "message": "Maximum 3 keys supported",
+    "description": "Message indicating max 3 keys limit"
+  },
+  "recordingStatus": {
+    "message": "Recording mode active",
+    "description": "Status message when recording is active"
+  },
+  "keysDetected": {
+    "message": "Keys detected",
+    "description": "Label for detected keys count"
+  },
+  "pressDesiredKeys": {
+    "message": "Press your desired key combination now",
+    "description": "Instruction to press keys"
+  },
+  "sameAsOpenPanel": {
+    "message": "Same as Open Panel",
+    "description": "Text indicating shortcut is same as open panel"
+  },
+  "shortcutKeysCount": {
+    "message": "Keys",
+    "description": "Label for keys count display"
+  },
+  "maxKeysAllowed": {
+    "message": "Max 3 keys",
+    "description": "Maximum keys allowed message"
+  },
+  "recordingModeActive": {
+    "message": "Recording mode is active",
+    "description": "Message indicating recording mode is active"
+  },
+  "readyToRecord": {
+    "message": "Ready to record shortcut",
+    "description": "Message when ready to record"
+  },
+  "loadingDataFailed": {
+    "message": "Failed to load data",
+    "description": "Error message when loading data fails"
+  },
+  "notSet": {
+    "message": "Not set",
+    "description": "Text indicating something is not set"
+  },
+  "openWebApp": {
+    "message": "Open Web App",
+    "description": "Menu item for opening the web application"
   }
 }

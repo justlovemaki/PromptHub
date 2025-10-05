@@ -1,0 +1,20 @@
+{
+  "title": "Download",
+  "description": "Download our application for your platform and start using our powerful tools to boost your productivity.",
+  "platformDownloadsTitle": "Platform Downloads",
+  "windowsDescription": "Download for Windows 10 or later",
+  "macDescription": "Download for macOS 10.15 or later",
+  "linuxDescription": "Download for popular Linux distributions",
+  "windowsDownloadUrl": "#",
+  "macDownloadUrl": "#",
+  "linuxDownloadUrl": "#",
+  "downloadButton": "Download",
+  "chromeExtensionTitle": "Chrome Extension",
+  "chromeExtensionName": "Prompt Manager Extension",
+  "chromeExtensionDescription": "Enhance your browsing experience with our Chrome extension that provides quick access to all your prompts.",
+  "chromeExtensionUrl": "https://chromewebstore.google.com/detail/prompthub/agfndihommcfegdgglfgepoeecakllfn",
+  "installChromeExtensionButton": "Install Chrome Extension",
+  "mcpExamplesTitle": "MCP Configuration Example",
+  "mcpExampleConfig": "Configuration example for MCP integration:",
+  "mcpDocumentationNote": "For more information about MCP commands, please refer to our documentation."
+}

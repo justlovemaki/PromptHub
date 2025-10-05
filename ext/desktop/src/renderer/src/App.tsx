@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './components/ui';
 import PromptCard from './components/PromptCard';
-import type { Prompt, UserStats, UserInfo, PromptTag } from './types/types';
+import type { Prompt, UserStats, UserInfo, PromptTag, ShortcutConfig, ShortcutsConfig, UserShortcutSettings, ShortcutAction, DEFAULT_SHORTCUTS } from './types/types';
 import { API_CONFIG, getCurrentLanguageBaseUrl} from './config';
 import { findTagByKey } from './utils/tags';
 import { initI18n, t, getCurrentLanguage, setLanguage, getLanguageDisplayName, SUPPORTED_LANGUAGES, type SupportedLanguage } from './utils/i18n';
 import { fetchProxy } from './utils/api';
 
 // 使用 preload 暴露的 API
-const { ipcRenderer, shell } = (window as unknown as { electron: { ipcRenderer: any; shell: any } }).electron;
+const { ipcRenderer, shell, shortcuts } = (window as unknown as { electron: { ipcRenderer: any; shell: any; shortcuts: any } }).electron;
 
 const CommandPalette: React.FC = () => {
   const [currentLang, setCurrentLang] = useState<SupportedLanguage>('en');
@@ -40,6 +40,10 @@ const CommandPalette: React.FC = () => {
   const [tokenInput, setTokenInput] = useState('');
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [userShortcuts, setUserShortcuts] = useState<{ [action: string]: string }>({});
+  const [defaultShortcuts, setDefaultShortcuts] = useState<ShortcutsConfig>({});
+  const [recordingShortcut, setRecordingShortcut] = useState<string | null>(null);
+  const [tempShortcutKeys, setTempShortcutKeys] = useState<string[]>([]);
   
   const observer = useRef<IntersectionObserver | null>(null);
   const lastPromptRef = useRef<HTMLDivElement>(null);
@@ -67,6 +71,12 @@ const CommandPalette: React.FC = () => {
     shell.openExternal(tokenUrl);
   };
 
+  // 打开网页应用
+  const openWebApp = () => {
+    const baseUrl = getCurrentLanguageBaseUrl(currentLang);
+    shell.openExternal(baseUrl);
+  };
+
   // 切换置顶状态
   const handleToggleAlwaysOnTop = async () => {
     const newState = await ipcRenderer.invoke('toggle-always-on-top');
@@ -76,6 +86,7 @@ const CommandPalette: React.FC = () => {
   // 检查是否存在认证Token
   useEffect(() => {
     loadAuthToken();
+    loadShortcutSettings();
   }, []);
 
   // 监听快速保存结果
@@ -118,6 +129,26 @@ const CommandPalette: React.FC = () => {
     } catch (error) {
       console.error('检查认证Token失败:', error);
       setShowTokenPage(true);
+    }
+  };
+
+  // 加载快捷键设置
+  const loadShortcutSettings = async () => {
+    try {
+      const settings = await shortcuts.getSettings();
+      const defaultShortcuts = await shortcuts.getDefaultShortcuts();
+
+      setUserShortcuts(settings.shortcuts);
+      setDefaultShortcuts(defaultShortcuts);
+    } catch (error) {
+      console.error('加载快捷键设置失败:', error);
+      // 使用默认设置
+      const defaultShortcuts = await shortcuts.getDefaultShortcuts();
+      setUserShortcuts({
+        openPanel: defaultShortcuts.openPanel.defaultKey,
+        quickSaveSelection: defaultShortcuts.quickSaveSelection.defaultKey
+      });
+      setDefaultShortcuts(defaultShortcuts);
     }
   };
 
@@ -233,7 +264,7 @@ const CommandPalette: React.FC = () => {
       setError(null);
     } catch (err: any) {
       if (!showTokenPage) { // 只有在没有显示token页面时才设置一般错误
-        setError('加载数据失败');
+        setError(t('loadingDataFailed'));
       }
       console.error('加载数据时出错:', err);
     } finally {
@@ -423,6 +454,199 @@ const CommandPalette: React.FC = () => {
     setShowTokenPage(true);
   };
 
+  // 保存快捷键设置
+  const saveShortcutSettings = async (newShortcuts: { [action: string]: string }) => {
+    try {
+      await shortcuts.setSettings({ shortcuts: newShortcuts });
+      setUserShortcuts(newShortcuts);
+      // 重新注册快捷键
+      await shortcuts.updateShortcuts();
+      return true;
+    } catch (error) {
+      console.error('保存快捷键设置失败:', error);
+      return false;
+    }
+  };
+
+  // 重置快捷键设置
+  const resetShortcutSettings = async () => {
+    try {
+      const defaultSettings = await shortcuts.resetSettings();
+      setUserShortcuts(defaultSettings.shortcuts);
+      await shortcuts.updateShortcuts();
+      return true;
+    } catch (error) {
+      console.error('重置快捷键设置失败:', error);
+      return false;
+    }
+  };
+
+  // 键盘事件监听器 - 支持最多三个键组合
+  useEffect(() => {
+    if (!recordingShortcut) return;
+
+    const pressedKeys = new Set<string>();
+    let finalShortcut: string[] = [];
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // 阻止默认行为和事件冒泡
+      event.preventDefault();
+      event.stopPropagation();
+
+      // 如果已经处理过这个按键，忽略后续事件
+      if (pressedKeys.has(event.key)) return;
+      pressedKeys.add(event.key);
+
+      const keys: string[] = [];
+
+      // 检测修饰键 - 按优先级排序
+      if (event.ctrlKey || event.metaKey) {
+        keys.push(event.ctrlKey && event.metaKey ? 'CmdOrCtrl' : (event.ctrlKey ? 'Ctrl' : 'Cmd'));
+      }
+      if (event.altKey) keys.push('Alt');
+      if (event.shiftKey) keys.push('Shift');
+
+      // 添加主键 - 排除修饰键和功能键
+      const modifierKeys = ['Control', 'Alt', 'Shift', 'Meta'];
+      if (event.key && !modifierKeys.includes(event.key)) {
+        // 转换特殊键名
+        const keyMap: { [key: string]: string } = {
+          ' ': 'Space',
+          '+': 'Plus',
+          'ArrowUp': 'Up',
+          'ArrowDown': 'Down',
+          'ArrowLeft': 'Left',
+          'ArrowRight': 'Right'
+        };
+
+        const mappedKey = keyMap[event.key] || event.key.toUpperCase();
+
+        // 只添加不在当前组合中的键（避免重复）
+        if (!keys.includes(mappedKey)) {
+          keys.push(mappedKey);
+        }
+      }
+
+      // 更新显示的快捷键组合（最多支持3个键）
+      if (keys.length > 0 && keys.length <= 3) {
+        finalShortcut = keys;
+        setTempShortcutKeys([...keys]);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // 移除释放的键
+      pressedKeys.delete(event.key);
+
+      // 如果所有键都释放了，认为组合完成
+      if (pressedKeys.size === 0 && finalShortcut.length > 0) {
+        setTempShortcutKeys([...finalShortcut]);
+      }
+    };
+
+    // 添加全局事件监听器
+    document.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keyup', handleKeyUp, true);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keyup', handleKeyUp, true);
+      pressedKeys.clear();
+    };
+  }, [recordingShortcut]);
+
+  // 格式化快捷键组合
+  const formatShortcutKeys = (keys: string[]): string => {
+    if (keys.length === 0) return '';
+    return keys.join('+');
+  };
+
+  // 检查快捷键冲突
+  const checkShortcutConflict = (shortcut: string, excludeAction?: string): boolean => {
+    for (const [action, existingShortcut] of Object.entries(userShortcuts)) {
+      if (action === excludeAction) continue;
+      if (existingShortcut === shortcut) {
+        return true; // 存在冲突
+      }
+    }
+    return false;
+  };
+
+  // 开始录制快捷键
+  const startRecordingShortcut = (action: string) => {
+    setRecordingShortcut(action);
+    setTempShortcutKeys([]);
+  };
+
+  // 取消录制快捷键
+  const cancelRecordingShortcut = () => {
+    setRecordingShortcut(null);
+    setTempShortcutKeys([]);
+  };
+
+  // 保存录制的快捷键
+  const saveRecordedShortcut = async () => {
+    if (!recordingShortcut || tempShortcutKeys.length === 0) {
+      setError(t('invalidShortcut'));
+      return;
+    }
+
+    const formattedShortcut = formatShortcutKeys(tempShortcutKeys);
+
+    // 验证快捷键格式
+    if (formattedShortcut === '') {
+      setError(t('invalidShortcut'));
+      return;
+    }
+
+    // 检查冲突
+    if (checkShortcutConflict(formattedShortcut, recordingShortcut)) {
+      setError(t('shortcutConflict'));
+      return;
+    }
+
+    try {
+      const newShortcuts = {
+        ...userShortcuts,
+        [recordingShortcut]: formattedShortcut
+      };
+
+      const success = await saveShortcutSettings(newShortcuts);
+      if (success) {
+        setError(t('shortcutRecorded'));
+        // 清除错误状态
+        setTimeout(() => setError(null), 2000);
+      } else {
+        setError(t('invalidShortcut'));
+      }
+    } catch (error) {
+      setError(t('invalidShortcut'));
+      console.error('保存快捷键失败:', error);
+    }
+
+    cancelRecordingShortcut();
+  };
+
+  // 键盘事件处理（用于保存录制结果）
+  useEffect(() => {
+    if (!recordingShortcut) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        cancelRecordingShortcut();
+        setError(t('recordingCancelled'));
+      } else if (event.key === 'Enter') {
+        saveRecordedShortcut();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [recordingShortcut, tempShortcutKeys]);
+
   // 过滤后的提示词列表
   const displayedPrompts = prompts;
 
@@ -482,6 +706,136 @@ const CommandPalette: React.FC = () => {
   // 主界面
   return (
     <div className="app-container">
+      {/* 快捷键录制遮罩 */}
+      {recordingShortcut && (
+        <>
+          {/* 背景遮罩 - 更明显的模糊效果 */}
+          <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-999 pointer-events-auto">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-w-md w-full mx-4">
+              {/* 顶部状态栏 */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-main px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium">●</span>
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                      </div>
+                      <span className="text-sm font-medium">REC</span>
+                    </div>
+                    <h3 className="text-lg font-semibold">{t('recordingShortcut')}</h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* 主要内容区域 */}
+              <div className="p-6 z-1000">
+                {/* 快捷键显示区域 */}
+                <div className="text-center mb-6">
+                  <div className="mb-6">
+                    <div className={`text-2xl font-mono p-5 rounded-xl mb-2 transition-all duration-300 relative overflow-hidden ${
+                      tempShortcutKeys.length > 0
+                        ? 'bg-gradient-to-br from-blue-50 via-white to-cyan-50 border-2 border-blue-300 text-blue-800 shadow-inner'
+                        : 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 text-gray-400'
+                    }`}>
+                      {/* 呼吸灯效果背景 */}
+                      {tempShortcutKeys.length === 0 && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-cyan-400 opacity-5 animate-pulse"></div>
+                      )}
+
+                      <div className="flex items-center justify-center space-x-1 relative z-10">
+                        {formatShortcutKeys(tempShortcutKeys) || (
+                          <div className="flex flex-col items-center space-y-2">
+                            <span className="text-gray-400">{t('pressDesiredKeys')}</span>
+                            {recordingShortcut && (
+                              <div className="flex space-x-1">
+                                <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 录制状态指示器 */}
+                      {recordingShortcut && tempShortcutKeys.length > 0 && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg"></div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 按键数量指示器 */}
+                    <div className="flex justify-center items-center space-x-3 text-sm">
+                      <span className="text-gray-600">{t('shortcutKeysCount')}:</span>
+                      <div className="flex items-center space-x-3 bg-gray-100 rounded-full px-4 py-2">
+                        <div className="flex items-center space-x-1">
+                          {[0, 1, 2].map((index) => (
+                            <div
+                              key={index}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                index < tempShortcutKeys.length
+                                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 scale-110 shadow-md'
+                                  : index === tempShortcutKeys.length && recordingShortcut && tempShortcutKeys.length < 3
+                                  ? 'bg-gradient-to-r from-blue-200 to-blue-300 animate-pulse'
+                                  : 'bg-gray-300'
+                              }`}
+                            ></div>
+                          ))}
+                        </div>
+                        <span className="text-blue-600 font-semibold text-sm ml-1">
+                          {tempShortcutKeys.length}/3
+                        </span>
+                      </div>
+                      {tempShortcutKeys.length > 0 && (
+                        <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">
+                          ✓ {t('keysDetected')}
+                        </span>
+                      )}
+                      {tempShortcutKeys.length === 0 && recordingShortcut && (
+                        <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-full">
+                          {t('readyToRecord')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-center">
+                    <p className="text-xs text-gray-500">{t('shortcutInstructions')}</p>
+                  </div>
+                </div>
+
+                {/* 按钮区域 */}
+                <div className="space-y-3">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={saveRecordedShortcut}
+                      disabled={tempShortcutKeys.length === 0}
+                      className={`flex-1 py-3 px-4 rounded-xl transition-all border-card duration-200 shadow-lg hover:shadow-xl transform font-medium flex items-center justify-center space-x-2 ${
+                        tempShortcutKeys.length > 0
+                          ? 'text-black'
+                          : 'text-gray-500'
+                      }`}
+                    >
+                      <span>{t('saveShortcut')}</span>
+                    </button>
+                    <button
+                      onClick={cancelRecordingShortcut}
+                      className="flex-1  text-white py-3 px-4 rounded-xl save-token-btn border-none border-transparent hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl font-medium flex items-center justify-center space-x-2"
+                    >
+                      <span>{t('cancelRecording')}</span>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       {/* 标题栏 */}
       <div className="title-bar">
         <div className="title-bar-draggable">
@@ -514,7 +868,7 @@ const CommandPalette: React.FC = () => {
               title={t('switchLanguage')}
             >
               <span className="text-sm font-medium text-gray-700">
-                {getCurrentLanguage() === 'zh-CN' ? '中文' : getCurrentLanguage() === 'ja' ? '日本語' : 'EN'}
+                {getLanguageDisplayName(currentLang)}
               </span>
             </button>
             
@@ -570,6 +924,12 @@ const CommandPalette: React.FC = () => {
                 </div>
               </div>
               <button
+                onClick={openWebApp}
+                className="block w-full text-left px-4 py-3 text-sm text-gray-700 border-none border-transparent hover:bg-gray-50 transition-colors duration-150"
+              >
+                {t('openWebApp')}
+              </button>
+              <button
                 onClick={() => {
                   setToken(null);
                   setShowTokenPage(true);
@@ -593,9 +953,9 @@ const CommandPalette: React.FC = () => {
       {/* Tab Navigation */}
       <div className="flex  bg-white px-4 pt-2 pb-1 mb-2">
         <button
-          className={`px-4 py-2 font-medium text-sm rounded-t-lg border-none border-transparent transition-colors duration-200 ${
+          className={`px-4 py-2 font-medium text-sm rounded-t-lg bg-white border-none border-transparent transition-colors duration-200 ${
             activeTab === 'prompts'
-              ? 'text-main border-b-2 border-main bg-white'
+              ? 'text-main border-b-2 border-main'
               : 'text-gray-600 hover:text-gray-900'
           }`}
           onClick={() => setActiveTab('prompts')}
@@ -603,9 +963,9 @@ const CommandPalette: React.FC = () => {
           {t('promptsTab')}
         </button>
         <button
-          className={`px-4 py-2 font-medium text-sm rounded-t-lg border-none border-transparent transition-colors duration-200 ${
+          className={`px-4 py-2 font-medium text-sm rounded-t-lg bg-white border-none border-transparent transition-colors duration-200 ${
             activeTab === 'usage'
-              ? 'text-main border-b-2 border-main bg-white'
+              ? 'text-main border-b-2 border-main'
               : 'text-gray-600 hover:text-gray-900'
           }`}
           onClick={() => setActiveTab('usage')}
@@ -761,40 +1121,71 @@ const CommandPalette: React.FC = () => {
         )}
         
         {activeTab === 'usage' && (
-          <div className="p-4 space-y-4">
-            <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('usageExamples')}</h3>
-              <div className="space-y-3 text-gray-700">
-                <p>{t('usageExample1')}</p>
-                <p>{t('usageExample2')}</p>
-                <p>{t('usageExample3')}</p>
-                <p>{t('usageExample4')}</p>
-              </div>
-            </Card>
-            
-            <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('keyboardShortcuts')}</h3>
-              <div className="grid grid-cols-1 gap-2 text-gray-700">
-                <div className="flex justify-between items-center py-2 ">
-                  <span>{t('openPanel')}</span>
-                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Alt+O</span>
-                </div>
-                <div className="flex justify-between items-center py-2 ">
-                  <span>{t('closePanel')}</span>
-                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Alt+O</span>
-                </div>
-                <div className="flex justify-between items-center py-2 ">
-                  <span>{t('quickSaveSelection')}</span>
-                  <span className=" px-2 py-1 rounded text-sm font-mono">Ctrl+Alt+P</span>
-                </div>
-                <div className="flex justify-between items-center py-2 ">
-                  <span>{t('navigateUpDown')}</span>
-                  <span className=" px-2 py-1 rounded text-sm font-mono">↑ ↓</span>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
+           <div className={`p-4 space-y-4 ${recordingShortcut ? 'pointer-events-none opacity-75' : ''}`}>
+             <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+               <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('usageExamples')}</h3>
+               <div className="space-y-3 text-gray-700">
+                 <p>{t('usageExample1')}</p>
+                 <p>{t('usageExample2')}</p>
+                 <p>{t('usageExample3')}</p>
+               </div>
+             </Card>
+
+             <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+               <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('keyboardShortcutsSettings')}</h3>
+
+               <div className="space-y-4">
+                 {Object.entries(defaultShortcuts).map(([key, config]) => (
+                   <div key={key} className="flex items-center justify-between py-3 border-b border-gray-100">
+                     <div className="flex-1">
+                       <div className="font-medium text-gray-900">{t(config.name)}</div>
+                       <div className="text-sm text-gray-500">{config.description}</div>
+                     </div>
+                     <div className="flex items-center space-x-2">
+                        <span className="px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg text-sm font-mono min-w-[120px] text-center text-gray-700">
+                          {userShortcuts[config.action] || config.defaultKey}
+                        </span>
+                        <button
+                          onClick={() => startRecordingShortcut(config.action)}
+                          className="px-4 py-2 text-sm  text-white rounded-lg save-token-btn border-none border-transparent transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium"
+                        >
+                          {t('startRecording')}
+                        </button>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+
+               <div className="mt-6 pt-4 border-t border-gray-200 flex justify-center">
+                 <button
+                   onClick={resetShortcutSettings}
+                   className="px-4 py-2 text-sm text-gray-600 border-none border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200"
+                 >
+                   {t('resetToDefault')}
+                 </button>
+               </div>
+             </Card>
+
+             <Card className="p-5 rounded-xl  border  transition-transform duration-200 hover:shadow-md">
+               <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('currentShortcutsPreview')}</h3>
+               <div className="grid grid-cols-1 gap-2 text-gray-700">
+                 <div className="flex justify-between items-center py-2 ">
+                   <span>{t('openPanel')}</span>
+                   <span className=" px-2 py-1 rounded text-sm font-mono">{userShortcuts.openPanel || t('notSet')}</span>
+                 </div>
+                 <div className="flex justify-between items-center py-2 ">
+                   <span>{t('closePanel')}</span>
+                   <span className=" px-2 py-1 rounded text-sm font-mono">{userShortcuts.closePanel || t('notSet')}</span>
+                 </div>
+                 <div className="flex justify-between items-center py-2 ">
+                   <span>{t('quickSaveSelection')}</span>
+                   <span className=" px-2 py-1 rounded text-sm font-mono">{userShortcuts.quickSaveSelection || t('notSet')}</span>
+                 </div>
+               </div>
+             </Card>
+           </div>
+         )}
+
       </div>
     </div>
   );

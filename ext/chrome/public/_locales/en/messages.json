@@ -274,5 +274,17 @@
   "quickSaveSelection": {
     "message": "Quick Save Selected Text",
     "description": "Quick save selection shortcut description"
+  },
+  "keyboardShortcutsSettings": {
+    "message": "Keyboard Shortcuts Settings",
+    "description": "Title for keyboard shortcuts settings section"
+  },
+  "shortcutChangeNotice": {
+    "message": "Note: To change shortcuts, you need to do it in the browser extension settings",
+    "description": "Notice about changing shortcuts in browser extension settings"
+  },
+  "howToChangeShortcut": {
+    "message": "Method: Click the extension icon in the browser toolbar → Manage Extensions → Keyboard Shortcuts → Set new shortcuts",
+    "description": "Instructions on how to change shortcuts in the browser"
   }
 }

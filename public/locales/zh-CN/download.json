@@ -1,0 +1,20 @@
+{
+  "title": "下载",
+  "description": "为您的平台下载我们的应用程序，开始使用我们强大的工具来提高您的工作效率。",
+  "platformDownloadsTitle": "平台下载",
+  "windowsDescription": "下载适用于 Windows 10 或更高版本",
+  "macDescription": "下载适用于 macOS 10.15 或更高版本",
+  "linuxDescription": "下载适用于流行的 Linux 发行版",
+  "windowsDownloadUrl": "#",
+  "macDownloadUrl": "#",
+  "linuxDownloadUrl": "#",
+  "downloadButton": "下载",
+  "chromeExtensionTitle": "Chrome 扩展",
+  "chromeExtensionName": "Prompt Manager 扩展",
+  "chromeExtensionDescription": "通过我们的 Chrome 扩展增强您的浏览体验，快速访问您所有的提示。",
+  "chromeExtensionUrl": "https://chromewebstore.google.com/detail/prompthub/agfndihommcfegdgglfgepoeecakllfn",
+  "installChromeExtensionButton": "安装 Chrome 扩展",
+  "mcpExamplesTitle": "MCP 配置示例",
+  "mcpExampleConfig": "MCP 集成配置示例：",
+  "mcpDocumentationNote": "有关 MCP 命令的更多信息，请参阅我们的文档。"
+}

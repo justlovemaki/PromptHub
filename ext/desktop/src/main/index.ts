@@ -5,7 +5,62 @@ import Store from 'electron-store';
 import fetch from 'node-fetch';
 import { getCurrentLanguageBaseUrl } from '../renderer/src/config';
 import { initI18n, t, getCurrentLanguage, SUPPORTED_LANGUAGES } from './i18n';
-import { writeLog, clearLog, getLogFilePath } from './logger';
+
+// 简单的日志记录器
+const writeLog = (message: string, level: string = 'INFO') => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${level}] ${message}`);
+};
+
+const clearLog = () => {
+  console.log('Log cleared');
+};
+
+const getLogFilePath = (): string => {
+  return path.join(app.getPath('userData'), 'desktop-app.log');
+};
+
+// 快捷键配置类型
+interface ShortcutConfig {
+  id: string;
+  name: string;
+  key: string;
+  description: string;
+  defaultKey: string;
+  action: string;
+}
+
+// 快捷键配置映射类型
+interface ShortcutsConfig {
+  [key: string]: ShortcutConfig;
+}
+
+// 用户快捷键设置类型
+interface UserShortcutSettings {
+  shortcuts: {
+    [action: string]: string;
+  };
+}
+
+// 默认快捷键配置
+const DEFAULT_SHORTCUTS: ShortcutsConfig = {
+  openPanel: {
+    id: 'openPanel',
+    name: '打开面板',
+    key: 'openPanel',
+    description: '打开/关闭命令面板',
+    defaultKey: 'CmdOrCtrl+Alt+O',
+    action: 'openPanel'
+  },
+  quickSaveSelection: {
+    id: 'quickSaveSelection',
+    name: '快速保存选中文案',
+    key: 'quickSaveSelection',
+    description: '快速保存选中的文本为提示词',
+    defaultKey: 'CmdOrCtrl+Alt+P',
+    action: 'quickSaveSelection'
+  }
+};
 
 // 获取资源路径
 function getResourcePath(relativePath: string): string {
@@ -21,7 +76,7 @@ let tray: any;
 let commandPaletteWindow: any;
 let lastMousePosition: { x: number; y: number } | null = null;
 const width= 400;
-const height = 960;
+const height = 1080;
 
 // 创建系统托盘
 function createTray() {
@@ -336,51 +391,79 @@ async function handleQuickSaveSelection(): Promise<void> {
   }
 }
 
-// 注册全局快捷键
-function registerGlobalShortcut() {
-  // 注册打开面板的快捷键
-  const ret = globalShortcut.register('CmdOrCtrl+Alt+O', async () => {
-    // 切换窗口显示/隐藏状态
-    if (commandPaletteWindow.isVisible()) {
-      commandPaletteWindow.hide();
-    } else {
-      // 保存当前鼠标位置（用于后续返回）
-      // try {
-      //   const currentMousePos = await mouse.getPosition();
-      //   lastMousePosition = { x: currentMousePos.x, y: currentMousePos.y };
-      //   console.log('[Main] 已保存鼠标位置:', lastMousePosition);
-      // } catch (error) {
-      //   console.error('[Main] 获取鼠标位置失败:', error);
-      // }
+// 处理打开面板快捷键
+async function handleOpenPanelShortcut(): Promise<void> {
+  console.log('[Main] 打开面板快捷键触发');
 
-      // 获取鼠标所在屏幕的尺寸
-      const mousePos = screen.getCursorScreenPoint();
-      const display = screen.getDisplayNearestPoint(mousePos);
+  // 切换窗口显示/隐藏状态
+  if (commandPaletteWindow.isVisible()) {
+    commandPaletteWindow.hide();
+  } else {
+    // 获取鼠标所在屏幕的尺寸
+    const mousePos = screen.getCursorScreenPoint();
+    const display = screen.getDisplayNearestPoint(mousePos);
 
-      // 计算窗口位置（屏幕中央）
-      const x = Math.floor(display.bounds.x + (display.bounds.width - width) / 2);
-      const y = Math.floor(display.bounds.y + (display.bounds.height - height) / 2);
+    // 计算窗口位置（屏幕中央）
+    const x = Math.floor(display.bounds.x + (display.bounds.width - width) / 2);
+    const y = Math.floor(display.bounds.y + (display.bounds.height - height) / 2);
 
-      commandPaletteWindow.setPosition(x, y);
-      commandPaletteWindow.setSize(width, height);
+    commandPaletteWindow.setPosition(x, y);
+    commandPaletteWindow.setSize(width, height);
 
-      // 显示并聚焦命令面板
-      commandPaletteWindow.show();
-      commandPaletteWindow.focus();
+    // 显示并聚焦命令面板
+    commandPaletteWindow.show();
+    commandPaletteWindow.focus();
+  }
+}
+
+// 处理快速保存选中文案快捷键
+async function handleQuickSaveShortcut(): Promise<void> {
+  console.log('[Main] 快速保存选中文案快捷键触发');
+  await handleQuickSaveSelection();
+}
+
+// 获取用户快捷键设置
+function getUserShortcutSettings(store: Store): UserShortcutSettings {
+  const stored = store.get('shortcutSettings');
+  if (stored && typeof stored === 'object') {
+    return stored as UserShortcutSettings;
+  }
+
+  // 返回默认设置
+  return {
+    shortcuts: {
+      openPanel: DEFAULT_SHORTCUTS.openPanel.defaultKey,
+      quickSaveSelection: DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey
     }
-  });
+  };
+}
 
-  if (!ret) {
-    console.log('全局快捷键注册失败');
+// 注册全局快捷键
+function registerGlobalShortcuts() {
+  const store = new Store();
+  const userSettings = getUserShortcutSettings(store);
+
+  // 注销所有现有快捷键
+  globalShortcut.unregisterAll();
+
+  // 注册打开面板的快捷键
+  const openPanelKey = userSettings.shortcuts.openPanel || DEFAULT_SHORTCUTS.openPanel.defaultKey;
+  const openPanelRet = globalShortcut.register(openPanelKey, handleOpenPanelShortcut);
+
+  if (!openPanelRet) {
+    console.log(`打开面板快捷键注册失败: ${openPanelKey}`);
+  } else {
+    console.log(`打开面板快捷键注册成功: ${openPanelKey}`);
   }
 
   // 注册快速保存选中文案的快捷键
-  const quickSaveRet = globalShortcut.register('CmdOrCtrl+Alt+P', async () => {
-    await handleQuickSaveSelection();
-  });
+  const quickSaveKey = userSettings.shortcuts.quickSaveSelection || DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey;
+  const quickSaveRet = globalShortcut.register(quickSaveKey, handleQuickSaveShortcut);
 
   if (!quickSaveRet) {
-    console.log('快速保存快捷键注册失败');
+    console.log(`快速保存快捷键注册失败: ${quickSaveKey}`);
+  } else {
+    console.log(`快速保存快捷键注册成功: ${quickSaveKey}`);
   }
 }
 
@@ -511,6 +594,52 @@ app.whenReady().then(() => {
     await shell.openPath(logDir);
   });
 
+  // 获取快捷键设置
+  ipcMain.handle('get-shortcut-settings', async () => {
+    const store = new Store();
+    return getUserShortcutSettings(store);
+  });
+
+  // 保存快捷键设置
+  ipcMain.handle('set-shortcut-settings', async (event: any, settings: UserShortcutSettings) => {
+    const store = new Store();
+    store.set('shortcutSettings', settings);
+    // 重新注册快捷键
+    registerGlobalShortcuts();
+
+    writeLog(`快捷键设置已更新: ${JSON.stringify(settings)}`);
+    return true;
+  });
+
+  // 重置快捷键设置到默认值
+  ipcMain.handle('reset-shortcut-settings', async () => {
+    const store = new Store();
+    const defaultSettings: UserShortcutSettings = {
+      shortcuts: {
+        openPanel: DEFAULT_SHORTCUTS.openPanel.defaultKey,
+        quickSaveSelection: DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey
+      }
+    };
+
+    store.set('shortcutSettings', defaultSettings);
+    // 重新注册快捷键
+    registerGlobalShortcuts();
+
+    writeLog('快捷键设置已重置为默认值');
+    return defaultSettings;
+  });
+
+  // 获取默认快捷键配置
+  ipcMain.handle('get-default-shortcuts', async () => {
+    return DEFAULT_SHORTCUTS;
+  });
+
+  // 更新快捷键绑定（在设置更改后调用）
+  ipcMain.handle('update-shortcuts', async () => {
+    registerGlobalShortcuts();
+    return true;
+  });
+
   // API 请求代理（避免 CORS 问题）
   ipcMain.handle('api-request', async (event: any, options: {
     url: string;
@@ -550,13 +679,13 @@ app.whenReady().then(() => {
   try {
     writeLog('Creating tray...');
     createTray();
-    
-    writeLog('Registering global shortcut...');
-    registerGlobalShortcut();
-    
+
     writeLog('Creating command palette window...');
     createCommandPaletteWindow();
-    
+
+    writeLog('Registering global shortcuts...');
+    registerGlobalShortcuts();
+
     writeLog('Application initialized successfully');
   } catch (error: any) {
     writeLog(`Failed to initialize application: ${error.message}\n${error.stack}`, 'ERROR');

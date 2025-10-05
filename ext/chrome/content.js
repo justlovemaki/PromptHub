@@ -12,6 +12,120 @@ if (chrome && chrome.runtime && chrome.runtime.onMessage) {
   });
 }
 
+// 监听输入框的键盘事件，捕获/p1指令
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeCommandListener);
+} else {
+  initializeCommandListener();
+}
+
+// 用于存储输入框的定时器，防止重复请求
+const inputTimers = new Map();
+
+function initializeCommandListener() {
+  // 监听输入框的输入事件
+  document.addEventListener('input', handleInputEvent, true);
+  // 监听表单提交事件，以便在某些网站上也能响应
+  document.addEventListener('keydown', handleKeyDownEvent, true);
+}
+
+function handleInputEvent(event) {
+  if (event.target && (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable)) {
+    const inputText = event.target.value || event.target.innerText || '';
+    // 清除之前的定时器
+    const targetId = event.target.id || event.target.name || event.target.tagName + event.target.className;
+    if (inputTimers.has(targetId)) {
+      clearTimeout(inputTimers.get(targetId));
+    }
+    // 设置新的定时器，等待200ms后再检查命令
+    const timer = setTimeout(() => {
+      checkForCommand(inputText, event.target);
+      inputTimers.delete(targetId);
+    }, 200);
+    inputTimers.set(targetId, timer);
+  }
+}
+
+function handleKeyDownEvent(event) {
+  if (event.key === 'Enter' && (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable)) {
+    const inputText = event.target.value || event.target.innerText || '';
+    // 清除之前的定时器
+    const targetId = event.target.id || event.target.name || event.target.tagName + event.target.className;
+    if (inputTimers.has(targetId)) {
+      clearTimeout(inputTimers.get(targetId));
+      inputTimers.delete(targetId);
+    }
+    // 立即检查命令，因为用户按了回车
+    checkForCommand(inputText, event.target);
+  }
+}
+
+function checkForCommand(inputText, targetElement) {
+  if (typeof inputText !== 'string') return;
+
+  // 匹配 /p<number> 格式的命令，例如 /p1, /p2, /p12 等，出现在文本末尾
+  const commandRegex = /\/p(\d+)$/;
+  const match = inputText.match(commandRegex);
+
+  if (match) {
+    const promptIndex = parseInt(match[1]) - 1; // 将数字转换为数组索引（从0开始）
+    console.log('Found command /p' + (promptIndex + 1) + ', index: ' + promptIndex);
+
+    // 停止输入事件，防止命令显示在输入框中
+    setTimeout(() => {
+      // 移除输入框中的命令
+      if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA') {
+        targetElement.value = inputText.replace(commandRegex, '');
+        // 触发input事件，以便页面能正确响应变化
+        targetElement.dispatchEvent(new Event('input', { bubbles: true }));
+      } else if (targetElement.isContentEditable) {
+        targetElement.innerText = inputText.replace(commandRegex, '');
+        // 触发input事件，以便页面能正确响应变化
+        targetElement.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      // 确保DOM更新后再获取提示词（此时已无输入延迟，直接执行）
+      setTimeout(() => {
+        // 向 background script 发送消息获取指定索引的提示词
+        if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
+          chrome.runtime.sendMessage({
+            action: 'getPromptByIndex',
+            index: promptIndex
+          }, (response) => {
+            if (response && response.success && response.content) {
+              console.log('Received prompt content for index ' + promptIndex + ':', response.content.substring(0, 50) + '...');
+              // 用获取到的内容填充当前输入框
+              if (targetElement.id) {
+                fillInputField('#' + targetElement.id, response.content);
+              } else if (targetElement.name) {
+                fillInputField('[name="' + targetElement.name + '"]', response.content);
+              } else {
+                // 如果没有id或name，尝试直接在当前元素填充
+                if (targetElement.isContentEditable) {
+                  targetElement.innerText = response.content;
+                } else {
+                  targetElement.value = response.content;
+                }
+                // 触发事件确保框架更新
+                targetElement.dispatchEvent(new Event('input', { bubbles: true }));
+                targetElement.dispatchEvent(new Event('change', { bubbles: true }));
+                const eventOptions = { bubbles: true, cancelable: true };
+                targetElement.dispatchEvent(new KeyboardEvent('keydown', eventOptions));
+                targetElement.dispatchEvent(new KeyboardEvent('keypress', eventOptions));
+                targetElement.dispatchEvent(new KeyboardEvent('keyup', eventOptions));
+                targetElement.focus();
+              }
+            } else {
+              console.log('No prompt found for index:', promptIndex, 'Response:', response);
+              // 在这里可以考虑显示错误信息或提示
+            }
+          });
+        }
+      }, 0);
+    }, 0);
+  }
+}
+
 
 // 处理消息的核心函数
 function handleIncomingMessage(message, sender, sendResponse) {

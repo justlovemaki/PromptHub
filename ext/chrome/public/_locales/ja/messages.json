@@ -274,5 +274,17 @@
   "quickSaveSelection": {
     "message": "選択したテキストをクイック保存",
     "description": "Quick save selection shortcut description"
+  },
+  "keyboardShortcutsSettings": {
+    "message": "キーボードショートカット設定",
+    "description": "Title for keyboard shortcuts settings section"
+  },
+  "shortcutChangeNotice": {
+    "message": "注：ショートカットを変更するには、ブラウザの拡張機能設定で行う必要があります",
+    "description": "Notice about changing shortcuts in browser extension settings"
+  },
+  "howToChangeShortcut": {
+    "message": "方法：ブラウザツールバーの拡張機能アイコンをクリック → 拡張機能を管理 → キーボードショートカット → 新しいショートカットを設定",
+    "description": "Instructions on how to change shortcuts in the browser"
   }
 }

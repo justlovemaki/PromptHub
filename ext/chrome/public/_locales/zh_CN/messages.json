@@ -274,5 +274,17 @@
   "quickSaveSelection": {
     "message": "快速保存选中文字",
     "description": "Quick save selection shortcut description"
+  },
+  "keyboardShortcutsSettings": {
+    "message": "快捷键设置",
+    "description": "Title for keyboard shortcuts settings section"
+  },
+  "shortcutChangeNotice": {
+    "message": "提示：修改快捷键需要在浏览器扩展设置中完成",
+    "description": "Notice about changing shortcuts in browser extension settings"
+  },
+  "howToChangeShortcut": {
+    "message": "方法：点击浏览器右上角扩展图标 → 管理扩展 → 键盘快捷键 → 设置新快捷键",
+    "description": "Instructions on how to change shortcuts in the browser"
   }
 }

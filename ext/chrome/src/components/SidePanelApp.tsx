@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DropdownMenu } from './ui';
 import { Card } from './ui';
 import PromptCard from './PromptCard';
+import KeyboardShortcutSettings from './KeyboardShortcutSettings';
 import { fetchPrompts, fetchUserStats, fetchUserInfo, setAuthToken, fetchPromptTags, PromptTag, findTagByKey } from '../utils/api';
 import { Prompt, UserStats, User, USER_ROLES } from '../types';
 import { CONFIG } from '../config';
@@ -118,7 +119,7 @@ const SidePanelApp: React.FC = () => {
 
   // 添加滚动加载更多功能
   useEffect(() => {
-    if (loading || loadingMore || !hasMore) return;
+    if (loading || loadingMore || !hasMore || activeTab !== 'prompts') return;
 
     const currentRef = lastPromptRef.current;
 
@@ -141,7 +142,7 @@ const SidePanelApp: React.FC = () => {
         observer.current.unobserve(currentRef);
       }
     };
-  }, [loading, loadingMore, hasMore]);
+  }, [loading, loadingMore, hasMore, activeTab]);
 
   // 当页码变化时加载更多数据
   useEffect(() => {
@@ -778,14 +779,9 @@ const SidePanelApp: React.FC = () => {
             
             <Card className="p-5 rounded-xl shadow-sm border border-gray-100 transition-transform duration-200 hover:shadow-md">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('keyboardShortcuts') || '快捷键'}</h3>
-              <div className="grid grid-cols-1 gap-2 text-gray-700">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span>{t('toggleSidePanel') || '打开侧边栏'}</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">ALT+O</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span>{t('quickSaveSelection') || '快速保存选中文字'}</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">ALT+P</span>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-2 text-gray-700">
+                  <KeyboardShortcutSettings />
                 </div>
               </div>
             </Card>
