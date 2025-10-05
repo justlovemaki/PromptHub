@@ -142,13 +142,6 @@ const CommandPalette: React.FC = () => {
       setDefaultShortcuts(defaultShortcuts);
     } catch (error) {
       console.error('加载快捷键设置失败:', error);
-      // 使用默认设置
-      const defaultShortcuts = await shortcuts.getDefaultShortcuts();
-      setUserShortcuts({
-        openPanel: defaultShortcuts.openPanel.defaultKey,
-        quickSaveSelection: defaultShortcuts.quickSaveSelection.defaultKey
-      });
-      setDefaultShortcuts(defaultShortcuts);
     }
   };
 
@@ -1172,10 +1165,6 @@ const CommandPalette: React.FC = () => {
                  <div className="flex justify-between items-center py-2 ">
                    <span>{t('openPanel')}</span>
                    <span className=" px-2 py-1 rounded text-sm font-mono">{userShortcuts.openPanel || t('notSet')}</span>
-                 </div>
-                 <div className="flex justify-between items-center py-2 ">
-                   <span>{t('closePanel')}</span>
-                   <span className=" px-2 py-1 rounded text-sm font-mono">{userShortcuts.closePanel || t('notSet')}</span>
                  </div>
                  <div className="flex justify-between items-center py-2 ">
                    <span>{t('quickSaveSelection')}</span>

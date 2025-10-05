@@ -16,6 +16,11 @@ const config = {
       from: 'resources/',
       to: './',
       filter: ['**/*']
+    },
+    {
+      from: 'resources/',
+      to: 'resources/',
+      filter: ['**/*']
     }
   ],
   asarUnpack: [
@@ -28,7 +33,7 @@ const config = {
         arch: ['x64']
       }
     ],
-    icon: 'icon.png',
+    icon: 'resources/icon.png',
     publisherName: 'PromptHub'
   },
   mac: {
@@ -42,7 +47,7 @@ const config = {
         arch: ['x64', 'arm64']
       }
     ],
-    icon: 'icon.png',  // electron-builder 会自动转换为 .icns
+    icon: 'resources/icon.png',  // electron-builder 会自动转换为 .icns
     category: 'public.app-category.productivity',
     hardenedRuntime: true,
     gatekeeperAssess: false,
@@ -64,7 +69,7 @@ const config = {
         arch: ['x64']
       }
     ],
-    icon: 'icon.png',
+    icon: 'resources/icon.png',
     category: 'Utility',
     maintainer: 'PromptHub <justlikemaki@foxmail.com>'
   },

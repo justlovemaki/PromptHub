@@ -168,7 +168,7 @@
     "description": "Keyboard shortcuts heading"
   },
   "openPanel": {
-    "message": "Open Panel",
+    "message": "Open/Close Panel",
     "description": "Shortcut description for opening panel"
   },
   "closePanel": {

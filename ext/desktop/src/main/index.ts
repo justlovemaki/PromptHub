@@ -75,7 +75,7 @@ function getResourcePath(relativePath: string): string {
 let tray: any;
 let commandPaletteWindow: any;
 let lastMousePosition: { x: number; y: number } | null = null;
-const width= 400;
+const width= 460;
 const height = 1080;
 
 // 创建系统托盘
