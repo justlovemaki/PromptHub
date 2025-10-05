@@ -186,17 +186,7 @@ yarn dev
 
 ## 📚 文档导航
 
-- [安装指南](./docs/INSTALL.md)
-- [部署指南](./docs/DEPLOYMENT.md)
 - [项目概述](./docs/PROJECT_SUMMARY.md)
-
-## 🤝 贡献指南
-
-1. Fork 项目
-2. 创建功能分支: `git checkout -b feature/amazing-feature`
-3. 提交更改: `git commit -m 'Add amazing feature'`
-4. 推送分支: `git push origin feature/amazing-feature`
-5. 提交 Pull Request
 
 ## 📄 许可证
 
