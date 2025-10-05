@@ -52,7 +52,7 @@ export default function Download({ params }: { params: { lang: string } }) {
                     <p className="text-gray-300 mb-4">{t('windowsDescription')}</p>
                     <div className="flex justify-center">
                       <a
-                        href={t('windowsDownloadUrl') + 'PromptHub.Desktop.Setup.1.0.2.exe'}
+                        href={t('windowsDownloadUrl') + '1.0.2/PromptHub.Desktop.Setup.1.0.2.exe'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
@@ -73,7 +73,7 @@ export default function Download({ params }: { params: { lang: string } }) {
                     <p className="text-gray-300 mb-4">{t('macDescription')}</p>
                     <div className="flex justify-center">
                       <a
-                        href={t('macDownloadUrl') + 'PromptHub.Desktop-1.0.2.dmg'}
+                        href={t('macDownloadUrl') + '1.0.2/PromptHub.Desktop-1.0.2.dmg'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
@@ -94,7 +94,7 @@ export default function Download({ params }: { params: { lang: string } }) {
                     <p className="text-gray-300 mb-4">{t('linuxDescription')}</p>
                     <div className="flex justify-center">
                       <a
-                        href={t('linuxDownloadUrl') + 'PromptHub.Desktop-1.0.2.AppImage'}
+                        href={t('linuxDownloadUrl') + '1.0.2/PromptHub.Desktop-1.0.2.AppImage'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
