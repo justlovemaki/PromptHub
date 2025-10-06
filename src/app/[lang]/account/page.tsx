@@ -664,7 +664,6 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
             </ModalFooter>
           </ModalContent>
         </Modal>
- 667 |
       </div>
     </UserPageWrapper>
   )
