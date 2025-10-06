@@ -28,7 +28,7 @@ export default function Contact({ params }: { params: { lang: string } }) {
                 {t('description')}
               </p>
               
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="grid md:grid-cols-1 gap-6 mb-8">
                 <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
                   <h3 className="text-xl font-semibold mb-4 text-purple-300">
                     {t('emailLabel')}
@@ -37,33 +37,7 @@ export default function Contact({ params }: { params: { lang: string } }) {
                     {t('email')}
                   </p>
                 </div>
-                
-                <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
-                  <h3 className="text-xl font-semibold mb-4 text-purple-300">
-                    {t('phoneLabel')}
-                  </h3>
-                  <p className="text-gray-300">
-                    {t('phone')}
-                  </p>
-                </div>
-                
-                <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
-                  <h3 className="text-xl font-semibold mb-4 text-purple-300">
-                    {t('addressLabel')}
-                  </h3>
-                  <p className="text-gray-300">
-                    {t('address')}
-                  </p>
-                </div>
-                
-                <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
-                  <h3 className="text-xl font-semibold mb-4 text-purple-300">
-                    {t('businessHoursTitle')}
-                  </h3>
-                  <p className="text-gray-300">
-                    {t('businessHours')}
-                  </p>
-                </div>
+              
               </div>
               
               <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
@@ -75,21 +49,15 @@ export default function Contact({ params }: { params: { lang: string } }) {
                 </p>
                 <ul className="space-y-2">
                   <li>
-                    <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center">
+                    <a href="https://x.com/justlikemaki" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center">
                       <span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
                       {t('twitter')}
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center">
+                    <a href="https://github.com/justlovemaki" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center">
                       <span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                      {t('linkedin')}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center">
-                      <span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                      {t('facebook')}
+                      {t('github')}
                     </a>
                   </li>
                 </ul>

@@ -2,16 +2,9 @@
   "title": "联系我们",
   "description": "我们非常乐意听取您的意见！无论您有任何疑问、反馈或需要支持，请随时通过以下方式与我们联系。我们将尽快回复您。",
   "emailLabel": "电子邮件：",
-  "email": "support@promptmanager.com",
-  "phoneLabel": "电话：",
-  "phone": "+86 123 4567 8901",
-  "addressLabel": "地址：",
-  "address": "中国北京市海淀区中关村大街1号",
-  "businessHoursTitle": "营业时间：",
-  "businessHours": "周一至周五，上午 9:00 - 下午 5:00 (北京时间)",
+  "email": "justlikemaki@foxmail.com",
   "socialMediaTitle": "社交媒体：",
   "socialMediaDescription": "您也可以在以下平台找到我们：",
   "twitter": "Twitter",
-  "linkedin": "LinkedIn",
-  "facebook": "Facebook"
+  "github": "GitHub"
 }
