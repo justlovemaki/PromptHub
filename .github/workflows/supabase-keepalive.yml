@@ -1,0 +1,27 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # 每天三次：UTC时间00:00, 08:00, 16:00（相当于北京时间8:00, 16:00, 0:00）
+    - cron: '0 0,8,16 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js
+
+      - name: Run Supabase keep alive script
+        run: node .github/scripts/supabase-keepalive.js
+        env:
+          SUPABASE_CONFIG: ${{ secrets.SUPABASE_CONFIG }}
