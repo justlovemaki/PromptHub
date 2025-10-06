@@ -1,4 +1,5 @@
-// 使用动态导入处理ES模块
+const { createClient } = require('@supabase/supabase-js');
+
 async function keepSupabaseAlive() {
   try {
     // 从环境变量读取配置
@@ -17,9 +18,6 @@ async function keepSupabaseAlive() {
       return;
     }
 
-    // 动态导入Supabase客户端
-    const { createClient } = await import('@supabase/supabase-js');
-
     // 遍历所有Supabase配置并执行查询
     for (const config of supabaseConfigs) {
       console.log(`Processing: ${config.name}`);
@@ -37,7 +35,7 @@ async function keepSupabaseAlive() {
         if (error) {
           console.error(`Error querying ${config.name}:`, error.message);
         } else {
-          console.log(`Successfully queried ${config.name}, table has ${count} rows`);
+          console.log(`Successfully queried ${config.table_name}, table has ${count} rows`);
         }
       } catch (error) {
         console.error(`Error connecting to ${config.name}:`, error.message);

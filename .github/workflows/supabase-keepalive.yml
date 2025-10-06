@@ -16,10 +16,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Install dependencies
-        run: npm install @supabase/supabase-js
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Create package.json for dependencies
+        run: |
+          mkdir -p .github/scripts
+          cd .github/scripts
+          npm init -y
+
+      - name: Install Supabase client locally
+        run: |
+          cd .github/scripts
+          pnpm add @supabase/supabase-js
 
       - name: Run Supabase keep alive script
         run: node .github/scripts/supabase-keepalive.js
