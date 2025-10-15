@@ -19,6 +19,28 @@ export default function LoginButton({ lng,  textClassName }: { lng: string,  tex
     setIsClient(true)
   }, [])
 
+  // 检查token是否过期并在过期时自动登出（仅在组件加载时检查一次）
+  useEffect(() => {
+    if (isClient) {
+      // 创建一个不依赖于 handleLogout 的登出函数，避免无限循环
+      const autoLogout = async () => {
+        try {
+          await signOut();
+          logout();
+        } catch (error) {
+          console.error('Auto logout error:', error);
+        }
+      };
+
+      // 在客户端渲染时检查token是否过期
+      const { isTokenExpired } = useAuthStore.getState();
+      if (isTokenExpired()) {
+        console.log('LoginButton: Token has expired, automatically logging out');
+        autoLogout();
+      }
+    }
+  }, [isClient, signOut, logout]);
+
   // 设置语言属性
   useEffect(() => {
     setLanguage(lng)
@@ -35,8 +57,8 @@ export default function LoginButton({ lng,  textClassName }: { lng: string,  tex
       await signOut();
       // 清理 useAuthStore 状态
       logout();
-      // 重新加载页面以更新会话状态
-      window.location.reload();
+      // 可选：刷新页面以确保所有状态同步
+      // window.location.reload();
     } catch (error) {
       console.error('Logout error:', error);
     }

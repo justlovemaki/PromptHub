@@ -41,7 +41,7 @@ const AdminPanelLayout: React.FC<AdminPanelLayoutProps> = ({ children, lang }) =
     // Only set token when store has no token but session has token
     if (session?.session?.token && isTokenExpired) {
       console.log('AdminPanelLayout: store has no token but session has token, setting token', session.session.token)
-      setToken(session.session.token)
+      setToken(session.session.token, session.session.expiresAt.getTime())
       refreshUser()
     }
   }, [isClient, isPending, isTokenExpired])

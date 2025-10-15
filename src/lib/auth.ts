@@ -8,11 +8,12 @@ import * as sqliteSchema from '../drizzle-sqlite-schema';
 
 // 确定数据库类型
 const isSupabase = !!process.env.SUPABASE_URL;
+const isNeon = !!process.env.NEON_DATABASE_URL;
 const isTurso = !!process.env.TURSO_DATABASE_URL;
-const dbProvider = isSupabase ? "pg" : (isTurso ? "sqlite" : "sqlite");
+const dbProvider = isSupabase ? "pg" : (isNeon ? "pg" : (isTurso ? "sqlite" : "sqlite"));
 
 // 根据数据库类型选择正确的模式
-const authSchema = isSupabase ? pgSchema : sqliteSchema;
+const authSchema = isSupabase ? pgSchema : (isNeon ? pgSchema : sqliteSchema);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

@@ -1,10 +1,11 @@
 import { eq, and, desc, asc, like, or, sql, gte, lte } from 'drizzle-orm';
 
 import { db } from './database';
-import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-schema';
+import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-postgres-schema';
 import { generateId } from './utils';
 import { SPACE_TYPES, USER_ROLES, LOG_LEVELS, LOG_CATEGORIES, AI_POINTS_TYPES, SORT_FIELDS, SORT_ORDERS } from './constants';
-const isSupabase = !!process.env.SUPABASE_URL;
+const isNeon = !!process.env.NEON_DATABASE_URL;
+const isSupabase = !!process.env.SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // ============== 日期时区处理服务 ==============
 
@@ -466,7 +467,7 @@ export class DashboardService {
           totalPrompts: sql<number>`count(*)`,
           publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
           privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-          monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${isSupabase ? monthStart.toISOString() : monthStart.getTime()} then 1 else 0 end)`,
+          monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${(isNeon || isSupabase) ? monthStart.toISOString() : monthStart.getTime()} then 1 else 0 end)`,
         })
         .from(prompt)
         .where(eq(prompt.spaceId, spaceId));
@@ -525,7 +526,7 @@ export class DashboardService {
         totalPrompts: sql<number>`count(*)`,
         publicPrompts: sql<number>`sum(case when ${prompt.isPublic} = true then 1 else 0 end)`,
         privatePrompts: sql<number>`sum(case when ${prompt.isPublic} = false then 1 else 0 end)`,
-        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${isSupabase ? monthStart.toISOString() : monthStart.getTime()} then 1 else 0 end)`,
+        monthlyCreated: sql<number>`sum(case when ${prompt.createdAt} >= ${(isNeon || isSupabase) ? monthStart.toISOString() : monthStart.getTime()} then 1 else 0 end)`,
       })
       .from(prompt)
       .where(eq(prompt.spaceId, spaceId));
