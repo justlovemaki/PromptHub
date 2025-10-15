@@ -79,5 +79,11 @@
   "accessTokenDeleted": "Access token deleted successfully",
   "deleteFailed": "Delete failed",
   "deleteAccessTokenFailed": "Failed to delete access token",
-  "deleteTokenButton": "Delete Token"
+  "deleteTokenButton": "Delete Token",
+  "clearPromptsButton": "Clear Prompts",
+  "confirmClearPrompts": "Are you sure you want to clear all prompts? This action cannot be undone!",
+  "promptsCleared": "Prompts Cleared",
+  "promptsClearedSuccessfully": "Successfully cleared {{count}} prompts",
+  "clearPromptsError": "Failed to clear prompts: ",
+  "clearInProgress": "Clearing..."
 }

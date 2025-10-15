@@ -138,9 +138,8 @@ export const useAuthStore = create<AuthState>()(  persist(
 
         try {
           // Try to call the backend logout API (optional)
-          await api.logout().catch(() => {
-            // Ignore logout API errors, continue cleaning local state
-          });
+          // await api.logout().catch(() => {
+          // });
         } finally {
           set({
             user: null,

@@ -79,5 +79,11 @@
   "accessTokenDeleted": "访问令牌已成功删除",
   "deleteFailed": "删除失败",
   "deleteAccessTokenFailed": "删除访问令牌失败",
-  "deleteTokenButton": "删除令牌"
+  "deleteTokenButton": "删除令牌",
+  "clearPromptsButton": "清空提示词",
+  "confirmClearPrompts": "确定要清空所有提示词吗？此操作不可撤销！",
+  "promptsCleared": "提示词已清空",
+  "promptsClearedSuccessfully": "成功清空了 {{count}} 个提示词",
+  "clearPromptsError": "清空提示词失败：",
+  "clearInProgress": "清空中..."
 }

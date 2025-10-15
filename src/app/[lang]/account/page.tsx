@@ -29,10 +29,12 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [isRefreshingToken, setIsRefreshingToken] = useState(false);
   const [showSetExpiration, setShowSetExpiration] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showClearPromptsModal, setShowClearPromptsModal] = useState(false);
   const [expirationValue, setExpirationValue] = useState(7); // 默认7天
   const [aiPointsData, setAiPointsData] = useState<{
     totalPoints: number;
@@ -271,7 +273,29 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
       event.target.value = '';
     }
   };
-
+ 
+  // 清空提示词
+  const handleClearPrompts = async () => {
+    setIsClearing(true);
+    try {
+      // 使用用户的个人空间ID进行清空操作
+      const response = await api.clearPrompts(user?.personalSpaceId, params.lang);
+      
+      if (response.success) {
+        showSuccess(t('promptsCleared'), t('promptsClearedSuccessfully', { count: response.data.clearedCount }));
+      } else {
+        // TypeScript: response在success为false时保证有error属性
+        throw new Error((response as { success: false; error: { details: { error: string}; message: string } }).error.details.error || t('clearPromptsError'));
+      }
+    } catch (error) {
+      console.error(t('clearPromptsError'), error);
+      showError(t('clearPromptsError') + (error instanceof Error ? error.message : error));
+    } finally {
+      setIsClearing(false);
+      setShowClearPromptsModal(false); // 关闭模态框
+    }
+  };
+ 
   // 显示的点数数据
   const displayAiPoints = aiPointsData || {
     totalPoints: user?.subscriptionAiPoints || 0,
@@ -409,29 +433,38 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-text-100 mb-4">{t('importExportSection')}</h2>
           <p className="text-text-200 mb-6">{t('importExportDescription')}</p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={handleExportPrompts}
-              disabled={isExporting}
-              className="bg-primary-100 hover:bg-primary-100/90 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 flex-1"
-            >
-              {isExporting ? t('exportInProgress') : t('exportPromptsButton')}
-            </button>
-            <div className="relative flex-1">
-              <input
-                type="file"
-                id="import-file"
-                accept=".json"
-                onChange={handleImportPrompts}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-              <label
-                htmlFor="import-file"
-                className="block bg-bg-200 hover:bg-bg-300 border border-bg-300 text-text-200 px-4 py-2 rounded-lg font-medium text-center cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <button
+                onClick={handleExportPrompts}
+                disabled={isExporting}
+                className="bg-primary-100 hover:bg-primary-100/90 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 flex-1"
               >
-                {isImporting ? t('importInProgress') : t('importPromptsButton')}
-              </label>
+                {isExporting ? t('exportInProgress') : t('exportPromptsButton')}
+              </button>
+              <div className="relative flex-1">
+                <input
+                  type="file"
+                  id="import-file"
+                  accept=".json"
+                  onChange={handleImportPrompts}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <label
+                  htmlFor="import-file"
+                  className="block bg-bg-200 hover:bg-bg-300 border border-bg-300 text-text-200 px-4 py-2 rounded-lg font-medium text-center cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isImporting ? t('importInProgress') : t('importPromptsButton')}
+                </label>
+              </div>
             </div>
+            <button
+              onClick={() => setShowClearPromptsModal(true)}
+              disabled={isClearing}
+              className="bg-red-100 hover:bg-red-200 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              {isClearing ? t('clearInProgress') : t('clearPromptsButton')}
+            </button>
           </div>
         </div>
 
@@ -659,6 +692,34 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
                   variant="destructive"
                 >
                   {t('deleteTokenButton')}
+                </Button>
+              </div>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* 清空提示词确认模态框 */}
+        <Modal open={showClearPromptsModal} onOpenChange={setShowClearPromptsModal}>
+          <ModalContent size="md">
+            <ModalClose onClick={() => setShowClearPromptsModal(false)} />
+            <ModalHeader>
+              <ModalTitle>{t('clearPromptsButton')}</ModalTitle>
+              <ModalDescription>{t('confirmClearPrompts')}</ModalDescription>
+            </ModalHeader>
+            <ModalFooter className="px-6 py-4 border-t border-bg-200 bg-bg-200/50 rounded-b-2xl">
+              <div className="flex justify-end space-x-3 w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowClearPromptsModal(false)}
+                >
+                  {t('cancel')}
+                </Button>
+                <Button
+                  onClick={handleClearPrompts}
+                  isLoading={isClearing}
+                  variant="destructive"
+                >
+                  {isClearing ? t('clearInProgress') : t('clearPromptsButton')}
                 </Button>
               </div>
             </ModalFooter>

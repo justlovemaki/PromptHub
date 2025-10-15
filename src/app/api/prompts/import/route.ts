@@ -12,6 +12,7 @@ export interface PromptData {
   isPublic: boolean;
   tags: string[];
   description?: string;
+  useCount?: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -53,15 +54,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 批量导入提示词
+    // 批量导入提示词（倒序导入）
     let importedCount = 0;
-    for (const promptData of promptsData) {
+    // 将数据倒序处理
+    const reversedPromptsData = [...promptsData].reverse();
+    for (const promptData of reversedPromptsData) {
       await PromptService.createPrompt({
         title: promptData.title,
         content: promptData.content,
         description: promptData.description || '',
         tags: promptData.tags ? promptData.tags : [],
         isPublic: promptData.isPublic,
+        useCount: promptData.useCount || 0, // 使用提供的useCount或默认为0
         spaceId: spaceId,
         createdBy: user.id,
       });

@@ -3,7 +3,7 @@ import postgres from 'postgres';
 import { createClient } from '@libsql/client';
 import { drizzle as sqliteDrizzle } from 'drizzle-orm/libsql';
 import * as postgresSchema from '../drizzle-postgres-schema';
-import * as sqliteSchema from '../drizzle-schema';
+import * as sqliteSchema from '../drizzle-sqlite-schema';
 
 // 导出 schema 供 Better Auth 使用
 export { postgresSchema, sqliteSchema };

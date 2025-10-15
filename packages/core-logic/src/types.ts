@@ -101,6 +101,7 @@ export const CreatePromptRequestSchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   isPublic: z.boolean().default(false),
+  useCount: z.number().default(0).optional(),
   spaceId: z.string(),
 });
 

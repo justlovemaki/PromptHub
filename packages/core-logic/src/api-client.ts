@@ -311,6 +311,45 @@ if (requireAuth) {
     return await response.blob();
   }
 
+  async clearPrompts(spaceId?: string, lang?: string): Promise<ApiResponse<{ clearedCount: number }>> {
+    const url = spaceId
+      ? `${this.config.baseURL}/api/prompts/clear?spaceId=${encodeURIComponent(spaceId)}`
+      : `${this.config.baseURL}/api/prompts/clear`;
+      
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.config.getToken() || ''}`,
+    };
+    // Add language header
+    if (lang) {
+      headers['x-next-locale'] = lang;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: {
+          code: `HTTP_${response.status}`,
+          message: data.message || `Request failed (${response.status})`,
+          details: data,
+        },
+      };
+    }
+
+    return {
+      success: true,
+      data: data.data || data,
+      message: data.message,
+    };
+  }
+
   async getAiPointsUsage(lang?: string): Promise<ApiResponse<{
     totalPoints: number;
     usedPoints: number;
@@ -609,6 +648,7 @@ export const api = {
   incrementPromptUseCount: (promptId: string, lang?: string) => getApiClient().post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang),
   importPrompts: (data: any[], spaceId?: string, lang?: string) => getApiClient().importPrompts(data, spaceId, lang),
   exportPrompts: (spaceId?: string, lang?: string) => getApiClient().exportPrompts(spaceId, lang),
+  clearPrompts: (spaceId?: string, lang?: string) => getApiClient().clearPrompts(spaceId, lang),
   getAiPointsUsage: (lang?: string) => getApiClient().get<{ totalPoints: number; usedPoints: number; remainingPoints: number; usageRecords: any[] }>('/api/user/ai-points', true, lang),
   purchaseAiPoints: (packageType: AiPointsPackageType, lang?: string) => getApiClient().post<{ userId: string; newBalance: number; purchasedPoints: number }>('/api/user/purchase-ai-points', { packageType }, true, lang),
   manageSubscription: (action: SubscriptionAction, lang?: string) => getApiClient().post<{ userId: string; subscriptionStatus: string }>('/api/user/subscription', { action }, true, lang),

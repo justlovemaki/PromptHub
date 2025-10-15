@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, like, or, sql, gte, lte } from 'drizzle-orm';
 
 import { db } from './database';
-import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-postgres-schema';
+import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-schema';
 import { generateId } from './utils';
 import { SPACE_TYPES, USER_ROLES, LOG_LEVELS, LOG_CATEGORIES, AI_POINTS_TYPES, SORT_FIELDS, SORT_ORDERS } from './constants';
 const isNeon = !!process.env.NEON_DATABASE_URL;
@@ -178,6 +178,7 @@ export class PromptService {
     description?: string;
     tags?: string[];
     isPublic?: boolean;
+    useCount?: number;
     spaceId: string;
     createdBy: string;
         id?: string;
@@ -192,6 +193,7 @@ export class PromptService {
       description: promptData.description,
       tags: JSON.stringify(promptData.tags || []),
       isPublic: promptData.isPublic ?? false,
+      useCount: promptData.useCount ?? 0,
       spaceId: promptData.spaceId,
       createdBy: promptData.createdBy,
       updatedAt: DateService.getCurrentUTCDate(),
@@ -407,6 +409,17 @@ export class PromptService {
     return Array.from(tagCount.entries())
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
+  }
+
+  // 清空指定空间中的所有提示词
+  static async clearPromptsBySpace(spaceId: string) {
+    // 先查询该空间中的提示词数量
+    const count = await db.$count(prompt, eq(prompt.spaceId, spaceId));
+    
+    // 删除指定空间中的所有提示词
+    await db.delete(prompt).where(eq(prompt.spaceId, spaceId));
+    
+    return { clearedCount: count };
   }
 
 }

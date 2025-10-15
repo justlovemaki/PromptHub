@@ -26,8 +26,12 @@ export async function GET(request: NextRequest) {
     // 如果没有提供spaceId，则使用用户的个人空间
     const spaceId = searchParams.get('spaceId') || user.personalSpaceId
 
-    // 获取空间中的所有提示词（设置getAll为true以获取全部记录）
-    const result = await PromptService.getPromptsBySpace(spaceId, { getAll: true });
+    // 获取空间中的所有提示词（设置getAll为true以获取全部记录），按更新时间降序排列
+    const result = await PromptService.getPromptsBySpace(spaceId, {
+      getAll: true,
+      sortBy: 'updatedAt',
+      sortOrder: 'desc'
+    });
 
     // 处理返回数据，解析tags等JSON字段
     const processedPrompts = result.prompts.map(prompt => ({
@@ -36,6 +40,7 @@ export async function GET(request: NextRequest) {
       tags: prompt.tags ? JSON.parse(prompt.tags) : [],
       title: prompt.title,
       description: prompt.description || '',
+      useCount: prompt.useCount || 0,
     }));
 
     // 设置响应头以触发文件下载
