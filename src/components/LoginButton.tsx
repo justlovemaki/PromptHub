@@ -5,6 +5,8 @@ import LoginModal from './LoginModal'
 import { useSession, signOut } from '../lib/auth-client'
 import { useAuthStore } from '@promptmanager/core-logic'
 import { useTranslation } from '../i18n/client'
+import { usePathname } from 'next/navigation';
+import { getTruePathFromPathname } from '../lib/utils';
 
 export default function LoginButton({ lng,  textClassName }: { lng: string,  textClassName?: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -14,6 +16,8 @@ export default function LoginButton({ lng,  textClassName }: { lng: string,  tex
   const { user: authUser, logout, setLanguage, token } = useAuthStore()
   const { t } = useTranslation(lng, 'common')
   textClassName = textClassName || 'text-text-200';
+  const pathname = usePathname();
+  const truePath = getTruePathFromPathname(pathname, lng);
 
   useEffect(() => {
     setIsClient(true)
@@ -49,6 +53,9 @@ export default function LoginButton({ lng,  textClassName }: { lng: string,  tex
       logout();
       // 可选：刷新页面以确保所有状态同步
       // window.location.reload();
+      // authUser = null;
+      session.user = null;
+      window.location.pathname = `/${truePath}`
     } catch (error) {
       console.error('Logout error:', error);
     }

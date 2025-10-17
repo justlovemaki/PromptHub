@@ -5,6 +5,7 @@ import AdminPageWrapper from '@/components/admin/AdminPageWrapper'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { DataTable, Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle } from '@promptmanager/ui-components'
 import TagSelector from '@/components/TagSelector'
+import PromptModal from '@/components/PromptModal'
 import { api, useAuth } from '@promptmanager/core-logic'
 import type { Prompt } from '@promptmanager/core-logic'
 import { useTranslation } from '@/i18n/client'
@@ -496,7 +497,10 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   current: currentPage,
                   pageSize: 8,
                   total: totalPrompts,
-                  onChange: (page) => setCurrentPage(page)
+                  onChange: (page) => {
+                    setCurrentPage(page);
+                    fetchPrompts(page, searchQuery, sortBy, sortOrder);
+                  }
                 }}
                 t={tCommon}
               />
@@ -505,368 +509,31 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         </div>
 
 
-        {/* 创建提示词模态框 */}
-        <Modal
-          open={isCreateModalOpen}
+        {/* 提示词模态框 - 用于创建和编辑 */}
+        <PromptModal
+          open={isCreateModalOpen || isEditModalOpen}
           onOpenChange={(open) => {
-            setIsCreateModalOpen(open)
-            if (!open) resetForm()
-          }}
-        >
-          <ModalContent size="2xl">
-            <ModalHeader>
-              <ModalTitle>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-gradient-to-br from-primary-100 to-accent-100 rounded-xl flex items-center justify-center shadow-sm">
-                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-text-100">{tAdminPrompt('createModal.title')}</div>
-                    <div className="text-sm text-text-300 font-normal">{tAdminPrompt('createModal.description')}</div>
-                  </div>
-                </div>
-              </ModalTitle>
-            </ModalHeader>
-
-            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[75vh]">
-              <div className="grid gap-6">
-                {/* 基本信息区域 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
-                    <svg className="h-4 w-4 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {tAdminPrompt('sections.basicInfo')}
-                  </div>
-
-                  <div className="grid gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.title')} <span className="text-error-500">*</span>
-                      </label>
-                      <Input
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder={tAdminPrompt('placeholders.title')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.description')}
-                      </label>
-                      <Input
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder={tAdminPrompt('placeholders.description')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 内容区域 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
-                    <svg className="h-4 w-4 text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {tAdminPrompt('sections.content')}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-text-200 mb-2">
-                      {tAdminPrompt('labels.content')} <span className="text-error-500">*</span>
-                    </label>
-                    <Textarea
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder={tAdminPrompt('placeholders.content')}
-                      rows={6}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent resize-none rounded-xl px-4 py-3"
-                    />
-                    <div className="mt-2 text-xs text-text-300 flex items-center gap-1">
-                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {tCommon('characterCount')}: {formData.content.length}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 设置区域 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
-                    <svg className="h-4 w-4 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {tAdminPrompt('sections.settings')}
-                  </div>
-
-                  <div className="grid gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.visibility')}
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={formData.visibility}
-                          onChange={(e) => setFormData({ ...formData, visibility: e.target.value as PromptVisibility })}
-                          className="w-full px-4 py-3 border border-bg-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
-                        >
-                          <option value="private">{tAdminPrompt('visibility.private')}</option>
-                          <option value="public">{tAdminPrompt('visibility.public')}</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                          <svg className="h-4 w-4 text-text-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.tags')}
-                      </label>
-                      <TagSelector
-                        selectedKeys={formData.tags}
-                        onChange={(keys) => setFormData({ ...formData, tags: keys })}
-                        language={lang}
-                        placeholder={tAdminPrompt('placeholders.tags')}
-                        className=""
-                        isEditing={!!editingPrompt}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 底部操作区域 */}
-            <div className="px-8 py-6 bg-bg-200 border-t border-bg-200 flex justify-between items-center rounded-b-2xl">
-              <div className="text-sm text-text-300">
-                <span className="flex items-center gap-1">
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {tAdminPrompt('form.footer.note')}
-                </span>
-              </div>
-              <div className="flex space-x-3">
-                <Button
-                  onClick={handleCreate}
-                  disabled={operationLoading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 bg-gradient-to-r from-primary-100 to-accent-100 hover:from-accent-100 hover:to-primary-100 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
-                >
-                  {operationLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {tAdminPrompt('buttons.creating')}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      {tAdminPrompt('buttons.create')}
-                    </span>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </ModalContent>
-        </Modal>
-
-        {/* 编辑提示词模态框 */}
-        <Modal
-          open={isEditModalOpen}
-          onOpenChange={(open) => {
-            setIsEditModalOpen(open)
-            if (!open) {
-              resetForm()
-              setEditingPrompt(null)
+            if (editingPrompt) { // 如果当前是编辑模式
+              setIsEditModalOpen(open);
+              if (!open) {
+                setEditingPrompt(null);
+                resetForm();
+              }
+            } else { // 否则是创建模式
+              setIsCreateModalOpen(open);
+              if (!open) {
+                resetForm();
+              }
             }
           }}
-        >
-          <ModalContent size="2xl">
-            <ModalHeader>
-              <ModalTitle>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center shadow-sm">
-                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-text-100">{tAdminPrompt('editModal.title')}</div>
-                    <div className="text-sm text-text-300 font-normal">{tAdminPrompt('editModal.description')}</div>
-                  </div>
-                </div>
-              </ModalTitle>
-            </ModalHeader>
-
-            <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[75vh]">
-              <div className="grid gap-6">
-                {/* 基本信息区域 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
-                    <svg className="h-4 w-4 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {tAdminPrompt('sections.basicInfo')}
-                  </div>
-
-                  <div className="grid gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.title')} <span className="text-error-500">*</span>
-                      </label>
-                      <Input
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder={tAdminPrompt('placeholders.title')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.description')}
-                      </label>
-                      <Input
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder={tAdminPrompt('placeholders.description')}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 内容区域 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
-                    <svg className="h-4 w-4 text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {tAdminPrompt('sections.content')}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-text-200 mb-2">
-                      {tAdminPrompt('labels.content')} <span className="text-error-500">*</span>
-                    </label>
-                    <Textarea
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder={tAdminPrompt('placeholders.content')}
-                      rows={6}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent resize-none rounded-xl px-4 py-3"
-                    />
-                    <div className="mt-2 text-xs text-text-300 flex items-center gap-1">
-                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {tCommon('characterCount')}: {formData.content.length}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 设置区域 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-text-200 border-b border-bg-200 pb-3">
-                    <svg className="h-4 w-4 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {tAdminPrompt('sections.settings')}
-                  </div>
-
-                  <div className="grid gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.visibility')}
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={formData.visibility}
-                          onChange={(e) => setFormData({ ...formData, visibility: e.target.value as PromptVisibility })}
-                          className="w-full px-4 py-3 border border-bg-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent bg-white transition-all duration-200 appearance-none pr-10"
-                        >
-                          <option value="private">{tAdminPrompt('visibility.private')}</option>
-                          <option value="public">{tAdminPrompt('visibility.public')}</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                          <svg className="h-4 w-4 text-text-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-text-200 mb-2">
-                        {tAdminPrompt('labels.tags')}
-                      </label>
-                      <TagSelector
-                        selectedKeys={formData.tags}
-                        onChange={(keys) => setFormData({ ...formData, tags: keys })}
-                        language={lang}
-                        placeholder={tAdminPrompt('placeholders.tags')}
-                        className=""
-                        isEditing={!!editingPrompt}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 底部操作区域 */}
-            <div className="px-8 py-6 bg-bg-200 border-t border-bg-200 flex justify-between items-center rounded-b-2xl">
-              <div className="text-sm text-text-300">
-                <span className="flex items-center gap-1">
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {tAdminPrompt('form.footer.editNote')}
-                </span>
-              </div>
-              <div className="flex space-x-3">
-                <Button
-                  onClick={handleUpdate}
-                  disabled={operationLoading || !formData.title.trim() || !formData.content.trim()}
-                  className="px-6 py-2 bg-gradient-to-r from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-100 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
-                >
-                  {operationLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {tAdminPrompt('buttons.saving')}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {tAdminPrompt('buttons.save')}
-                    </span>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </ModalContent>
-        </Modal>
+          formData={formData}
+          setFormData={setFormData}
+          editingPrompt={editingPrompt}
+          operationLoading={operationLoading}
+          onSubmit={editingPrompt ? handleUpdate : handleCreate}
+          lang={params.lang}
+          existingTags={allTags.map(tag => tag.key)}
+        />
       </div>
     </AdminPageWrapper>
   )

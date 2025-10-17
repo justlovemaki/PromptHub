@@ -321,7 +321,10 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
               current: currentPage,
               pageSize: pageSize,
               total: totalUsers,
-              onChange: (page) => setCurrentPage(page)
+              onChange: (page) => {
+                setCurrentPage(page);
+                fetchUsers(page, searchTerm, sortField, sortOrder);
+              }
             }}
             t={tAdmin}
           />

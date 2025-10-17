@@ -84,6 +84,8 @@
       "items": "件",
       "previous": "前へ",
       "next": "次へ",
+      "first": "最初",
+      "last": "最後",
       "page": "ページ",
       "totalPages": "全 {{totalPages}} ページ"
     }

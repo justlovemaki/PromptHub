@@ -288,7 +288,10 @@ export default function LogsPage({ params }: LogsPageProps) {
               current: currentPage,
               pageSize: pageSize,
               total: totalLogs,
-              onChange: (page) => setCurrentPage(page)
+              onChange: (page) => {
+                setCurrentPage(page);
+                fetchLogs(page, searchTerm, sortField, sortOrder);
+              }
             }}
             t={t}
           />

@@ -4,15 +4,13 @@ import { UserService } from "@/lib/services";
 
 export async function GET(request: NextRequest) {
   const sessionData = await getSessionData();
-  let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "/";
-  const pathname = request.nextUrl.searchParams.get('pathname');
-  if(!!pathname){
-    baseUrl += pathname.replace('/','');
-  }
+  const pathname = request.nextUrl.searchParams.get('pathname') || '';
 
-  // 如果没有获取到 session，直接重定向到根目录
+  // 如果没有获取到 session，直接重定向
   if (!sessionData?.user) {
-    const url = new URL(baseUrl, request.url);
+    const url = new URL(request.url);
+    url.pathname = pathname || '/';
+    url.search = '';
     return NextResponse.redirect(url);
   }
 
@@ -27,9 +25,11 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  // 创建一个 URL 对象，指向要重定向到的根目录
-  const url = new URL(baseUrl, request.url);
-  url.pathname = baseUrl+'/dashboard';
+  // 构建重定向 URL
+  const url = new URL(request.url);
+  url.pathname = pathname ? `${pathname}/dashboard` : '/dashboard';
+  url.search = '';
+  
   // 返回重定向响应
   return NextResponse.redirect(url);
 }

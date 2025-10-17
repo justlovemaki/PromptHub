@@ -84,6 +84,8 @@
       "items": "items",
       "previous": "Previous",
       "next": "Next",
+      "first": "First",
+      "last": "Last",
       "page": "Page",
       "totalPages": "of {{totalPages}}"
     }
