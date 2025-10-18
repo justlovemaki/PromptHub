@@ -382,5 +382,17 @@
   "openWebApp": {
     "message": "Open Web App",
     "description": "Menu item for opening the web application"
+  },
+  "authenticationRequired": {
+    "message": "Authentication token required",
+    "description": "Error message when authentication token is required"
+  },
+  "commandDetected": {
+    "message": "Command detected",
+    "description": "Message when command is detected in input"
+  },
+  "promptIndexNotFound": {
+    "message": "Prompt not found at specified index",
+    "description": "Error message when prompt index is not found"
   }
 }

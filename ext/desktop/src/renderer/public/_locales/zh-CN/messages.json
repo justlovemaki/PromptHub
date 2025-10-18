@@ -382,5 +382,17 @@
   "openWebApp": {
     "message": "打开网页应用",
     "description": "Menu item for opening the web application"
+  },
+  "authenticationRequired": {
+    "message": "需要认证Token",
+    "description": "Error message when authentication token is required"
+  },
+  "commandDetected": {
+    "message": "检测到命令",
+    "description": "Message when command is detected in input"
+  },
+  "promptIndexNotFound": {
+    "message": "未找到指定索引的提示词",
+    "description": "Error message when prompt index is not found"
   }
 }

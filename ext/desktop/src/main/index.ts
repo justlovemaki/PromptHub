@@ -59,6 +59,14 @@ const DEFAULT_SHORTCUTS: ShortcutsConfig = {
     description: '快速保存选中的文本为提示词',
     defaultKey: 'CmdOrCtrl+Alt+P',
     action: 'quickSaveSelection'
+  },
+  checkCommand: {
+    id: 'checkCommand',
+    name: '检测命令',
+    key: 'checkCommand',
+    description: '检测输入框中的 /p<number> 命令',
+    defaultKey: 'CmdOrCtrl+Alt+/',
+    action: 'checkCommand'
   }
 };
 
@@ -391,6 +399,178 @@ async function handleQuickSaveSelection(): Promise<void> {
   }
 }
 
+// 获取当前输入框的全部内容
+async function getCurrentInputText(): Promise<string | null> {
+  try {
+    // 保存当前剪贴板内容
+    const originalClipboard = clipboard.readText();
+    
+    // 模拟全选操作 (Ctrl/Cmd+A)
+    if (process.platform === 'darwin') {
+      await keyboard.pressKey(Key.LeftSuper);
+      await keyboard.pressKey(Key.A);
+      await keyboard.releaseKey(Key.A);
+      await keyboard.releaseKey(Key.LeftSuper);
+    } else {
+      await keyboard.pressKey(Key.LeftControl);
+      await keyboard.pressKey(Key.A);
+      await keyboard.releaseKey(Key.A);
+      await keyboard.releaseKey(Key.LeftControl);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // 模拟复制操作 (Ctrl/Cmd+C)
+    if (process.platform === 'darwin') {
+      await keyboard.pressKey(Key.LeftSuper);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(Key.LeftSuper);
+    } else {
+      await keyboard.pressKey(Key.LeftControl);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(Key.LeftControl);
+    }
+    
+    // 等待剪贴板更新
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const inputText = clipboard.readText();
+    
+    // 恢复原始剪贴板内容
+    clipboard.writeText(originalClipboard);
+    
+    // 取消选中 - 按右箭头键
+    await keyboard.pressKey(Key.Right);
+    await keyboard.releaseKey(Key.Right);
+    
+    return inputText && inputText.trim() ? inputText : null;
+  } catch (error) {
+    console.error('[Main] 获取输入框内容失败:', error);
+    return null;
+  }
+}
+
+// 获取指定索引的提示词
+async function getPromptByIndex(index: number): Promise<string | null> {
+  const store = new Store();
+  const authToken = store.get('authToken') as string | undefined;
+  
+  if (!authToken) {
+    console.error('[Main] 未找到认证Token');
+    return null;
+  }
+
+  try {
+    const baseUrl = getCurrentLanguageBaseUrl('en');
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', '1');
+    queryParams.append('limit', '100'); // 获取足够多的提示词
+    queryParams.append('sortBy', 'useCount');
+    queryParams.append('sortOrder', 'desc');
+    
+    const response = await fetch(`${baseUrl}/api/prompts/list?${queryParams.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${authToken}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json() as { success: boolean; data?: { prompts: any[] } };
+      if (data.success && data.data && data.data.prompts) {
+        const prompts = data.data.prompts;
+        if (index >= 0 && index < prompts.length) {
+          return prompts[index].content;
+        }
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('[Main] 获取提示词失败:', error);
+    return null;
+  }
+}
+
+// 处理命令检测快捷键
+async function handleCheckCommand(): Promise<void> {
+  console.log('[Main] 命令检测快捷键触发');
+  
+  try {
+    // 获取当前输入框内容
+    const inputText = await getCurrentInputText();
+    
+    if (!inputText) {
+      console.log('[Main] 未获取到输入框内容');
+      return;
+    }
+    
+    console.log('[Main] 获取到输入框内容:', inputText.substring(0, 50) + '...');
+    
+    // 匹配 /p<number> 格式的命令
+    const commandRegex = /\/p(\d+)$/;
+    const match = inputText.match(commandRegex);
+    
+    if (!match) {
+      console.log('[Main] 未检测到命令');
+      return;
+    }
+    
+    const promptIndex = parseInt(match[1]) - 1;
+    console.log('[Main] 检测到命令 /p' + (promptIndex + 1) + ', 索引: ' + promptIndex);
+    
+    // 获取对应的提示词
+    const promptContent = await getPromptByIndex(promptIndex);
+    
+    if (!promptContent) {
+      console.log('[Main] 未找到索引为 ' + promptIndex + ' 的提示词');
+      return;
+    }
+    
+    console.log('[Main] 获取到提示词内容:', promptContent.substring(0, 50) + '...');
+    
+    // 移除命令部分，保留其他内容
+    const newText = inputText.replace(commandRegex, '') + promptContent;
+    
+    // 将新内容写入剪贴板
+    clipboard.writeText(newText);
+    
+    // 全选当前输入框内容
+    if (process.platform === 'darwin') {
+      await keyboard.pressKey(Key.LeftSuper);
+      await keyboard.pressKey(Key.A);
+      await keyboard.releaseKey(Key.A);
+      await keyboard.releaseKey(Key.LeftSuper);
+    } else {
+      await keyboard.pressKey(Key.LeftControl);
+      await keyboard.pressKey(Key.A);
+      await keyboard.releaseKey(Key.A);
+      await keyboard.releaseKey(Key.LeftControl);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // 粘贴新内容
+    if (process.platform === 'darwin') {
+      await keyboard.pressKey(Key.LeftSuper);
+      await keyboard.pressKey(Key.V);
+      await keyboard.releaseKey(Key.V);
+      await keyboard.releaseKey(Key.LeftSuper);
+    } else {
+      await keyboard.pressKey(Key.LeftControl);
+      await keyboard.pressKey(Key.V);
+      await keyboard.releaseKey(Key.V);
+      await keyboard.releaseKey(Key.LeftControl);
+    }
+    
+    console.log('[Main] 命令处理完成');
+  } catch (error) {
+    console.error('[Main] 处理命令检测失败:', error);
+  }
+}
+
 // 处理打开面板快捷键
 async function handleOpenPanelShortcut(): Promise<void> {
   console.log('[Main] 打开面板快捷键触发');
@@ -433,7 +613,8 @@ function getUserShortcutSettings(store: Store): UserShortcutSettings {
   return {
     shortcuts: {
       openPanel: DEFAULT_SHORTCUTS.openPanel.defaultKey,
-      quickSaveSelection: DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey
+      quickSaveSelection: DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey,
+      checkCommand: DEFAULT_SHORTCUTS.checkCommand.defaultKey
     }
   };
 }
@@ -464,6 +645,16 @@ function registerGlobalShortcuts() {
     console.log(`快速保存快捷键注册失败: ${quickSaveKey}`);
   } else {
     console.log(`快速保存快捷键注册成功: ${quickSaveKey}`);
+  }
+
+  // 注册命令检测快捷键
+  const checkCommandKey = userSettings.shortcuts.checkCommand || DEFAULT_SHORTCUTS.checkCommand.defaultKey;
+  const checkCommandRet = globalShortcut.register(checkCommandKey, handleCheckCommand);
+
+  if (!checkCommandRet) {
+    console.log(`命令检测快捷键注册失败: ${checkCommandKey}`);
+  } else {
+    console.log(`命令检测快捷键注册成功: ${checkCommandKey}`);
   }
 }
 
@@ -617,7 +808,8 @@ app.whenReady().then(() => {
     const defaultSettings: UserShortcutSettings = {
       shortcuts: {
         openPanel: DEFAULT_SHORTCUTS.openPanel.defaultKey,
-        quickSaveSelection: DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey
+        quickSaveSelection: DEFAULT_SHORTCUTS.quickSaveSelection.defaultKey,
+        checkCommand: DEFAULT_SHORTCUTS.checkCommand.defaultKey
       }
     };
 

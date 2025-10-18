@@ -382,5 +382,17 @@
   "openWebApp": {
     "message": "ウェブアプリを開く",
     "description": "Menu item for opening the web application"
+  },
+  "authenticationRequired": {
+    "message": "認証トークンが必要です",
+    "description": "Error message when authentication token is required"
+  },
+  "commandDetected": {
+    "message": "コマンドが検出されました",
+    "description": "Message when command is detected in input"
+  },
+  "promptIndexNotFound": {
+    "message": "指定されたインデックスのプロンプトが見つかりません",
+    "description": "Error message when prompt index is not found"
   }
 }
