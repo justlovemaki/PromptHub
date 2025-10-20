@@ -286,5 +286,13 @@
   "howToChangeShortcut": {
     "message": "方法：ブラウザツールバーの拡張機能アイコンをクリック → 拡張機能を管理 → キーボードショートカット → 新しいショートカットを設定",
     "description": "Instructions on how to change shortcuts in the browser"
+  },
+  "quickInsertPrompt": {
+    "message": "クイック挿入プロンプト",
+    "description": "Quick insert prompt command name"
+  },
+  "quickInsertPromptDesc": {
+    "message": "任意の入力フィールドに /p<数字> を入力すると、対応するプロンプトを素早く挿入できます（例：/p1、/p2）",
+    "description": "Description for the quick insert prompt command"
   }
 }

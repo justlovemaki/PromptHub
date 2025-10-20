@@ -49,7 +49,7 @@ const DEFAULT_SHORTCUTS: ShortcutsConfig = {
     name: '打开面板',
     key: 'openPanel',
     description: '打开/关闭命令面板',
-    defaultKey: 'CmdOrCtrl+Alt+O',
+    defaultKey: process.platform === 'darwin' ? 'Cmd+Alt+O' : 'Ctrl+Alt+O',
     action: 'openPanel'
   },
   quickSaveSelection: {
@@ -57,7 +57,7 @@ const DEFAULT_SHORTCUTS: ShortcutsConfig = {
     name: '快速保存选中文案',
     key: 'quickSaveSelection',
     description: '快速保存选中的文本为提示词',
-    defaultKey: 'CmdOrCtrl+Alt+P',
+    defaultKey: process.platform === 'darwin' ? 'Cmd+Alt+P' : 'Ctrl+Alt+P',
     action: 'quickSaveSelection'
   },
   checkCommand: {
@@ -65,7 +65,7 @@ const DEFAULT_SHORTCUTS: ShortcutsConfig = {
     name: '检测命令',
     key: 'checkCommand',
     description: '检测输入框中的 /p<number> 命令',
-    defaultKey: 'CmdOrCtrl+Alt+/',
+    defaultKey: process.platform === 'darwin' ? 'Cmd+Alt+/' : 'Ctrl+Alt+/',
     action: 'checkCommand'
   }
 };
@@ -251,19 +251,11 @@ async function getSelectedText(): Promise<string | null> {
     const originalClipboard = clipboard.readText();
     
     // 模拟复制操作 (Ctrl/Cmd+C) 来获取选中文本
-    if (process.platform === 'darwin') {
-      // macOS: Cmd+C
-      await keyboard.pressKey(Key.LeftSuper);
-      await keyboard.pressKey(Key.C);
-      await keyboard.releaseKey(Key.C);
-      await keyboard.releaseKey(Key.LeftSuper);
-    } else {
-      // Windows/Linux: Ctrl+C
-      await keyboard.pressKey(Key.LeftControl);
-      await keyboard.pressKey(Key.C);
-      await keyboard.releaseKey(Key.C);
-      await keyboard.releaseKey(Key.LeftControl);
-    }
+    const keyToPress = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+    await keyboard.pressKey(keyToPress);
+    await keyboard.pressKey(Key.C);
+    await keyboard.releaseKey(Key.C);
+    await keyboard.releaseKey(keyToPress);
     
     // 等待剪贴板更新，使用更可靠的方案
     let attempts = 0;
@@ -406,32 +398,20 @@ async function getCurrentInputText(): Promise<string | null> {
     const originalClipboard = clipboard.readText();
     
     // 模拟全选操作 (Ctrl/Cmd+A)
-    if (process.platform === 'darwin') {
-      await keyboard.pressKey(Key.LeftSuper);
-      await keyboard.pressKey(Key.A);
-      await keyboard.releaseKey(Key.A);
-      await keyboard.releaseKey(Key.LeftSuper);
-    } else {
-      await keyboard.pressKey(Key.LeftControl);
-      await keyboard.pressKey(Key.A);
-      await keyboard.releaseKey(Key.A);
-      await keyboard.releaseKey(Key.LeftControl);
-    }
+    const selectAllKey = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+    await keyboard.pressKey(selectAllKey);
+    await keyboard.pressKey(Key.A);
+    await keyboard.releaseKey(Key.A);
+    await keyboard.releaseKey(selectAllKey);
     
     await new Promise(resolve => setTimeout(resolve, 50));
     
     // 模拟复制操作 (Ctrl/Cmd+C)
-    if (process.platform === 'darwin') {
-      await keyboard.pressKey(Key.LeftSuper);
-      await keyboard.pressKey(Key.C);
-      await keyboard.releaseKey(Key.C);
-      await keyboard.releaseKey(Key.LeftSuper);
-    } else {
-      await keyboard.pressKey(Key.LeftControl);
-      await keyboard.pressKey(Key.C);
-      await keyboard.releaseKey(Key.C);
-      await keyboard.releaseKey(Key.LeftControl);
-    }
+    const copyKey = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+    await keyboard.pressKey(copyKey);
+    await keyboard.pressKey(Key.C);
+    await keyboard.releaseKey(Key.C);
+    await keyboard.releaseKey(copyKey);
     
     // 等待剪贴板更新
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -538,32 +518,20 @@ async function handleCheckCommand(): Promise<void> {
     clipboard.writeText(newText);
     
     // 全选当前输入框内容
-    if (process.platform === 'darwin') {
-      await keyboard.pressKey(Key.LeftSuper);
-      await keyboard.pressKey(Key.A);
-      await keyboard.releaseKey(Key.A);
-      await keyboard.releaseKey(Key.LeftSuper);
-    } else {
-      await keyboard.pressKey(Key.LeftControl);
-      await keyboard.pressKey(Key.A);
-      await keyboard.releaseKey(Key.A);
-      await keyboard.releaseKey(Key.LeftControl);
-    }
+    const selectAllKey = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+    await keyboard.pressKey(selectAllKey);
+    await keyboard.pressKey(Key.A);
+    await keyboard.releaseKey(Key.A);
+    await keyboard.releaseKey(selectAllKey);
     
     await new Promise(resolve => setTimeout(resolve, 50));
     
     // 粘贴新内容
-    if (process.platform === 'darwin') {
-      await keyboard.pressKey(Key.LeftSuper);
-      await keyboard.pressKey(Key.V);
-      await keyboard.releaseKey(Key.V);
-      await keyboard.releaseKey(Key.LeftSuper);
-    } else {
-      await keyboard.pressKey(Key.LeftControl);
-      await keyboard.pressKey(Key.V);
-      await keyboard.releaseKey(Key.V);
-      await keyboard.releaseKey(Key.LeftControl);
-    }
+    const pasteKey = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+    await keyboard.pressKey(pasteKey);
+    await keyboard.pressKey(Key.V);
+    await keyboard.releaseKey(Key.V);
+    await keyboard.releaseKey(pasteKey);
     
     console.log('[Main] 命令处理完成');
   } catch (error) {
@@ -710,20 +678,20 @@ app.whenReady().then(() => {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        console.log('[Main] 开始模拟粘贴操作, 平台:', process.platform);
-        if (process.platform === 'darwin') {
-          // macOS: Cmd+V
-          await keyboard.pressKey(Key.LeftSuper);
-          await keyboard.pressKey(Key.V);
-          await keyboard.releaseKey(Key.V);
-          await keyboard.releaseKey(Key.LeftSuper);
-        } else {
-          // Windows/Linux: Ctrl+V
-          await keyboard.pressKey(Key.LeftControl);
-          await keyboard.pressKey(Key.V);
-          await keyboard.releaseKey(Key.V);
-          await keyboard.releaseKey(Key.LeftControl);
-        }
+        // 全选当前内容
+        const selectAllKey = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+        await keyboard.pressKey(selectAllKey);
+        await keyboard.pressKey(Key.A);
+        await keyboard.releaseKey(Key.A);
+        await keyboard.releaseKey(selectAllKey);
+        
+        // 等待全选操作完成
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const pasteKey = process.platform === 'darwin' ? Key.LeftSuper : Key.LeftControl;
+        await keyboard.pressKey(pasteKey);
+        await keyboard.pressKey(Key.V);
+        await keyboard.releaseKey(Key.V);
+        await keyboard.releaseKey(pasteKey);
         console.log('[Main] 粘贴操作完成');
       } catch (error) {
         console.error('[Main] 模拟操作失败:', error);

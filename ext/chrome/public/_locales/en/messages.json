@@ -286,5 +286,13 @@
   "howToChangeShortcut": {
     "message": "Method: Click the extension icon in the browser toolbar → Manage Extensions → Keyboard Shortcuts → Set new shortcuts",
     "description": "Instructions on how to change shortcuts in the browser"
+  },
+  "quickInsertPrompt": {
+    "message": "Quick Insert Prompt",
+    "description": "Quick insert prompt command name"
+  },
+  "quickInsertPromptDesc": {
+    "message": "Type /p<number> in any input field to quickly insert the corresponding prompt, e.g., /p1, /p2",
+    "description": "Description for the quick insert prompt command"
   }
 }

@@ -5,6 +5,7 @@ interface ShortcutConfig {
   description: string;
   action: string;
   defaultKey: string;
+  defaultKeyMac: string;
 }
 
 interface ShortcutsConfig {
@@ -20,19 +21,44 @@ const DEFAULT_SHORTCUTS: ShortcutsConfig = {
     name: 'toggleSidePanel',
     description: 'toggleSidePanelDesc',
     action: 'openPanel',
-    defaultKey: 'Alt+O'
+    defaultKey: 'Alt+O',
+    defaultKeyMac: 'Cmd+O'
   },
   quickSaveSelection: {
     name: 'quickSaveSelection',
     description: 'quickSaveSelectionDesc',
     action: 'quickSaveSelection',
-    defaultKey: 'Alt+P'
+    defaultKey: 'Alt+P',
+    defaultKeyMac: 'Cmd+P'
+  },
+  quickInsertPrompt: {
+    name: 'quickInsertPrompt',
+    description: 'quickInsertPromptDesc',
+    action: 'quickInsertPrompt',
+    defaultKey: '/p<number>',
+    defaultKeyMac: '/p<number>'
   }
 };
 
 const KeyboardShortcutSettings: React.FC<KeyboardShortcutSettingsProps> = ({ shortcuts = DEFAULT_SHORTCUTS }) => {
   const [defaultShortcuts] = useState<ShortcutsConfig>(shortcuts);
   const [currentShortcuts, setCurrentShortcuts] = useState<{ [action: string]: string }>({});
+  const [isMac, setIsMac] = useState(false);
+
+  // 检测操作系统
+  useEffect(() => {
+    if (chrome && chrome.runtime && chrome.runtime.getPlatformInfo) {
+      chrome.runtime.getPlatformInfo().then((platformInfo) => {
+        setIsMac(platformInfo.os === 'mac');
+      }).catch(() => {
+        // 如果获取失败，默认非Mac系统
+        setIsMac(false);
+      });
+    } else {
+      // 如果API不可用，默认非Mac系统
+      setIsMac(false);
+    }
+  }, []);
 
   // 加载快捷键设置
   useEffect(() => {
@@ -49,28 +75,40 @@ const KeyboardShortcutSettings: React.FC<KeyboardShortcutSettingsProps> = ({ sho
 
         commands.forEach((command: any) => {
           if (command.name === 'toggle-side-panel') {
-            loadedShortcuts.openPanel = command.shortcut || defaultShortcuts.openPanel.defaultKey;
+            loadedShortcuts.openPanel = command.shortcut || getPlatformDefaultKey('openPanel');
           } else if (command.name === 'quick-save-selection') {
-            loadedShortcuts.quickSaveSelection = command.shortcut || defaultShortcuts.quickSaveSelection.defaultKey;
+            loadedShortcuts.quickSaveSelection = command.shortcut || getPlatformDefaultKey('quickSaveSelection');
           }
         });
+
+        // 添加文本命令（不是键盘快捷键）
+        loadedShortcuts.quickInsertPrompt = getPlatformDefaultKey('quickInsertPrompt');
 
         setCurrentShortcuts(loadedShortcuts);
       } else {
         // 如果API不可用，使用默认值
         setCurrentShortcuts({
-          openPanel: defaultShortcuts.openPanel.defaultKey,
-          quickSaveSelection: defaultShortcuts.quickSaveSelection.defaultKey
+          openPanel: getPlatformDefaultKey('openPanel'),
+          quickSaveSelection: getPlatformDefaultKey('quickSaveSelection'),
+          quickInsertPrompt: getPlatformDefaultKey('quickInsertPrompt')
         });
       }
     } catch (error) {
       console.error('加载快捷键设置失败:', error);
       // 使用默认值
       setCurrentShortcuts({
-        openPanel: defaultShortcuts.openPanel.defaultKey,
-        quickSaveSelection: defaultShortcuts.quickSaveSelection.defaultKey
+        openPanel: getPlatformDefaultKey('openPanel'),
+        quickSaveSelection: getPlatformDefaultKey('quickSaveSelection'),
+        quickInsertPrompt: getPlatformDefaultKey('quickInsertPrompt')
       });
     }
+  };
+
+  // 根据平台获取默认快捷键
+  const getPlatformDefaultKey = (action: string): string => {
+    const config = defaultShortcuts[action];
+    if (!config) return '';
+    return isMac ? config.defaultKeyMac : config.defaultKey;
   };
 
   // 获取本地化文本的辅助函数
@@ -89,7 +127,7 @@ const KeyboardShortcutSettings: React.FC<KeyboardShortcutSettingsProps> = ({ sho
             </div>
             <div className="flex items-center space-x-2">
               <span className="px-3 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded text-xs font-mono min-w-[80px] text-center text-gray-700">
-                {currentShortcuts[config.action] || config.defaultKey}
+                {currentShortcuts[config.action] || getPlatformDefaultKey(config.action)}
               </span>
             </div>
           </div>

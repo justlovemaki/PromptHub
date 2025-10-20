@@ -2,6 +2,46 @@
 
 let authToken = null;
 let baseUrl = null;
+let platformInfo = null;
+
+// 获取平台信息
+if (chrome && chrome.runtime && chrome.runtime.getPlatformInfo) {
+  chrome.runtime.getPlatformInfo().then(info => {
+    platformInfo = info;
+  }).catch(error => {
+    console.error('Failed to get platform info:', error);
+    // 默认设置为非Mac系统
+    platformInfo = { os: 'win' }; // 使用windows作为默认值
+  });
+}
+
+// 检测是否为Mac系统
+function isMac() {
+  return platformInfo && platformInfo.os === 'mac';
+}
+
+// 获取适合当前平台的快捷键显示
+function getPlatformShortcut(shortcut) {
+  if (!isMac()) {
+    return shortcut; // 非Mac系统，使用原快捷键
+  }
+  // Mac系统，替换Alt为Cmd
+  return shortcut.replace('Alt', 'Cmd');
+}
+
+// 获取适合当前平台的本地化消息
+function getLocalizedMessage(messageName) {
+  // if (isMac()) {
+  //   // 尝试获取Mac特定的消息，如果不存在则使用默认消息
+  //   const macMessageName = messageName + 'Mac';
+  //   const macMessage = chrome.i18n.getMessage(macMessageName);
+  //   if (macMessage && macMessage !== macMessageName) {
+  //     return macMessage;
+  //   }
+  // }
+  // 非Mac系统或没有特定的Mac消息时，返回默认消息
+  return chrome.i18n.getMessage(messageName);
+}
 
 // 检测快捷键冲突的函数
 async function checkKeyboardShortcutConflicts() {
@@ -39,15 +79,15 @@ async function checkKeyboardShortcutConflicts() {
         }
         
         // 创建一个通知提醒用户
-        if (chrome && chrome.notifications) {
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon128.png',
-            title: chrome.i18n.getMessage('shortcutConflictTitle') || 'Shortcut Conflict Detected',
-            message: chrome.i18n.getMessage('shortcutConflictMessage') || 'One or more of our shortcuts conflict with other extensions. Consider changing them in extension settings.',
-            priority: 1
-          });
-        }
+                if (chrome && chrome.notifications) {
+                  chrome.notifications.create({
+                    type: 'basic',
+                    iconUrl: 'icons/icon128.png',
+                    title: getLocalizedMessage('shortcutConflictTitle') || 'Shortcut Conflict Detected',
+                    message: getLocalizedMessage('shortcutConflictMessage') || 'One or more of our shortcuts conflict with other extensions. Consider changing them in extension settings.',
+                    priority: 1
+                  });
+                }
       }
       
       return conflicts;
@@ -64,7 +104,7 @@ if (chrome && chrome.runtime && chrome.runtime.onInstalled && chrome.contextMenu
   chrome.runtime.onInstalled.addListener(async () => {
     chrome.contextMenus.create({
       id: 'quickImportPrompt',
-      title: chrome.i18n.getMessage('quickImportPrompt'),
+      title: getLocalizedMessage('quickImportPrompt'),
       contexts: ['selection']
     });
     

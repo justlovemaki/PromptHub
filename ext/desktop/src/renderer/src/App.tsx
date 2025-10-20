@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './components/ui';
 import PromptCard from './components/PromptCard';
-import type { Prompt, UserStats, UserInfo, PromptTag, ShortcutConfig, ShortcutsConfig, UserShortcutSettings, ShortcutAction, DEFAULT_SHORTCUTS } from './types/types';
+import type { Prompt, UserStats, UserInfo, PromptTag, ShortcutConfig, ShortcutsConfig, UserShortcutSettings, ShortcutAction } from './types/types';
 import { API_CONFIG, getCurrentLanguageBaseUrl} from './config';
 import { findTagByKey } from './utils/tags';
 import { initI18n, t, getCurrentLanguage, setLanguage, getLanguageDisplayName, SUPPORTED_LANGUAGES, type SupportedLanguage } from './utils/i18n';

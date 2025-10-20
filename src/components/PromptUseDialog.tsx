@@ -250,7 +250,23 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
             <h4 className="text-md font-medium text-text-100 mb-3">{tPrompt('sections.preview')}</h4>
             <div className="bg-bg-200 border border-bg-300 rounded-lg p-4">
               <pre className="text-sm text-text-200 whitespace-pre-wrap font-mono leading-relaxed">
-                {finalContent}
+                {prompt?.content ?
+                  prompt.content.split(/(\{\{[^}]+\}\})/g).map((part, index) => {
+                    // 检查是否是变量标记
+                    if (part.startsWith('{{') && part.endsWith('}}')) {
+                      const variableName = part.slice(2, -2).trim();
+                      const variableValue = variableValues[variableName] || '';
+                      // 如果变量有值，则显示值；否则显示原始变量标记但保持高亮
+                      const displayValue = variableValue !== '' ? variableValue : part;
+                      return (
+                        <span key={index} className="font-bold text-primary-100 bg-primary-300 px-1 rounded">
+                          {displayValue}
+                        </span>
+                      );
+                    }
+                    return <span key={index}>{part}</span>;
+                  })
+                : finalContent}
               </pre>
             </div>
           </div>

@@ -227,23 +227,3 @@ export interface UserShortcutSettings {
 
 // 支持的快捷键动作类型
 export type ShortcutAction = 'openPanel' | 'quickSaveSelection';
-
-// 默认快捷键配置
-export const DEFAULT_SHORTCUTS: ShortcutsConfig = {
-   openPanel: {
-     id: 'openPanel',
-     name: '打开面板',
-     key: 'openPanel',
-     description: '打开/关闭命令面板',
-     defaultKey: 'CmdOrCtrl+Alt+O',
-     action: 'openPanel'
-   },
-   quickSaveSelection: {
-     id: 'quickSaveSelection',
-     name: '快速保存选中文案',
-     key: 'quickSaveSelection',
-     description: '快速保存选中的文本为提示词',
-     defaultKey: 'CmdOrCtrl+Alt+P',
-     action: 'quickSaveSelection'
-   }
- };

@@ -74,7 +74,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
           onClick={onClose}
         />
-        <div className="relative z-50 max-w-[95vw] rounded-2xl border border-gray-200 bg-white shadow-2xl mx-4">
+        <div className="relative z-50 max-w-[90vw] min-w-[90vw] rounded-2xl border border-gray-200 bg-white shadow-2xl mx-4">
           <div className="flex flex-col space-y-3 px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-transparent rounded-t-2xl">
             {title && <h2 className="text-xl font-bold text-gray-900 leading-tight tracking-tight">{title}</h2>}
             <button

@@ -286,5 +286,13 @@
   "howToChangeShortcut": {
     "message": "方法：点击浏览器右上角扩展图标 → 管理扩展 → 键盘快捷键 → 设置新快捷键",
     "description": "Instructions on how to change shortcuts in the browser"
+  },
+  "quickInsertPrompt": {
+    "message": "快速插入提示词",
+    "description": "Quick insert prompt command name"
+  },
+  "quickInsertPromptDesc": {
+    "message": "在任意输入框中输入 /p<数字> 快速插入对应序号的提示词，例如 /p1, /p2",
+    "description": "Description for the quick insert prompt command"
   }
 }
