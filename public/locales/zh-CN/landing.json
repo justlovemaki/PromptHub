@@ -18,7 +18,7 @@
   "management": {
     "title": "集中化、标签化、",
     "highlight": "秒速搜索",
-    "description": "为您所有的AI模型（GPT, Midjourney, Claude等）建立一个统一的提示词库。通过文件夹和标签进行分类，瞬间找到你需要的任何内容。",
+    "description": "为您所有的AI模型（GPT, Midjourney, Claude等）建立一个统一的提示词库。通过标签进行分类，瞬间找到你需要的任何内容。",
     "features": {
       "smartCategory": "自动填充",
       "multiTag": "多维标签", 
@@ -92,6 +92,7 @@
         "allFree": "包含免费版所有功能",
         "unlimited": "无限提示词存储",
         "aiOptimize": "AI智能优化",
+        "smartTagging": "智能打标签",
         "versionControl": "版本管理",
         "globalHotkey": "自定义快捷键",
         "allExt": "全端扩展",
@@ -109,6 +110,60 @@
         "apiAccess": "API访问",
         "accountManager": "专属客户经理"
       }
+    }
+  },
+  "howto": {
+    "title": "如何使用",
+    "subtitle": "三步开启高效的 prompt 管理和使用体验",
+    "step1": {
+      "title": "创建和管理 Prompt",
+      "description": "在 PromptHub 中创建您的提示词库,使用标签进行智能分类管理。",
+      "tip1": "使用智能打标签系统组织您的提示词库",
+      "tip2": "添加多个标签便于快速检索和筛选"
+    },
+    "step2": {
+      "title": "AI 智能优化",
+      "description": "利用 prompt generator 功能,让 AI 帮您优化和改进提示词,提升输出质量。",
+      "tip1": "一键优化让提示词更加结构化和专业",
+      "tip2": "AI 会根据最佳实践自动改进您的 prompt"
+    },
+    "step3": {
+      "title": "一键快速使用",
+      "description": "通过浏览器插件或桌面应用,在任何地方快速调用您的 prompt use 库。",
+      "tip1": "支持快捷键快速打开 prompt 面板",
+      "tip2": "一键复制或直接发送到 AI 对话框"
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "subtitle": "关于 PromptHub 的常见疑问解答",
+    "q1": {
+      "question": "什么是 PromptHub?",
+      "answer": "PromptHub 是一个专业的 AI 提示词管理平台,帮助您集中管理、优化和快速使用各种 AI 提示词。无论是 ChatGPT、Claude 还是其他 AI 工具的 prompt,都可以在这里统一管理。"
+    },
+    "q2": {
+      "question": "如何使用 prompt generator 功能?",
+      "answer": "在编辑提示词时,点击「AI 优化」按钮,我们的 prompt generator 会分析您的提示词并提供优化建议。它会帮助您构建更结构化、更有效的提示词,提升 AI 输出质量。"
+    },
+    "q3": {
+      "question": "prompt use 功能如何工作?",
+      "answer": "安装浏览器插件或桌面应用后,您可以通过快捷键在任何网页上快速调用保存的提示词。选择需要的 prompt,一键复制或直接发送到 AI 对话框,大大提升工作效率。"
+    },
+    "q4": {
+      "question": "免费版和付费版有什么区别?",
+      "answer": "免费版提供基础的 prompt 管理功能,包括创建、编辑和使用提示词。付费版解锁 AI 优化、高级搜索、团队协作、云端同步等专业功能,适合重度使用者和团队。"
+    },
+    "q5": {
+      "question": "如何快速找到我需要的提示词?",
+      "answer": "PromptHub 提供强大的搜索和筛选功能。您可以通过关键词搜索提示词内容,使用标签快速筛选分类,还支持按使用频率、创建时间等多种方式排序,帮助您瞬间找到需要的 prompt。"
+    },
+    "q6": {
+      "question": "可以在多个设备上使用吗?",
+      "answer": "是的!PromptHub 支持云端同步功能(专业版),您可以在电脑、手机、平板等多个设备上访问您的提示词库。同时提供浏览器插件和桌面应用,让您在任何设备上都能高效使用 prompt。"
+    },
+    "q7": {
+      "question": "如何导入我现有的提示词?",
+      "answer": "PromptHub 支持 JSON 格式的批量导入功能。您可以将现有的提示词整理成 JSON 格式后一键导入,系统会自动识别并帮您整理分类,让迁移过程轻松便捷。"
     }
   },
   "footer": {

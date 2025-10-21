@@ -1,8 +1,7 @@
 import { createInstance } from 'i18next'
 import resourcesToBackend from 'i18next-resources-to-backend'
 import { initReactI18next } from 'react-i18next/initReactI18next'
-import { getOptions } from './settings'
-import { LANGUAGES } from '../lib/constants';
+import { getOptions, languages } from './settings'
 
 const initI18next = async (lng: string, ns: string) => {
   const i18nInstance = createInstance()
@@ -20,3 +19,5 @@ export async function getTranslation(lng: string, ns = 'common') {
     i18n: i18nextInstance
   }
 }
+
+export { languages };

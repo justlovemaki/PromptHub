@@ -319,6 +319,7 @@ const PricingSection = ({ params, isAdmin, handleLoginModal}: { params: { lang: 
         t('pricing.pro.features.allFree'),
         t('pricing.pro.features.unlimited'),
         t('pricing.pro.features.aiOptimize'),
+        t('pricing.pro.features.smartTagging'),
         t('pricing.pro.features.versionControl'),
         t('pricing.pro.features.globalHotkey'),
         t('pricing.pro.features.allExt'),

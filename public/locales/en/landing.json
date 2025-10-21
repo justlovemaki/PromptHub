@@ -18,7 +18,7 @@
   "management": {
     "title": "Centralized, Tagged,",
     "highlight": "Lightning-Fast Search",
-    "description": "Build a unified prompt library for all your AI models (GPT, Midjourney, Claude, and more). Organize with folders and tags, instantly find anything you need.",
+    "description": "Build a unified prompt library for all your AI models (GPT, Midjourney, Claude, and more). Organize with tags, instantly find anything you need.",
     "features": {
       "smartCategory": "Auto Fill",
       "multiTag": "Multi-dimensional Tags", 
@@ -92,6 +92,7 @@
         "allFree": "Includes all Free features",
         "unlimited": "Unlimited prompt storage",
         "aiOptimize": "AI intelligent optimization",
+        "smartTagging": "Smart tagging",
         "versionControl": "Version management",
         "globalHotkey": "Custom hotkeys",
         "allExt": "Full-platform extension",
@@ -109,6 +110,60 @@
         "apiAccess": "API access",
         "accountManager": "Dedicated account manager"
       }
+    }
+  },
+  "howto": {
+    "title": "How to Use",
+    "subtitle": "Three steps to start efficient prompt management and usage",
+    "step1": {
+      "title": "Create and Manage Prompts",
+      "description": "Build your prompt library in PromptHub with smart categorization using tags.",
+      "tip1": "Use smart tagging system to organize your prompt library",
+      "tip2": "Add multiple tags for quick search and filtering"
+    },
+    "step2": {
+      "title": "AI-Powered Optimization",
+      "description": "Use the prompt generator feature to let AI help optimize and improve your prompts for better output quality.",
+      "tip1": "One-click optimization makes prompts more structured and professional",
+      "tip2": "AI automatically improves your prompts based on best practices"
+    },
+    "step3": {
+      "title": "Quick One-Click Usage",
+      "description": "Access your prompt use library anywhere through browser extension or desktop app.",
+      "tip1": "Support keyboard shortcuts to quickly open prompt panel",
+      "tip2": "One-click copy or send directly to AI chat"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Common questions about PromptHub",
+    "q1": {
+      "question": "What is PromptHub?",
+      "answer": "PromptHub is a professional AI prompt management platform that helps you centrally manage, optimize, and quickly use various AI prompts. Whether it's ChatGPT, Claude, or other AI tools' prompts, you can manage them all in one place."
+    },
+    "q2": {
+      "question": "How to use the prompt generator feature?",
+      "answer": "When editing a prompt, click the 'AI Optimize' button, and our prompt generator will analyze your prompt and provide optimization suggestions. It helps you build more structured and effective prompts to improve AI output quality."
+    },
+    "q3": {
+      "question": "How does the prompt use feature work?",
+      "answer": "After installing the browser extension or desktop app, you can quickly access saved prompts on any webpage using keyboard shortcuts. Select the prompt you need, copy with one click or send directly to the AI chat, greatly improving work efficiency."
+    },
+    "q4": {
+      "question": "What's the difference between free and paid versions?",
+      "answer": "The free version provides basic prompt management features, including creating, editing, and using prompts. The paid version unlocks AI optimization, advanced search, team collaboration, cloud sync, and other professional features, suitable for power users and teams."
+    },
+    "q5": {
+      "question": "How can I quickly find the prompts I need?",
+      "answer": "PromptHub provides powerful search and filtering features. You can search prompt content by keywords, quickly filter by tags, and sort by usage frequency, creation time, and more, helping you instantly find the prompt you need."
+    },
+    "q6": {
+      "question": "Can I use it on multiple devices?",
+      "answer": "Yes! PromptHub supports cloud sync (Professional version), allowing you to access your prompt library across computers, phones, tablets, and more. We also provide browser extensions and desktop apps for efficient prompt use on any device."
+    },
+    "q7": {
+      "question": "How do I import my existing prompts?",
+      "answer": "PromptHub supports batch import functionality in JSON format. You can organize your existing prompts into JSON format and import them with one click. The system will automatically recognize and help organize them, making migration easy and convenient."
     }
   },
   "footer": {

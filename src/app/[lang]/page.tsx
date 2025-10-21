@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import ParticlesBackground from '@/components/landing/ParticlesBackground';
-import { ChevronDown, Check, X, Globe, Zap, Shield, Text, Sparkles, Search, Tag, Folder, Rocket, Menu, X as XIcon } from 'lucide-react';
+import { ChevronDown, Check, X, Globe, Zap, Shield, Text, Sparkles, Search, Tag, Folder, Rocket, Menu, X as XIcon, BookOpen, HelpCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -35,6 +35,8 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
     'management',
     'optimization',
     'pricing',
+    'howto',
+    'faq',
     'footer'
   ];
 
@@ -467,6 +469,171 @@ const LandingPage = ({ params }: { params: { lang: string } }) => {
         </div>
       </section>
 
+      {/* 使用说明区 */}
+      <section id="howto" className="min-h-screen flex items-center justify-center py-12 sm:py-20 bg-gradient-to-b from-black to-gray-900">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+              {t('howto.title')}
+              <span className="text-gradient bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"> PromptHub</span>
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto">
+              {t('howto.subtitle')}
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+            {/* 步骤1: 创建和管理 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-purple-900/30 to-purple-800/20 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-purple-500/30 hover:border-purple-500/50 transition-all hover:shadow-xl hover:shadow-purple-500/20"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-xl font-bold text-purple-400">1</span>
+                </div>
+                <Folder className="w-6 h-6 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-white">{t('howto.step1.title')}</h3>
+              <p className="text-gray-400 leading-relaxed mb-4">{t('howto.step1.description')}</p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-purple-400 flex-shrink-0" />
+                  <span>{t('howto.step1.tip1')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-purple-400 flex-shrink-0" />
+                  <span>{t('howto.step1.tip2')}</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* 步骤2: 优化提示词 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-green-900/30 to-green-800/20 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-green-500/30 hover:border-green-500/50 transition-all hover:shadow-xl hover:shadow-green-500/20"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <span className="text-xl font-bold text-green-400">2</span>
+                </div>
+                <Zap className="w-6 h-6 text-green-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-white">{t('howto.step2.title')}</h3>
+              <p className="text-gray-400 leading-relaxed mb-4">{t('howto.step2.description')}</p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-green-400 flex-shrink-0" />
+                  <span>{t('howto.step2.tip1')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-green-400 flex-shrink-0" />
+                  <span>{t('howto.step2.tip2')}</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* 步骤3: 一键使用 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-blue-500/30 hover:border-blue-500/50 transition-all hover:shadow-xl hover:shadow-blue-500/20"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <span className="text-xl font-bold text-blue-400">3</span>
+                </div>
+                <Rocket className="w-6 h-6 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-white">{t('howto.step3.title')}</h3>
+              <p className="text-gray-400 leading-relaxed mb-4">{t('howto.step3.description')}</p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-blue-400 flex-shrink-0" />
+                  <span>{t('howto.step3.tip1')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-blue-400 flex-shrink-0" />
+                  <span>{t('howto.step3.tip2')}</span>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 常见问题区 */}
+      <section id="faq" className="min-h-screen flex items-center justify-center py-12 sm:py-20 bg-gradient-to-b from-gray-900 to-black">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+              {t('faq.title')}
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto">
+              {t('faq.subtitle')}
+            </p>
+          </motion.div>
+
+          <div className="max-w-4xl mx-auto space-y-4">
+            <FAQItem
+              question={t('faq.q1.question')}
+              answer={t('faq.q1.answer')}
+              delay={0.1}
+            />
+            <FAQItem
+              question={t('faq.q2.question')}
+              answer={t('faq.q2.answer')}
+              delay={0.2}
+            />
+            <FAQItem
+              question={t('faq.q3.question')}
+              answer={t('faq.q3.answer')}
+              delay={0.3}
+            />
+            <FAQItem
+              question={t('faq.q4.question')}
+              answer={t('faq.q4.answer')}
+              delay={0.4}
+            />
+            <FAQItem
+              question={t('faq.q5.question')}
+              answer={t('faq.q5.answer')}
+              delay={0.5}
+            />
+            <FAQItem
+              question={t('faq.q6.question')}
+              answer={t('faq.q6.answer')}
+              delay={0.6}
+            />
+            <FAQItem
+              question={t('faq.q7.question')}
+              answer={t('faq.q7.answer')}
+              delay={0.7}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 底部信息区 */}
       <footer id="footer" className="bg-gray-900 border-t border-gray-800 py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6">
@@ -712,5 +879,48 @@ const FeatureBadge = ({ icon, text }: { icon: React.ReactNode; text: string }) =
     <span className="text-sm font-medium">{text}</span>
   </div>
 );
+
+// FAQ项组件
+const FAQItem = ({ question, answer, delay }: { question: string; answer: string; delay: number }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay }}
+      viewport={{ once: true }}
+      className="bg-gray-800/50 backdrop-blur-lg rounded-xl border border-gray-700 overflow-hidden hover:border-purple-500/50 transition-all"
+    >
+      <button
+        className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-800/30 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="text-lg font-semibold text-white pr-4">{question}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ChevronDown className="w-5 h-5 text-purple-400 flex-shrink-0" />
+        </motion.div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="px-6 pb-5 text-gray-400 leading-relaxed">
+              {answer}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 export default LandingPage;
