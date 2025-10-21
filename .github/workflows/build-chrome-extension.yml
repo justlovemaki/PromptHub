@@ -12,8 +12,18 @@ on:
       - master
 
 jobs:
+  # 0. 创建一个新任务来调用可复用工作流
+  # run-pre-clean:
+  #   uses: ./.github/workflows/Auto-Clean.yml
+  #   permissions: write-all
+  #   with:
+  #     # 示例：删除 release-assets/ 目录下所有 v 开头的 zip 文件
+  #     # file_pattern: 'release-assets/ai-prompt-hub-chrome-extension-v*.zip'
+  #     file_pattern: 'ai-prompt-hub-chrome-extension*.zip'
+
   # 构建任务：构建Chrome扩展
   build:
+    # needs: run-pre-clean
     runs-on: ubuntu-latest
     
     steps:

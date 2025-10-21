@@ -1,6 +1,6 @@
 {
   "name": "prompthub-desktop",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "AI提示词管理平台桌面端应用",
   "main": "./out/main/index.js",
   "homepage": "https://prompt.hubtoday.app",

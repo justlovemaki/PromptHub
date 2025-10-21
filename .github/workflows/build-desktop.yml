@@ -12,8 +12,14 @@ on:
       - master
 
 jobs:
+  # 0. 创建一个新任务来调用可复用工作流
+  # run-pre-clean:
+  #   uses: ./.github/workflows/Auto-Clean.yml
+  #   permissions: write-all
+
   # 构建任务：与之前基本相同，在三个平台上构建应用
   build:
+    # needs: run-pre-clean
     runs-on: ${{ matrix.os }}
     
     strategy:

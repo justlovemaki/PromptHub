@@ -1,0 +1,68 @@
+name: Auto-Clean
+
+on:
+  # 1. 为 workflow_call 添加 inputs 块来定义参数
+  workflow_call:
+    inputs:
+      file_pattern:
+        description: '要删除的文件名模式 (例如 "chrome-extension-*.zip")。支持通配符。'
+        required: false # 设置为非必需，这样即使不传参数也不会报错
+        type: string
+
+  # 2. 也为 workflow_dispatch 添加 inputs，以便手动运行时也能使用
+  workflow_dispatch:
+    inputs:
+      file_pattern:
+        description: '要删除的文件名模式 (例如 "chrome-extension-*.zip")。支持通配符。'
+        required: false
+
+permissions: write-all
+
+jobs:
+  auto_clean:
+    runs-on: ubuntu-latest
+    steps:
+      # 3. 新增步骤：检出代码，以便操作仓库中的文件
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 4. 新增步骤：根据传入的模式删除文件
+      - name: Delete files by pattern
+        # 只有当 file_pattern 被提供时才运行此步骤
+        if: inputs.file_pattern != '' || github.event.inputs.file_pattern != ''
+        run: |
+          # 兼容 workflow_call 和 workflow_dispatch 两种触发方式
+          PATTERN="${{ inputs.file_pattern || github.event.inputs.file_pattern }}"
+          echo "Searching for files to delete with pattern: $PATTERN"
+          
+          # 查找文件并统计数量
+          file_count=$(find . -name "$PATTERN" | wc -l)
+          
+          if [ $file_count -eq 0 ]; then
+            echo "No files found matching the pattern."
+          else
+            echo "Found $file_count files. Deleting..."
+            # 使用 find 命令查找并删除匹配的文件
+            find . -name "$PATTERN" -type f -print -delete
+            
+            # 配置 git 用户信息
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            
+            # 将删除操作提交并推送到仓库
+            git add .
+            git commit -m "chore: auto-clean files matching '$PATTERN'"
+            git push
+            echo "File deletion has been committed and pushed."
+          fi
+
+      # 5. 保留您原有的步骤：删除旧的 Releases 和 Workflows
+      - name: Delete old Releases and Workflows
+        uses: ophub/delete-releases-workflows@main
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_releases: true
+          releases_keep_latest: 0
+          delete_tags: true
+          delete_workflows: true
+          workflows_keep_day: 0
