@@ -85,6 +85,7 @@ jobs:
         name: build-${{ matrix.platform }}
         path: ext/desktop/dist-electron/**/*
         if-no-files-found: error
+        retention-days: 1 # <--- 这是修复的关键，将产物保留期设置为1天
 
   # 发布任务：构建完成后，整理产物并创建 Release
   release:

@@ -58,6 +58,7 @@ jobs:
         name: chrome-extension
         path: ext/chrome/chrome-extension.zip
         if-no-files-found: error
+        retention-days: 1 # <--- 这是修复的关键，将产物保留期设置为1天
 
   # 发布任务：创建GitHub Release
   release:
