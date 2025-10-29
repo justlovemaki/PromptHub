@@ -8,9 +8,13 @@ import { useEffect, useState } from 'react';
 export default function Download({ params }: { params: { lang: string } }) {
   const { t } = useTranslation(params.lang, 'download');
   const [currentDomain, setCurrentDomain] = useState('');
+  const [appVersion, setAppVersion] = useState('');
 
   useEffect(() => {
     setCurrentDomain(window.location.origin);
+    // 从环境变量获取应用版本号
+    const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0';
+    setAppVersion(version);
   }, []);
 
   return (
@@ -52,7 +56,8 @@ export default function Download({ params }: { params: { lang: string } }) {
                     <p className="text-gray-300 mb-4">{t('windowsDescription')}</p>
                     <div className="flex justify-center">
                       <a
-                        href={t('windowsDownloadUrl') + '1.0.2/PromptHub.Desktop.Setup.1.0.2.exe'}
+                        href={t('windowsDownloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop.Setup.${appVersion}.exe
+`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
@@ -73,7 +78,7 @@ export default function Download({ params }: { params: { lang: string } }) {
                     <p className="text-gray-300 mb-4">{t('macDescription')}</p>
                     <div className="flex justify-center">
                       <a
-                        href={t('macDownloadUrl') + '1.0.2/PromptHub.Desktop-1.0.2.dmg'}
+                        href={t('macDownloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.dmg`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
@@ -94,7 +99,7 @@ export default function Download({ params }: { params: { lang: string } }) {
                     <p className="text-gray-300 mb-4">{t('linuxDescription')}</p>
                     <div className="flex justify-center">
                       <a
-                        href={t('linuxDownloadUrl') + '1.0.2/PromptHub.Desktop-1.0.2.AppImage'}
+                        href={t('linuxDownloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.AppImage`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
