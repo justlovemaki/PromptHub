@@ -46,17 +46,17 @@ export default function Download({ params }: { params: { lang: string } }) {
 
                 <div className="grid md:grid-cols-3 gap-6">
                   {/* Windows */}
-                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all">
+                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all flex flex-col h-full">
                     <div className="flex items-center mb-4">
                       <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
                         <span className="text-lg font-bold">W</span>
                       </div>
                       <h3 className="text-xl font-semibold">Windows</h3>
                     </div>
-                    <p className="text-gray-300 mb-4">{t('windowsDescription')}</p>
-                    <div className="flex justify-center">
+                    <p className="text-gray-300 mb-4 flex-grow">{t('windowsDescription')}</p>
+                    <div className="mt-auto flex justify-center">
                       <a
-                        href={t('windowsDownloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop.Setup.${appVersion}.exe
+                        href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop.Setup.${appVersion}.exe
 `}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -68,17 +68,17 @@ export default function Download({ params }: { params: { lang: string } }) {
                   </div>
 
                   {/* Mac */}
-                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all">
+                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all flex flex-col h-full">
                     <div className="flex items-center mb-4">
                       <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center mr-3">
                         <span className="text-lg font-bold">M</span>
                       </div>
                       <h3 className="text-xl font-semibold">Mac</h3>
                     </div>
-                    <p className="text-gray-300 mb-4">{t('macDescription')}</p>
-                    <div className="flex justify-center">
+                    <p className="text-gray-300 mb-4 flex-grow">{t('macDescription')}</p>
+                    <div className="mt-auto flex justify-center">
                       <a
-                        href={t('macDownloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.dmg`}
+                        href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.dmg`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
@@ -89,17 +89,17 @@ export default function Download({ params }: { params: { lang: string } }) {
                   </div>
 
                   {/* Linux */}
-                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all">
+                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all flex flex-col h-full">
                     <div className="flex items-center mb-4">
                       <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-3">
                         <span className="text-lg font-bold">L</span>
                       </div>
                       <h3 className="text-xl font-semibold">Linux</h3>
                     </div>
-                    <p className="text-gray-300 mb-4">{t('linuxDescription')}</p>
-                    <div className="flex justify-center">
+                    <p className="text-gray-300 mb-4 flex-grow">{t('linuxDescription')}</p>
+                    <div className="mt-auto flex justify-center">
                       <a
-                        href={t('linuxDownloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.AppImage`}
+                        href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.AppImage`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
@@ -117,15 +117,15 @@ export default function Download({ params }: { params: { lang: string } }) {
                   {t('chromeExtensionTitle')}
                 </h2>
 
-                <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600">
+                <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mr-4">
                       <span className="text-xl font-bold">C</span>
                     </div>
                     <h3 className="text-xl font-semibold">{t('chromeExtensionName')}</h3>
                   </div>
-                  <p className="text-gray-300 mb-4">{t('chromeExtensionDescription')}</p>
-                  <div className="flex justify-center">
+                  <p className="text-gray-300 mb-4 flex-grow">{t('chromeExtensionDescription')}</p>
+                  <div className="mt-auto flex justify-center">
                     <a
                       href={t('chromeExtensionUrl')}
                       target="_blank"
