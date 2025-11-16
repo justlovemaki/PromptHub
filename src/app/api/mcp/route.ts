@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { authenticateRequest } from '@/lib/mcp-auth';
 import { db } from '@/lib/database';
 import { prompt } from '@/drizzle-schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc, count } from 'drizzle-orm';
 
 interface MCPMessage {
   jsonrpc: '2.0';
@@ -46,7 +46,9 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
     console.log('[MCP] Processing initialize request');
     yield createMCPResult(message.id, {
       protocolVersion: '2025-03-26',
-      capabilities: {},
+      capabilities: {
+        tools: {}
+      },
       serverInfo: {
         name: 'Prompt Manager MCP Server',
         version: '1.0.0'
@@ -84,7 +86,7 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
   // Handle tools/list method
   if (message.method === 'tools/list') {
     console.log('[MCP] Processing tools/list');
-    yield createMCPResult(message.id, {
+    const toolsList = {
       tools: [
         {
           name: "getPromptById",
@@ -102,15 +104,28 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
         },
         {
           name: "listPrompt",
-          description: "查询当前用户的所有提示词的标题和描述",
+          description: "查询当前用户的所有提示词的标题和描述，支持分页查询",
           inputSchema: {
             type: "object",
-            properties: {},
+            properties: {
+              page: {
+                type: "number",
+                description: "页码，从1开始",
+                default: 1
+              },
+              pageSize: {
+                type: "number",
+                description: "每页数量，默认30",
+                default: 30
+              }
+            },
             required: []
           }
         }
       ]
-    });
+    };
+    // console.log('[MCP] Returning tools list:', JSON.stringify(toolsList, null, 2));
+    yield createMCPResult(message.id, toolsList);
     return;
   }
 
@@ -148,14 +163,34 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
   // Handle listPrompt tool execution
   if (message.method === 'tools/call' && message.params?.name === 'listPrompt') {
     const personalSpaceId = authResult.personalSpaceId;
-    console.log('[MCP] Processing listPrompt for personal space:', personalSpaceId);
+    const page = message.params?.arguments?.page || 1;
+    const pageSize = message.params?.arguments?.pageSize || 30;
+    
+    console.log('[MCP] Processing listPrompt for personal space:', personalSpaceId, 'page:', page, 'pageSize:', pageSize);
 
+    // 计算偏移量
+    const offset = (page - 1) * pageSize;
+
+    // 查询总数
+    const totalCountResult = await db.select({ count: count() })
+      .from(prompt)
+      .where(eq(prompt.spaceId, personalSpaceId));
+
+    // 分页查询
     const userPrompts = await db.select({
       id: prompt.id,
       title: prompt.title,
       description: prompt.description,
       tags: prompt.tags
-    }).from(prompt).where(eq(prompt.spaceId, personalSpaceId));
+    })
+    .from(prompt)
+    .where(eq(prompt.spaceId, personalSpaceId))
+    .orderBy(desc(prompt.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+
+    const total = totalCountResult[0]?.count || 0;
+    const totalPages = Math.ceil(total / pageSize);
 
     // console.log('[MCP] User prompts:', userPrompts);
 
@@ -163,7 +198,15 @@ async function* handleMCPStream(message: MCPMessage, authResult: any) {
       content: [
         {
           type: "text",
-          text: JSON.stringify(userPrompts),
+          text: JSON.stringify({
+            data: userPrompts,
+            pagination: {
+              page,
+              pageSize,
+              total,
+              totalPages
+            }
+          }),
         },
       ],
       isPartial: false
