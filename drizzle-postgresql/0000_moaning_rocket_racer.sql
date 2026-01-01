@@ -2,6 +2,18 @@ CREATE TYPE "public"."log_category" AS ENUM('AUTH', 'API', 'USER', 'SYSTEM', 'SE
 CREATE TYPE "public"."log_level" AS ENUM('INFO', 'WARN', 'ERROR', 'DEBUG');--> statement-breakpoint
 CREATE TYPE "public"."membership_role" AS ENUM('ADMIN', 'MEMBER');--> statement-breakpoint
 CREATE TYPE "public"."space_type" AS ENUM('PERSONAL', 'TEAM');--> statement-breakpoint
+CREATE TABLE "access_tokens" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"access_token" text NOT NULL,
+	"refresh_token" text,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
+	"scope" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -120,6 +132,7 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp with time zone
 );
 --> statement-breakpoint
+ALTER TABLE "access_tokens" ADD CONSTRAINT "access_tokens_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ai_point_transaction" ADD CONSTRAINT "ai_point_transaction_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "membership" ADD CONSTRAINT "membership_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -131,6 +144,9 @@ ALTER TABLE "prompt_usage" ADD CONSTRAINT "prompt_usage_user_id_user_id_fk" FORE
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "space" ADD CONSTRAINT "space_owner_id_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "system_logs" ADD CONSTRAINT "system_logs_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "access_token_idx" ON "access_tokens" USING btree ("access_token");--> statement-breakpoint
+CREATE INDEX "access_token_user_id_idx" ON "access_tokens" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "access_token_created_at_idx" ON "access_tokens" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "ai_point_transaction_user_id_idx" ON "ai_point_transaction" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "membership_user_space_unique" ON "membership" USING btree ("user_id","space_id");--> statement-breakpoint
 CREATE INDEX "prompt_space_id_idx" ON "prompt" USING btree ("space_id");--> statement-breakpoint

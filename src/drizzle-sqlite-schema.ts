@@ -1,5 +1,4 @@
 import { sqliteTable, text, integer, uniqueIndex, index } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
 
 // ============== 认证相关表 ==============
 
