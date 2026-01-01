@@ -10,3 +10,7 @@ ext/
 .env.local
 .env.production
 .env.*.local
+
+# 数据库文件
+sqlite.db
+*.db
