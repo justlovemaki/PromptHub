@@ -314,6 +314,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
         </div>
 
         {/* 订阅状态 */}
+        {isAdmin && (
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-text-100 mb-4">{t('subscriptionStatus')}</h2>
           <div className="flex items-center justify-between">
@@ -338,7 +339,6 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
                 </p>
               )}
             </div>
-            {isAdmin && (
             <button
               onClick={() => {
                 // 在新页面中打开定价页面
@@ -348,9 +348,9 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
             >
               {t('manageSubscriptionButton')}
             </button>
-            )}
           </div>
         </div>
+        )}
 
         {/* AI 点数 */}
         {isAdmin && (

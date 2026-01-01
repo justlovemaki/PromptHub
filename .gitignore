@@ -4,3 +4,9 @@ tsconfig.tsbuildinfo
 dist/
 dist-electron/
 ext/
+
+# 环境变量文件
+.env
+.env.local
+.env.production
+.env.*.local
