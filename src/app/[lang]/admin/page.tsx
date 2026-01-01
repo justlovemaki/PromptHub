@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminPageWrapper from '../../../components/admin/AdminPageWrapper'
 import { useAuth, api, AdminUserListResponse, PopularPromptsResponse } from '@promptmanager/core-logic'
@@ -40,11 +40,12 @@ interface PopularPrompt {
   createdAt: number
 }
 
-export default function AdminPage({ params }: { params: { lang: string } }) {
+export default function AdminPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = use(params)
   const router = useRouter()
-  const { t: tAdmin } = useTranslation(params.lang, 'admin')
-  const { t: tCommon } = useTranslation(params.lang, 'common')
-  const { t: tUser } = useTranslation(params.lang, 'user')
+  const { t: tAdmin } = useTranslation(lang, 'admin')
+  const { t: tCommon } = useTranslation(lang, 'common')
+  const { t: tUser } = useTranslation(lang, 'user')
   const { user, isLoading, isAdmin, setLanguage } = useAuth()
 
   // API数据状态
@@ -56,16 +57,16 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
 
   // 设置语言属性
   useEffect(() => {
-    setLanguage(params.lang);
-  }, [params.lang, setLanguage]);
+    setLanguage(lang);
+  }, [lang, setLanguage]);
 
   // 导航处理函数
   const handleViewAllUsers = () => {
-    router.push(`/${params.lang}/admin/users`)
+    router.push(`/${lang}/admin/users`)
   }
 
   const handleViewAllPrompts = () => {
-    router.push(`/${params.lang}/admin/prompts`)
+    router.push(`/${lang}/admin/prompts`)
   }
 
   // 获取管理后台数据
@@ -77,9 +78,9 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
 
         // 并行获取所有数据
         const [statsResult, usersResult, promptsResult] = await Promise.all([
-          api.getAdminStats(params.lang),
-          api.getAdminUsers({ limit: 10 }, params.lang),
-          api.getAdminPopularPrompts(10, params.lang)
+          api.getAdminStats(lang),
+          api.getAdminUsers({ limit: 10 }, lang),
+          api.getAdminPopularPrompts(10, lang)
         ])
 
         // 检查API调用是否成功
@@ -117,7 +118,7 @@ export default function AdminPage({ params }: { params: { lang: string } }) {
   }, [isLoading])
 
   return (
-    <AdminPageWrapper lang={params.lang} error={dataError}>
+    <AdminPageWrapper lang={lang} error={dataError}>
       <div className="space-y-6">
         {/* 管理后台标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">

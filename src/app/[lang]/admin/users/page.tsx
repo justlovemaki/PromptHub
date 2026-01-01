@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import AdminPageWrapper from '../../../../components/admin/AdminPageWrapper'
 import { useAuth, api } from '@promptmanager/core-logic'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
@@ -11,9 +11,10 @@ import { USER_ROLES, SUBSCRIPTION_STATUS } from '@/lib/constants'
 import type { User } from '@promptmanager/core-logic'
 
 
-export default function AdminUsersPage({ params }: { params: { lang: string } }) {
-  const { t: tAdmin } = useTranslation(params.lang, 'admin')
-  const { t: tCommon } = useTranslation(params.lang, 'common')
+export default function AdminUsersPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = use(params)
+  const { t: tAdmin } = useTranslation(lang, 'admin')
+  const { t: tCommon } = useTranslation(lang, 'common')
   const { isLoading, setLanguage } = useAuth()
 
   // 用户数据状态
@@ -40,8 +41,8 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
 
   // 设置语言属性
   useEffect(() => {
-    setLanguage(params.lang);
-  }, [params.lang, setLanguage]);
+    setLanguage(lang);
+  }, [lang, setLanguage]);
 
   // DataTable 列配置
   const columns = [
@@ -105,7 +106,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
       title: tAdmin('users.tableHeaders.createdAt'),
       render: (value: any, user: User) => (
         <span className="text-text-300 text-xs">
-          {new Date(user.createdAt).toLocaleDateString(params.lang)}
+          {new Date(user.createdAt).toLocaleDateString(lang)}
         </span>
       ),
       width: 120,
@@ -178,7 +179,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         query.subscriptionStatus = filterSubscription as typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS]
       }
 
-      const result = await api.getAdminUsers(query, params.lang)
+      const result = await api.getAdminUsers(query, lang)
 
       if (result.success) {
         setUsers(result.data.users || [])
@@ -206,7 +207,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
         ...(updates.subscriptionStatus !== undefined && { subscriptionStatus: updates.subscriptionStatus }),
         ...(updates.subscriptionEndDate !== undefined && { subscriptionEndDate: updates.subscriptionEndDate }),
         ...(updates.name !== undefined && { name: updates.name }),
-      }, params.lang)
+      }, lang)
 
       if (result.success) {
         // 重新加载用户数据
@@ -246,7 +247,7 @@ export default function AdminUsersPage({ params }: { params: { lang: string } })
 
 
   return (
-    <AdminPageWrapper lang={params.lang}>
+    <AdminPageWrapper lang={lang}>
       <div className="space-y-6">
         {/* 页面标题 */}
         <div className="bg-white rounded-lg shadow-sm border p-6">

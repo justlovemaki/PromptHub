@@ -1,0 +1,1 @@
+ALTER TABLE "prompt" ADD COLUMN "image_urls" text DEFAULT '[]';

@@ -1,4 +1,13 @@
 {
-  "title": "PromptHub - ChatGPT・Claude対応AIプロンプト管理ツール",
-  "description": "ChatGPT、Claude、Midjourney用プロンプトを一元管理。無料テンプレートライブラリ、ワンクリック最適化でAI作業効率を劇的向上！今すぐ無料で始めよう。"
+  "title": "PromptHub - AIプロンプト管理プラットフォーム",
+  "description": "プロ仕様のAIプロンプト管理ツール。豊富なテンプレートでAIワークフローの効率を向上。",
+  "seo": {
+    "siteName": "PromptHub",
+    "siteDescription": "プロ仕様のAIプロンプト管理ツール。豊富なテンプレートでAIワークフローの効率を向上。",
+    "siteKeywords": "AIプロンプト, ChatGPTプロンプト, Claudeプロンプト, プロンプト管理, プロンプトテンプレート, AIワークフロー",
+    "siteUrl": "",
+    "ogImage": "/logo.png",
+    "twitterHandle": "@prompthub",
+    "twitterCard": "summary_large_image"
+  }
 }

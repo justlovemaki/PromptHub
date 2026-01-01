@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       content: z.string().optional(),
       description: z.string().optional(),
       tags: z.array(z.string()).optional(),
+      imageUrls: z.array(z.string().url()).optional(),
       isPublic: z.boolean().optional(),
     }),
   });
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
         content: body.content !== undefined && body.content !== null ? body.content.trim() : body.content,
         description: body.description !== undefined && body.description !== null ? body.description.trim() : body.description,
         tags: body.tags !== undefined && body.tags !== null ? body.tags.map((tag: string) => tag.trim()) : body.tags,
+        imageUrls: body.imageUrls,
         isPublic: body.isPublic
       }
     };
@@ -62,6 +64,15 @@ export async function POST(request: NextRequest) {
         data.tags = []; // 如果传入 null，将其转换为空数组以清空标签
       } else {
         data.tags = data.tags || []; // 保留数组或转换为默认空数组
+      }
+    }
+
+    // 处理图片链接 - 当传入 null 时应清空图片链接，传入数组时使用该数组
+    if (data.imageUrls !== undefined) {
+      if (data.imageUrls === null) {
+        data.imageUrls = []; // 如果传入 null，将其转换为空数组以清空图片链接
+      } else {
+        data.imageUrls = data.imageUrls || []; // 保留数组或转换为默认空数组
       }
     }
 

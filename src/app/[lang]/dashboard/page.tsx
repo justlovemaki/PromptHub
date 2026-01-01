@@ -2,7 +2,7 @@
 
 import UserPageWrapper from '../../../components/admin/UserPageWrapper'
 import { useAuth, api, type Prompt, type CreatePromptRequest, type UpdatePromptRequest, type PromptListQuery, type PromptListResponse, type PromptStats } from '@promptmanager/core-logic'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, use } from 'react'
 import { Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle, Card, DataTable, Loading } from '@promptmanager/ui-components'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { PromptUseButton } from '../../../components/PromptUseButton'
@@ -22,8 +22,9 @@ const styles = `
   }
 `
 
-export default function PromptsManagementPage({ params }: { params: { lang: string } }) {
-  const { t: tDashboard } = useTranslation(params.lang, 'dashboard')
+export default function PromptsManagementPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: paramsLang } = use(params)
+  const { t: tDashboard } = useTranslation(paramsLang, 'dashboard')
   const { user, isLoading, error, setLanguage } = useAuth()
   const [prompts, setPrompts] = useState<Prompt[]>([])
   const [promptsLoading, setPromptsLoading] = useState(false)
@@ -37,7 +38,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   const [filterStatus, setFilterStatus] = useState('all')
   const [operationLoading, setOperationLoading] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
-  const lang = params.lang
+  const lang = paramsLang
   const { getTagNameByKey, allTags } = useTags(lang)
 
   // Create a lookup map for faster name retrieval
@@ -70,13 +71,14 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     description: '',
     content: '',
     tags: [] as string[], // Changed to array
+    imageUrls: [] as string[],
     visibility: 'private' as 'public' | 'private'
   })
 
   // 设置语言属性
   useEffect(() => {
-    setLanguage(params.lang);
-  }, [params.lang, setLanguage]);
+    setLanguage(paramsLang);
+  }, [paramsLang, setLanguage]);
 
   // 页面加载时获取提示词列表和统计数据
   useEffect(() => {
@@ -106,7 +108,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
 
       const response = await api.getPromptStats({
         spaceId: user?.personalSpaceId || ''
-      }, params.lang)
+      }, paramsLang)
 
       if (response.success) {
         setStats(response.data)
@@ -133,7 +135,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         limit: 5,
         sortBy: 'updatedAt',
         sortOrder: 'desc'
-      }, params.lang)
+      }, paramsLang)
 
       if (response.success) {
         const data = response.data as PromptListResponse
@@ -151,7 +153,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   const fetchExistingTags = async () => {
     try {
       setExistingTagsLoading(true)
-      const response = await api.getPromptTags({ spaceId: user?.personalSpaceId, search: '' }, params.lang)
+      const response = await api.getPromptTags({ spaceId: user?.personalSpaceId, search: '' }, paramsLang)
       if (response.success) {
         // 将API返回的标签对象数组转换为字符串数组，以便现有代码继续工作
         const tagStrings = (response.data || []).map(tagObj => tagObj.name);
@@ -184,7 +186,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         sortOrder
       }
       
-      const response = await api.getPrompts(query, params.lang)
+      const response = await api.getPrompts(query, paramsLang)
       
       if (response.success) {
         const data = response.data as PromptListResponse
@@ -219,7 +221,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         sortOrder
       }
       
-      const response = await api.getPrompts(query, params.lang)
+      const response = await api.getPrompts(query, paramsLang)
       
       if (response.success) {
         const data = response.data as PromptListResponse
@@ -295,11 +297,12 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags, // 传递实际的标签数组，包括空数组
+        imageUrls: formData.imageUrls?.filter(url => url.trim() !== '') || undefined, // 过滤空字符串
         isPublic: formData.visibility === 'public',
         spaceId: user.personalSpaceId
       }
 
-      const response = await api.createPrompt(createData, params.lang)
+      const response = await api.createPrompt(createData, paramsLang)
       
       if (response.success) {
         console.log('Prompt created:', response.data)
@@ -338,10 +341,11 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags, // 传递实际的标签数组，包括空数组
+        imageUrls: formData.imageUrls?.filter(url => url.trim() !== '') || undefined, // 过滤空字符串
         isPublic: formData.visibility === 'public'
       }
 
-      const response = await api.updatePrompt(updateData, params.lang)
+      const response = await api.updatePrompt(updateData, paramsLang)
       
       if (response.success) {
         // 更新成功后重新获取当前页数据和统计数据
@@ -366,7 +370,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   const handleDeletePrompt = async (promptId: string) => {
     try {
       setOperationLoading(true)
-      const response = await api.deletePrompt({ id: promptId }, params.lang)
+      const response = await api.deletePrompt({ id: promptId }, paramsLang)
       
       if (response.success) {
         // 删除成功后重新获取当前页数据和统计数据
@@ -396,6 +400,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       description: '',
       content: '',
       tags: [],
+      imageUrls: [],
       visibility: 'private'
     })
   }
@@ -405,12 +410,15 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
     setEditingPrompt(prompt)
     // 解析tags字段（可能是JSON字符串）
     let tagsArray: string[] = prompt.tags
+    // 解析imageUrls字段
+    let imageUrlsArray: string[] = (prompt as any).imageUrls || []
     
     setFormData({
       title: prompt.title || '',
       description: prompt.description || '',
       content: prompt.content || '',
       tags: tagsArray,
+      imageUrls: imageUrlsArray,
       visibility: prompt.isPublic ? 'public' : 'private'
     })
     setShowPromptModal(true)
@@ -437,7 +445,17 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       sortable: true,
       render: (prompt: string, record: Prompt) => (
         <div>
-          <div className="font-medium text-text-100">{record.title}</div>
+          <div className="font-medium text-text-100 flex items-center gap-2">
+            {record.title}
+            {Array.isArray((record as any).imageUrls) && (record as any).imageUrls.filter((url: string) => url && url.trim()).length > 0 && (
+              <span className="inline-flex items-center px-2 py-0.5 text-xs bg-purple-100 text-purple-600 rounded" title="包含图片">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {(record as any).imageUrls.filter((url: string) => url && url.trim()).length}
+              </span>
+            )}
+          </div>
           <div className="text-sm text-text-300">{record.description}</div>
         </div>
       )
@@ -499,7 +517,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       sortable: true,
       render: (prompt: string) => (
         <div className="text-sm text-text-300">
-          {prompt ? new Date(prompt).toLocaleString(params.lang, {
+          {prompt ? new Date(prompt).toLocaleString(paramsLang, {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -518,7 +536,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
       sortable: true,
       render: (prompt: string) => (
         <div className="text-sm text-text-300">
-          {prompt ? new Date(prompt).toLocaleString(params.lang, {
+          {prompt ? new Date(prompt).toLocaleString(paramsLang, {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -540,7 +558,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
             prompt={prompt}
             variant="ghost"
             size="sm"
-            lang={params.lang}
+            lang={paramsLang}
             className="p-2 hover:bg-gray-100 rounded-md transition-colors"
             onRefreshPrompts={() => {
               fetchPrompts()
@@ -576,7 +594,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
   ]
 
   return (
-      <UserPageWrapper lang={params.lang} error={error}>
+      <UserPageWrapper lang={paramsLang} error={error}>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
         <div className="space-y-6">
         {/* 页面标题 */}
@@ -654,9 +672,18 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                     return (
                       <div key={prompt.id} className="bg-gray-50 rounded-lg border hover:shadow-md transition-shadow p-4 flex flex-col h-68">
                         <div className="flex justify-between items-start mb-2 flex-shrink-0">
-                          <h3 className="text-lg font-semibold text-text-100 truncate" title={prompt.title}>
-                            {prompt.title}
-                          </h3>
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-text-100 truncate" title={prompt.title}>
+                              {prompt.title}
+                            </h3>
+                            {Array.isArray((prompt as any).imageUrls) && (prompt as any).imageUrls.filter((url: string) => url && url.trim()).length > 0 && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 text-xs bg-purple-100 text-purple-600 rounded flex-shrink-0" title="包含图片">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </span>
+                            )}
+                          </div>
                           <span className={`${visibilityBadge.className} ml-2 flex-shrink-0`}>{visibilityBadge.text}</span>
                         </div>
 
@@ -679,7 +706,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                         )}
 
                         <div className="text-xs text-text-300 mb-3 flex-shrink-0">
-                          <div className="truncate">{tDashboard('table.updatedAt')}：{prompt.updatedAt ? new Date(prompt.updatedAt).toLocaleString(params.lang, {
+                          <div className="truncate">{tDashboard('table.updatedAt')}：{prompt.updatedAt ? new Date(prompt.updatedAt).toLocaleString(paramsLang, {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
@@ -697,7 +724,7 @@ export default function PromptsManagementPage({ params }: { params: { lang: stri
                             variant="default"
                             size="sm"
                             className="flex-1"
-                            lang={params.lang}
+                            lang={paramsLang}
                             onRefreshPrompts={() => {
                               fetchPrompts()
                               fetchStats()

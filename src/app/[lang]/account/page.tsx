@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useAuth, useAuthStatus } from '@promptmanager/core-logic'
 import { api } from '@promptmanager/core-logic'
 import { useToast } from '../../../components/ToastProvider'
@@ -19,8 +19,9 @@ import {
 } from '@promptmanager/ui-components'
 import { Button } from '@promptmanager/ui-components'
 
-export default function AccountPage({ params }: { params: { lang: string } }) {
-  const { t } = useTranslation(params.lang, 'account')
+export default function AccountPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = use(params)
+  const { t } = useTranslation(lang, 'account')
   const { user, updateUser, purchaseAiPoints, refreshUser, setLanguage } = useAuth();
   const { showSuccess, showError } = useToast();
   const { isAdmin } = useAuthStatus();
@@ -47,18 +48,18 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   const [refreshExpiresIn, setRefreshExpiresIn] = useState(30); // 刷新令牌过期时间，默认30天
   
   // 获取所有可用标签
-  const { allTags } = useTags(params.lang);
+  const { allTags } = useTags(lang);
 
   // 设置语言属性
   useEffect(() => {
-    setLanguage(params.lang);
-  }, [params.lang, setLanguage]);
+    setLanguage(lang);
+  }, [lang, setLanguage]);
 
   // 获取访问令牌信息
   useEffect(() => {
     const fetchAccessToken = async () => {
       try {
-        const response = await api.getAccessToken(params.lang);
+        const response = await api.getAccessToken(lang);
         if (response.success) {
           setAccessToken(response.data.token);
           setRefreshToken(response.data.refreshToken || null);
@@ -72,7 +73,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
     if (user) {
       fetchAccessToken();
     }
-  }, [user, params.lang]);
+  }, [user, lang]);
 
   // 获取AI点数信息
   useEffect(() => {
@@ -83,7 +84,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
 
     const fetchAiPointsData = async () => {
       try {
-        const response = await api.getAiPointsUsage(params.lang);
+        const response = await api.getAiPointsUsage(lang);
         if (response.success) {
           setAiPointsData({
             totalPoints: response.data.totalPoints,
@@ -129,7 +130,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
         refreshExpiresInValue = undefined;
       }
       
-      const response = await api.refreshAccessToken(refreshToken, expiresIn, refreshExpiresInValue, params.lang);
+      const response = await api.refreshAccessToken(refreshToken, expiresIn, refreshExpiresInValue, lang);
       if (response.success) {
         setAccessToken(response.data.token);
         setRefreshToken(response.data.refreshToken || null);
@@ -151,7 +152,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   // 删除访问令牌
   const handleDeleteAccessToken = async () => {
     try {
-      const response = await api.deleteAccessToken(params.lang);
+      const response = await api.deleteAccessToken(lang);
       if (response.success) {
         setAccessToken(null);
         setRefreshToken(null);
@@ -183,7 +184,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
     setIsExporting(true);
     try {
       // 使用apiclient调用导出API，使用用户的个人空间ID
-      const blob = await api.exportPrompts(user?.personalSpaceId, params.lang);
+      const blob = await api.exportPrompts(user?.personalSpaceId, lang);
 
       // 创建下载链接
       const url = window.URL.createObjectURL(blob);
@@ -256,7 +257,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
       }
 
       // 使用用户的个人空间ID进行导入
-      const response = await api.importPrompts(promptsData, user?.personalSpaceId, params.lang);
+      const response = await api.importPrompts(promptsData, user?.personalSpaceId, lang);
       
       if (response.success) {
         showSuccess(t('importSuccess'), t('fileImportedSuccessfully', { count: response.data.importedCount }));
@@ -279,7 +280,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
     setIsClearing(true);
     try {
       // 使用用户的个人空间ID进行清空操作
-      const response = await api.clearPrompts(user?.personalSpaceId, params.lang);
+      const response = await api.clearPrompts(user?.personalSpaceId, lang);
       
       if (response.success) {
         showSuccess(t('promptsCleared'), t('promptsClearedSuccessfully', { count: response.data.clearedCount }));
@@ -304,7 +305,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
   };
   
   return (
-    <UserPageWrapper lang={params.lang}>
+    <UserPageWrapper lang={lang}>
       <div className="space-y-8 max-w-4xl mx-auto">
 
         {/* 页面标题 */}
@@ -342,7 +343,7 @@ export default function AccountPage({ params }: { params: { lang: string } }) {
             <button
               onClick={() => {
                 // 在新页面中打开定价页面
-                window.open(`/${params.lang}/pricing`, '_blank');
+                window.open(`/${lang}/pricing`, '_blank');
               }}
               className="bg-primary-100 hover:bg-primary-100/90 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >

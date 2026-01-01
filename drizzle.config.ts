@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { config as dotenvConfig } from 'dotenv';
 
 // 加载 .env.local 文件（优先级高于 .env）
-dotenvConfig({ path: '.env.production' });
+dotenvConfig({ path: '.env' });
 
 
 const config = process.env.NEON_DATABASE_URL

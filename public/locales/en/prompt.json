@@ -69,5 +69,11 @@
     "confirmSelection": "Confirm Selection",
     "existingTagLabel": "Existing Tag:",
     "usageCount": "Usage count: {{count}}"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Prompt Not Found",
+    "message": "Sorry, the prompt you are looking for does not exist or has been deleted.",
+    "backToExplore": "Back to Explore"
   }
 }

@@ -1,0 +1,54 @@
+{
+  "pageTitle": "提示词广场",
+  "pageDescription": "发现和探索社区分享的优质提示词",
+  "searchPlaceholder": "搜索提示词...",
+  "noPromptsFound": "没有找到匹配的提示词",
+  "noPromptsYet": "暂无公开的提示词",
+  "loading": "加载中...",
+  "loadMore": "加载更多",
+  "usePrompt": "使用",
+  "copyPrompt": "复制",
+  "copied": "已复制",
+  "viewDetail": "查看详情",
+  "author": "作者",
+  "usageCount": "使用次数",
+  "updatedAt": "更新时间",
+  "tags": "标签",
+  "description": "描述",
+  "content": "内容",
+  "close": "关闭",
+  "noDescription": "暂无描述",
+  "hasImages": "包含图片",
+  "imagesCount": "{{count}} 张图片",
+  "filterByTag": "按标签筛选",
+  "clearFilter": "清除筛选",
+  "allTags": "全部标签",
+  "sortBy": {
+    "label": "排序",
+    "updatedAt": "更新时间",
+    "useCount": "使用次数",
+    "createdAt": "创建时间"
+  },
+  "sortOrder": {
+    "desc": "降序",
+    "asc": "升序"
+  },
+  "viewMode": {
+    "label": "视图模式",
+    "list": "列表模式",
+    "image": "图片模式"
+  },
+  "noImage": "暂无图片",
+  "totalPrompts": "共",
+  "totalPromptsUnit": "个提示词",
+  "backToExplore": "返回探索",
+  "useCount": "使用次数",
+  "images": "张图片",
+  "footer": {
+    "pricing": "价格",
+    "privacy": "隐私协议",
+    "terms": "服务条款",
+    "contact": "联系我们",
+    "copyright": "保留所有权利。"
+  }
+}

@@ -1,5 +1,6 @@
 {
   "home": "ホーム",
+  "promptExplore": "プロンプト広場",
   "pricing": "価格",
   "contact": "お問い合わせ",
   "terms": "利用規約",
@@ -107,5 +108,12 @@
       "desc": "降順",
       "asc": "昇順"
     }
+  },
+  "footer": {
+    "copyright": "© 2026 PromptHub. All Rights Reserved.",
+    "pricing": "料金",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ"
   }
 }

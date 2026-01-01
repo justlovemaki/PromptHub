@@ -1,5 +1,6 @@
 {
   "home": "Home",
+  "promptExplore": "Prompt Explore",
   "pricing": "Pricing",
   "contact": "Contact",
   "terms": "Terms",
@@ -107,5 +108,12 @@
       "desc": "Descending",
       "asc": "Ascending"
     }
+  },
+  "footer": {
+    "copyright": "© 2026 PromptHub. All Rights Reserved.",
+    "pricing": "Pricing",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us"
   }
 }

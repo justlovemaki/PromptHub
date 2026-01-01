@@ -1,173 +1,162 @@
 {
   "hero": {
-    "title": "管理、优化、一键触发",
-    "subtitle": "释放您AI提示词的全部潜能",
-    "cta": "免费开始使用"
+    "badge": "AI 提示词管理专家",
+    "title": "让每一个提示词",
+    "titleHighlight": "发挥最大价值",
+    "subtitle": "PromptHub 帮助您集中管理、智能分类、快速调用 AI 提示词，让您的 AI 工作流程更高效",
+    "cta": "免费开始使用",
+    "ctaSecondary": "了解更多",
+    "stats": {
+      "users": "活跃用户",
+      "prompts": "提示词管理",
+      "satisfaction": "用户满意度"
+    }
   },
   "nav": {
     "features": "功能",
     "pricing": "价格",
-    "download": "下载"
+    "download": "下载",
+    "explore": "提示词广场",
+    "faq": "常见问题"
   },
-  "problem": {
-    "title": "还在为杂乱的",
-    "highlight": "提示词",
-    "title2": "烦恼吗？",
-    "description": "从散落的文档和表格中解放出来。告别重复劳动，停止在寻找最佳Prompt上浪费时间。"
-  },
-  "management": {
-    "title": "集中化、标签化、",
-    "highlight": "秒速搜索",
-    "description": "为您所有的AI模型（GPT, Midjourney, Claude等）建立一个统一的提示词库。通过标签进行分类，瞬间找到你需要的任何内容。",
-    "features": {
-      "smartCategory": "自动填充",
-      "multiTag": "多维标签", 
-      "instantSearch": "即时搜索"
+  "features": {
+    "title": "为什么选择",
+    "titleHighlight": "PromptHub",
+    "subtitle": "一站式 AI 提示词管理解决方案，让您的 AI 工作更高效",
+    "management": {
+      "title": "集中管理",
+      "description": "将散落在各处的提示词统一管理，支持文件夹分类、多维标签、全文搜索，告别混乱的文档和表格"
     },
-    "demo": {
-      "folder": "工作项目",
-      "folderContent": "产品描述生成器 v2.0",
-      "tags": "#营销 #文案",
-      "tagsContent": "社交媒体爆款文案模板",
-      "search": "搜索：代码优化",
-      "searchResult": "找到 15 个相关提示词..."
+    "mcp": {
+      "title": "MCP 服务集成",
+      "description": "支持 Model Context Protocol 标准，可作为 MCP 服务器为 AI 助手提供提示词，实现智能工作流自动化"
+    },
+    "quickAccess": {
+      "title": "快速调用",
+      "description": "通过浏览器插件或桌面应用，在任何网页上快捷键调用提示词库，一键复制或直接发送到 AI 对话框"
+    },
+    "multiPlatform": {
+      "title": "跨平台支持",
+      "description": "支持 Windows、macOS、Linux 三大操作系统，提供桌面应用和浏览器插件，随时随地管理您的提示词"
+    },
+    "cloudSync": {
+      "title": "云端同步",
+      "description": "数据安全存储在云端，支持多设备同步，随时随地访问您的提示词库"
+    },
+    "importExport": {
+      "title": "导入导出",
+      "description": "支持 JSON 格式批量导入导出，轻松迁移现有提示词，与团队共享优质 Prompt"
     }
   },
-  "optimization": {
-    "title": "一键优化，",
-    "highlight": "随时调用",
-    "description": "内置AI优化建议，让您的提示词更精准、更高效。通过悬浮窗或快捷键，在任何地方都能快速调用您的提示词库。",
-    "features": {
-      "aiOptimize": "AI优化",
-      "quickAccess": "快捷调用",
-      "globalAccess": "全局访问"
-    },
-    "demo": {
-      "title": "提示词优化器",
-      "optimizeBtn": "AI 优化",
-      "before": "原始提示词：",
-      "beforeExample": "写一篇文章关于人工智能",
-      "after": "优化后的提示词：",
-      "role": "角色：",
-      "roleText": "你是一位资深科技记者",
-      "task": "任务：",
-      "taskText": "撰写一篇2000字的深度分析文章",
-      "topic": "主题：",
-      "topicText": "人工智能在医疗领域的应用与挑战",
-      "requirements": "要求：",
-      "requirementsText": "包含案例分析、数据支撑、未来展望"
-    }
-  },
-  "cards": {
-    "gpt": "GPT 文案优化",
-    "claude": "Claude 代码生成",
-    "banana": "Nano Banana 图像编辑",
-    "midjourney": "Midjourney 艺术创作",
-    "sd": "Stable Diffusion 场景"
-  },
-  "pricing": {
-    "title": "选择适合您的",
-    "highlight": "计划",
-    "subtitle": "简单透明的定价，随时可以升级或取消",
-    "mostPopular": "最受欢迎",
-    "free": {
-      "name": "免费版",
-      "price": "0",
-      "features": {
-        "storage": "100条提示词存储",
-        "basicCategory": "多维度标签",
-        "simpleSearch": "简单搜索功能",
-        "browserExt": "浏览器扩展",
-        "dataSync": "数据导入导出"
-      },
-      "notIncluded": {
-        "aiOptimize": "AI智能优化",
-        "teamCollab": "团队协作"
-      }
-    },
-    "pro": {
-      "name": "专业版",
-      "price": "29.9",
-      "features": {
-        "allFree": "包含免费版所有功能",
-        "unlimited": "无限提示词存储",
-        "aiOptimize": "AI智能优化",
-        "smartTagging": "智能打标签",
-        "versionControl": "版本管理",
-        "globalHotkey": "自定义快捷键",
-        "allExt": "全端扩展",
-        "prioritySupport": "优先技术支持"
-      }
-    },
-    "team": {
-      "name": "团队版",
-      "price": "89.9",
-      "features": {
-        "allPro": "包含专业版所有功能",
-        "teamLib": "团队共享库",
-        "permission": "权限管理",
-        "analytics": "使用分析报告",
-        "apiAccess": "API访问",
-        "accountManager": "专属客户经理"
-      }
-    }
-  },
-  "howto": {
-    "title": "如何使用",
-    "subtitle": "三步开启高效的 prompt 管理和使用体验",
+  "howItWorks": {
+    "title": "三步开启",
+    "titleHighlight": "高效之旅",
+    "subtitle": "简单三步，即可体验专业的提示词管理",
     "step1": {
-      "title": "创建和管理 Prompt",
-      "description": "在 PromptHub 中创建您的提示词库,使用标签进行智能分类管理。",
-      "tip1": "使用智能打标签系统组织您的提示词库",
-      "tip2": "添加多个标签便于快速检索和筛选"
+      "number": "01",
+      "title": "创建与整理",
+      "description": "在 PromptHub 中创建您的提示词，使用标签和文件夹进行智能分类管理"
     },
     "step2": {
-      "title": "AI 智能优化",
-      "description": "利用 prompt generator 功能,让 AI 帮您优化和改进提示词,提升输出质量。",
-      "tip1": "一键优化让提示词更加结构化和专业",
-      "tip2": "AI 会根据最佳实践自动改进您的 prompt"
+      "number": "02",
+      "title": "分类与标签",
+      "description": "使用多维标签系统，让您的提示词更加有序，快速定位所需内容"
     },
     "step3": {
-      "title": "一键快速使用",
-      "description": "通过浏览器插件或桌面应用,在任何地方快速调用您的 prompt use 库。",
-      "tip1": "支持快捷键快速打开 prompt 面板",
-      "tip2": "一键复制或直接发送到 AI 对话框"
+      "number": "03",
+      "title": "随时调用",
+      "description": "通过快捷键在任何地方快速调用，一键复制或直接发送到 AI 对话框"
     }
   },
   "faq": {
     "title": "常见问题",
     "subtitle": "关于 PromptHub 的常见疑问解答",
     "q1": {
-      "question": "什么是 PromptHub?",
-      "answer": "PromptHub 是一个专业的 AI 提示词管理平台,帮助您集中管理、优化和快速使用各种 AI 提示词。无论是 ChatGPT、Claude 还是其他 AI 工具的 prompt,都可以在这里统一管理。"
+      "question": "什么是 PromptHub？",
+      "answer": "PromptHub 是一个专业的 AI 提示词管理平台，帮助您集中管理和快速使用各种 AI 提示词。无论是 ChatGPT、Claude、Midjourney 还是其他 AI 工具的 Prompt，都可以在这里统一管理，提升您的 AI 工作效率。"
     },
     "q2": {
-      "question": "如何使用 prompt generator 功能?",
-      "answer": "在编辑提示词时,点击「AI 优化」按钮,我们的 prompt generator 会分析您的提示词并提供优化建议。它会帮助您构建更结构化、更有效的提示词,提升 AI 输出质量。"
+      "question": "PromptHub 支持哪些操作系统？",
+      "answer": "PromptHub 提供完整的跨平台支持，包括 Windows、macOS 和 Linux 桌面应用，以及 Chrome、Edge、Firefox 等主流浏览器的扩展插件。您可以在任何设备上使用 PromptHub。"
     },
     "q3": {
-      "question": "prompt use 功能如何工作?",
-      "answer": "安装浏览器插件或桌面应用后,您可以通过快捷键在任何网页上快速调用保存的提示词。选择需要的 prompt,一键复制或直接发送到 AI 对话框,大大提升工作效率。"
+      "question": "什么是 MCP 服务集成？",
+      "answer": "MCP（Model Context Protocol）是一种标准协议，允许 AI 助手访问外部工具和数据。PromptHub 可以作为 MCP 服务器，让您的 AI 助手直接调用您保存的提示词，实现更智能的工作流程。"
     },
     "q4": {
-      "question": "免费版和付费版有什么区别?",
-      "answer": "免费版提供基础的 prompt 管理功能,包括创建、编辑和使用提示词。付费版解锁 AI 优化、高级搜索、团队协作、云端同步等专业功能,适合重度使用者和团队。"
+      "question": "如何在其他网站上使用我的提示词？",
+      "answer": "安装我们的浏览器插件后，您可以在任何网页上通过快捷键（默认 Alt+O）快速打开提示词面板，搜索并选择需要的提示词，一键复制或直接发送到当前页面的输入框中。"
     },
     "q5": {
-      "question": "如何快速找到我需要的提示词?",
-      "answer": "PromptHub 提供强大的搜索和筛选功能。您可以通过关键词搜索提示词内容,使用标签快速筛选分类,还支持按使用频率、创建时间等多种方式排序,帮助您瞬间找到需要的 prompt。"
+      "question": "我的数据安全吗？",
+      "answer": "我们非常重视数据安全。所有数据都经过加密存储，支持云端同步和本地备份。您可以随时导出所有提示词数据，完全掌控自己的内容。"
     },
     "q6": {
-      "question": "可以在多个设备上使用吗?",
-      "answer": "是的!PromptHub 支持云端同步功能(专业版),您可以在电脑、手机、平板等多个设备上访问您的提示词库。同时提供浏览器插件和桌面应用,让您在任何设备上都能高效使用 prompt。"
-    },
-    "q7": {
-      "question": "如何导入我现有的提示词?",
-      "answer": "PromptHub 支持 JSON 格式的批量导入功能。您可以将现有的提示词整理成 JSON 格式后一键导入,系统会自动识别并帮您整理分类,让迁移过程轻松便捷。"
+      "question": "如何导入我现有的提示词？",
+      "answer": "PromptHub 支持 JSON 格式的批量导入。您可以将现有的提示词整理成 JSON 格式后一键导入，系统会自动识别并帮您整理分类。我们也提供导入模板和详细的导入指南。"
     }
   },
+  "pricing": {
+    "title": "选择适合您的",
+    "highlight": "方案",
+    "subtitle": "灵活的定价方案，满足不同需求",
+    "mostPopular": "最受欢迎",
+    "free": {
+      "name": "免费版",
+      "price": "0",
+      "period": "永久免费",
+      "button": "开始使用",
+      "features": {
+        "storage": "100 个提示词存储",
+        "basicCategory": "基础分类管理",
+        "simpleSearch": "简单搜索功能",
+        "browserExt": "浏览器插件",
+        "dataSync": "云端数据同步"
+      },
+      "notIncluded": {
+        "aiOptimize": "AI 智能优化",
+        "teamCollab": "团队协作功能"
+      }
+    },
+    "pro": {
+      "name": "专业版",
+      "price": "29",
+      "period": "每月",
+      "button": "升级专业版",
+      "features": {
+        "allFree": "包含免费版所有功能",
+        "unlimited": "无限提示词存储",
+        "aiOptimize": "AI 智能优化建议",
+        "smartTagging": "智能标签推荐",
+        "versionControl": "版本历史记录",
+        "globalHotkey": "全局快捷键",
+        "allExt": "所有平台扩展",
+        "prioritySupport": "优先技术支持"
+      }
+    },
+    "team": {
+      "name": "团队版",
+      "price": "99",
+      "period": "每月/每用户",
+      "button": "联系销售",
+      "features": {
+        "allPro": "包含专业版所有功能",
+        "teamLib": "团队共享提示词库",
+        "permission": "权限管理系统",
+        "analytics": "使用数据分析",
+        "apiAccess": "API 访问权限",
+        "accountManager": "专属客户经理"
+      }
+    }
+  },
+  "cta": {
+    "title": "准备好提升您的 AI 效率了吗？",
+    "subtitle": "加入数千名用户，开始更智能地管理您的提示词",
+    "button": "免费开始使用",
+    "note": "无需信用卡，即刻开始"
+  },
   "footer": {
-    "copyright": "© 2025 PromptHub. 保留所有权利。",
+    "copyright": "© 2026 PromptHub. 保留所有权利。",
     "pricing": "价格",
     "privacy": "隐私协议",
     "terms": "服务条款",

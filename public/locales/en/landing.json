@@ -1,137 +1,71 @@
 {
   "hero": {
-    "title": "Manage, Optimize, Trigger",
-    "subtitle": "Unleash the Full Potential of Your AI Prompts",
-    "cta": "Start Free"
+    "badge": "AI Prompt Management Expert",
+    "title": "Make Every Prompt",
+    "titleHighlight": "Count",
+    "subtitle": "PromptHub helps you centrally manage, intelligently categorize, and quickly access AI prompts, making your AI workflow more efficient",
+    "cta": "Start Free",
+    "ctaSecondary": "Learn More",
+    "stats": {
+      "users": "Active Users",
+      "prompts": "Prompts Managed",
+      "satisfaction": "User Satisfaction"
+    }
   },
   "nav": {
     "features": "Features",
     "pricing": "Pricing",
-    "download": "Download"
+    "download": "Download",
+    "explore": "Explore",
+    "faq": "FAQ"
   },
-  "problem": {
-    "title": "Still Struggling with Messy",
-    "highlight": "Prompts",
-    "title2": "?",
-    "description": "Break free from scattered documents and spreadsheets. Say goodbye to repetitive work and stop wasting time searching for the best prompts."
-  },
-  "management": {
-    "title": "Centralized, Tagged,",
-    "highlight": "Lightning-Fast Search",
-    "description": "Build a unified prompt library for all your AI models (GPT, Midjourney, Claude, and more). Organize with tags, instantly find anything you need.",
-    "features": {
-      "smartCategory": "Auto Fill",
-      "multiTag": "Multi-dimensional Tags", 
-      "instantSearch": "Instant Search"
+  "features": {
+    "title": "Why Choose",
+    "titleHighlight": "PromptHub",
+    "subtitle": "One-stop AI prompt management solution for more efficient AI work",
+    "management": {
+      "title": "Centralized Management",
+      "description": "Unify scattered prompts in one place with folder organization, multi-dimensional tags, and full-text search. Say goodbye to messy documents and spreadsheets"
     },
-    "demo": {
-      "folder": "Work Projects",
-      "folderContent": "Product Description Generator v2.0",
-      "tags": "#marketing #copywriting",
-      "tagsContent": "Viral Social Media Copy Templates",
-      "search": "Search: code optimization",
-      "searchResult": "Found 15 related prompts..."
+    "mcp": {
+      "title": "MCP Service Integration",
+      "description": "Support Model Context Protocol standard, serve as MCP server for AI assistants to access prompts, enabling intelligent workflow automation"
+    },
+    "quickAccess": {
+      "title": "Quick Access",
+      "description": "Access your prompt library via browser extension or desktop app with hotkeys on any webpage. One-click copy or send directly to AI chat"
+    },
+    "multiPlatform": {
+      "title": "Cross-Platform Support",
+      "description": "Available on Windows, macOS, and Linux with desktop apps and browser extensions for Chrome, Edge, and Firefox. Manage your prompts anywhere"
+    },
+    "cloudSync": {
+      "title": "Cloud Sync",
+      "description": "Securely store data in the cloud with multi-device sync. Access your prompt library anytime, anywhere"
+    },
+    "importExport": {
+      "title": "Import & Export",
+      "description": "Support JSON format batch import/export for easy migration of existing prompts and sharing quality Prompts with your team"
     }
   },
-  "optimization": {
-    "title": "One-Click Optimization,",
-    "highlight": "Access Anywhere",
-    "description": "Built-in AI optimization suggestions make your prompts more precise and efficient. Access your prompt library instantly via floating widgets or hotkeys from anywhere.",
-    "features": {
-      "aiOptimize": "AI Optimization",
-      "quickAccess": "Quick Access",
-      "globalAccess": "Global Access"
-    },
-    "demo": {
-      "title": "Prompt Optimizer",
-      "optimizeBtn": "AI Optimize",
-      "before": "Original Prompt:",
-      "beforeExample": "Write an article about artificial intelligence",
-      "after": "Optimized Prompt:",
-      "role": "Role:",
-      "roleText": "You are a senior technology journalist",
-      "task": "Task:",
-      "taskText": "Write a 2000-word in-depth analysis article",
-      "topic": "Topic:",
-      "topicText": "AI applications and challenges in healthcare",
-      "requirements": "Requirements:",
-      "requirementsText": "Include case studies, data support, and future outlook"
-    }
-  },
-  "cards": {
-    "gpt": "GPT Copy Optimization",
-    "claude": "Claude Code Generation",
-    "banana": "Nano Banana Image Editing",
-    "midjourney": "Midjourney Art Creation",
-    "sd": "Stable Diffusion Scenes"
-  },
-  "pricing": {
-    "title": "Choose Your",
-    "highlight": "Plan",
-    "subtitle": "Simple and transparent pricing, upgrade or cancel anytime",
-    "mostPopular": "Most Popular",
-    "free": {
-      "name": "Free",
-      "price": "0",
-      "features": {
-        "storage": "100 prompts storage",
-        "basicCategory": "Multi-dimensional tags",
-        "simpleSearch": "Simple search function",
-        "browserExt": "Browser extension",
-        "dataSync": "Data import and export"
-      },
-      "notIncluded": {
-        "aiOptimize": "AI intelligent optimization",
-        "teamCollab": "Team collaboration"
-      }
-    },
-    "pro": {
-      "name": "Professional",
-      "price": "10",
-      "features": {
-        "allFree": "Includes all Free features",
-        "unlimited": "Unlimited prompt storage",
-        "aiOptimize": "AI intelligent optimization",
-        "smartTagging": "Smart tagging",
-        "versionControl": "Version management",
-        "globalHotkey": "Custom hotkeys",
-        "allExt": "Full-platform extension",
-        "prioritySupport": "Priority technical support"
-      }
-    },
-    "team": {
-      "name": "Team",
-      "price": "99",
-      "features": {
-        "allPro": "Includes all Professional features",
-        "teamLib": "Team shared library",
-        "permission": "Permission management",
-        "analytics": "Usage analytics reports",
-        "apiAccess": "API access",
-        "accountManager": "Dedicated account manager"
-      }
-    }
-  },
-  "howto": {
-    "title": "How to Use",
-    "subtitle": "Three steps to start efficient prompt management and usage",
+  "howItWorks": {
+    "title": "Start Your",
+    "titleHighlight": "Efficient Journey",
+    "subtitle": "Three simple steps to experience professional prompt management",
     "step1": {
-      "title": "Create and Manage Prompts",
-      "description": "Build your prompt library in PromptHub with smart categorization using tags.",
-      "tip1": "Use smart tagging system to organize your prompt library",
-      "tip2": "Add multiple tags for quick search and filtering"
+      "number": "01",
+      "title": "Create & Organize",
+      "description": "Create your prompts in PromptHub and organize them with tags and folders for smart categorization"
     },
     "step2": {
-      "title": "AI-Powered Optimization",
-      "description": "Use the prompt generator feature to let AI help optimize and improve your prompts for better output quality.",
-      "tip1": "One-click optimization makes prompts more structured and professional",
-      "tip2": "AI automatically improves your prompts based on best practices"
+      "number": "02",
+      "title": "Categorize & Tag",
+      "description": "Use multi-dimensional tagging system to keep your prompts organized and quickly locate what you need"
     },
     "step3": {
-      "title": "Quick One-Click Usage",
-      "description": "Access your prompt use library anywhere through browser extension or desktop app.",
-      "tip1": "Support keyboard shortcuts to quickly open prompt panel",
-      "tip2": "One-click copy or send directly to AI chat"
+      "number": "03",
+      "title": "Access Anytime",
+      "description": "Quickly access prompts anywhere with hotkeys, one-click copy or send directly to AI chat"
     }
   },
   "faq": {
@@ -139,35 +73,90 @@
     "subtitle": "Common questions about PromptHub",
     "q1": {
       "question": "What is PromptHub?",
-      "answer": "PromptHub is a professional AI prompt management platform that helps you centrally manage, optimize, and quickly use various AI prompts. Whether it's ChatGPT, Claude, or other AI tools' prompts, you can manage them all in one place."
+      "answer": "PromptHub is a professional AI prompt management platform that helps you centrally manage and quickly use various AI prompts. Whether it's ChatGPT, Claude, Midjourney, or other AI tools' Prompts, you can manage them all in one place to boost your AI productivity."
     },
     "q2": {
-      "question": "How to use the prompt generator feature?",
-      "answer": "When editing a prompt, click the 'AI Optimize' button, and our prompt generator will analyze your prompt and provide optimization suggestions. It helps you build more structured and effective prompts to improve AI output quality."
+      "question": "Which operating systems does PromptHub support?",
+      "answer": "PromptHub offers full cross-platform support including Windows, macOS, and Linux desktop applications, as well as browser extensions for Chrome, Edge, Firefox, and other major browsers. You can use PromptHub on any device."
     },
     "q3": {
-      "question": "How does the prompt use feature work?",
-      "answer": "After installing the browser extension or desktop app, you can quickly access saved prompts on any webpage using keyboard shortcuts. Select the prompt you need, copy with one click or send directly to the AI chat, greatly improving work efficiency."
+      "question": "What is MCP Service Integration?",
+      "answer": "MCP (Model Context Protocol) is a standard protocol that allows AI assistants to access external tools and data. PromptHub can serve as an MCP server, enabling your AI assistants to directly access your saved prompts for smarter workflows."
     },
     "q4": {
-      "question": "What's the difference between free and paid versions?",
-      "answer": "The free version provides basic prompt management features, including creating, editing, and using prompts. The paid version unlocks AI optimization, advanced search, team collaboration, cloud sync, and other professional features, suitable for power users and teams."
+      "question": "How do I use my prompts on other websites?",
+      "answer": "After installing our browser extension, you can quickly open the prompt panel on any webpage using a hotkey (default Alt+O), search and select the prompt you need, and one-click copy or send directly to the current page's input field."
     },
     "q5": {
-      "question": "How can I quickly find the prompts I need?",
-      "answer": "PromptHub provides powerful search and filtering features. You can search prompt content by keywords, quickly filter by tags, and sort by usage frequency, creation time, and more, helping you instantly find the prompt you need."
+      "question": "Is my data secure?",
+      "answer": "We take data security very seriously. All data is encrypted and stored securely, with cloud sync and local backup support. You can export all your prompt data at any time, maintaining complete control over your content."
     },
     "q6": {
-      "question": "Can I use it on multiple devices?",
-      "answer": "Yes! PromptHub supports cloud sync (Professional version), allowing you to access your prompt library across computers, phones, tablets, and more. We also provide browser extensions and desktop apps for efficient prompt use on any device."
-    },
-    "q7": {
       "question": "How do I import my existing prompts?",
-      "answer": "PromptHub supports batch import functionality in JSON format. You can organize your existing prompts into JSON format and import them with one click. The system will automatically recognize and help organize them, making migration easy and convenient."
+      "answer": "PromptHub supports batch import in JSON format. You can organize your existing prompts into JSON format and import them with one click. The system will automatically recognize and help organize them. We also provide import templates and detailed import guides."
     }
   },
+  "pricing": {
+    "title": "Choose Your",
+    "highlight": "Plan",
+    "subtitle": "Flexible pricing plans to meet different needs",
+    "mostPopular": "Most Popular",
+    "free": {
+      "name": "Free",
+      "price": "0",
+      "period": "Forever Free",
+      "button": "Get Started",
+      "features": {
+        "storage": "100 Prompt Storage",
+        "basicCategory": "Basic Category Management",
+        "simpleSearch": "Simple Search",
+        "browserExt": "Browser Extension",
+        "dataSync": "Cloud Data Sync"
+      },
+      "notIncluded": {
+        "aiOptimize": "AI Smart Optimization",
+        "teamCollab": "Team Collaboration"
+      }
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "29",
+      "period": "per month",
+      "button": "Upgrade to Pro",
+      "features": {
+        "allFree": "All Free Features",
+        "unlimited": "Unlimited Prompt Storage",
+        "aiOptimize": "AI Smart Suggestions",
+        "smartTagging": "Smart Tag Recommendations",
+        "versionControl": "Version History",
+        "globalHotkey": "Global Hotkeys",
+        "allExt": "All Platform Extensions",
+        "prioritySupport": "Priority Support"
+      }
+    },
+    "team": {
+      "name": "Team",
+      "price": "99",
+      "period": "per month/user",
+      "button": "Contact Sales",
+      "features": {
+        "allPro": "All Pro Features",
+        "teamLib": "Team Shared Prompt Library",
+        "permission": "Permission Management",
+        "analytics": "Usage Analytics",
+        "apiAccess": "API Access",
+        "accountManager": "Dedicated Account Manager"
+      }
+    }
+  },
+  "cta": {
+    "title": "Ready to Boost Your AI Efficiency?",
+    "subtitle": "Join thousands of users and start managing your prompts smarter",
+    "button": "Start Free",
+    "note": "No credit card required, start instantly"
+  },
   "footer": {
-    "copyright": "© 2025 PromptHub. All Rights Reserved.",
+    "copyright": "© 2026 PromptHub. All Rights Reserved.",
     "pricing": "Pricing",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",

@@ -69,5 +69,11 @@
     "confirmSelection": "完成选择",
     "existingTagLabel": "现有标签:",
     "usageCount": "使用次数: {{count}}"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "提示词未找到",
+    "message": "抱歉，您访问的提示词不存在或已被删除。",
+    "backToExplore": "返回探索页面"
   }
 }

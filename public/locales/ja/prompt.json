@@ -69,5 +69,11 @@
     "confirmSelection": "選択を確定",
     "existingTagLabel": "既存のタグ:",
     "usageCount": "使用回数: {{count}}"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "プロンプトが見つかりません",
+    "message": "申し訳ございません。お探しのプロンプトは存在しないか、削除されました。",
+    "backToExplore": "探索ページに戻る"
   }
 }

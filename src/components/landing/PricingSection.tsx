@@ -152,14 +152,14 @@ const PricingCard = ({
   // 获取按钮样式
   const getButtonStyle = () => {
     if (!isAuthenticated) {
-      return 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white';
+      return 'bg-gradient-to-r from-[var(--primary-100)] to-[var(--secondary-400)] hover:from-[var(--primary-200)] hover:to-[var(--secondary-500)] text-[var(--bg-100)]';
     }
 
     if (user?.subscriptionStatus === plan.id) {
-      return 'bg-gray-200 text-gray-800 cursor-not-allowed';
+      return 'bg-[var(--bg-400)] text-[var(--text-300)] cursor-not-allowed';
     }
 
-    return 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white';
+    return 'bg-gradient-to-r from-[var(--primary-100)] to-[var(--secondary-400)] hover:from-[var(--primary-200)] hover:to-[var(--secondary-500)] text-[var(--bg-100)]';
   };
   
   return (
@@ -171,15 +171,15 @@ const PricingCard = ({
       className={`relative ${plan.recommended ? 'scale-105' : ''}`}
     >
       {plan.recommended && (
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-sm font-semibold z-10">
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-[var(--primary-100)] to-[var(--secondary-400)] rounded-full text-sm font-semibold z-10 text-[var(--bg-100)]">
           {t('pricing.mostPopular')}
         </div>
       )}
       
-      <div className={`h-full bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 border flex flex-col ${
-        plan.recommended ? 'border-purple-500' : 'border-gray-700'
-      } hover:border-purple-400 transition-all duration-300`}>
-        <h3 className="text-2xl font-bold mb-4">{t(plan.nameKey)}</h3>
+      <div className={`h-full bg-[var(--bg-200)] backdrop-blur-lg rounded-2xl p-8 border flex flex-col ${
+        plan.recommended ? 'border-[var(--primary-100)]' : 'border-[var(--bg-300)]'
+      } hover:border-[var(--primary-100)] transition-all duration-300`}>
+        <h3 className="text-2xl font-bold mb-4 text-[var(--text-100)]">{t(plan.nameKey)}</h3>
         <div className="mb-6">
           <span className="text-4xl font-bold">{getPrice()}</span>
           {getEquivalentMonthlyPrice() && (
@@ -192,14 +192,14 @@ const PricingCard = ({
         <div className="space-y-3 mb-8 flex-grow">
           {plan.features.map((feature, i) => (
             <div key={i} className="flex items-center gap-3">
-              <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
-              <span className="text-gray-300">{feature}</span>
+              <Check className="w-5 h-5 text-[var(--secondary-400)] flex-shrink-0" />
+              <span className="text-[var(--text-200)]">{feature}</span>
             </div>
           ))}
           {plan.notIncluded?.map((feature, i) => (
             <div key={i} className="flex items-center gap-3 opacity-50">
-              <X className="w-5 h-5 text-gray-500 flex-shrink-0" />
-              <span className="text-gray-500 line-through">{feature}</span>
+              <X className="w-5 h-5 text-[var(--text-300)] flex-shrink-0" />
+              <span className="text-[var(--text-300)] line-through">{feature}</span>
             </div>
           ))}
         </div>
@@ -233,7 +233,7 @@ const PricingCard = ({
           >
             {isLoading === plan.id ? (
               <div className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[var(--bg-100)]" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -355,34 +355,34 @@ const PricingSection = ({ params, isAdmin, handleLoginModal}: { params: { lang: 
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[var(--text-100)]">
             {t('pricing.title')}
-            <span className="text-gradient bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent"> {t('pricing.highlight')}</span>
+            <span className="text-gradient bg-gradient-to-r from-[var(--accent-100)] to-[var(--accent-200)] bg-clip-text text-transparent"> {t('pricing.highlight')}</span>
           </h2>
-          <p className="text-xl text-gray-400">{t('pricing.subtitle')}</p>
+          <p className="text-xl text-[var(--text-200)]">{t('pricing.subtitle')}</p>
         </motion.div>
 
         {/* 错误消息 */}
         {error && (
-          <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-4 max-w-2xl mx-auto">
+          <div className="mb-8 bg-[var(--accent-100)]/10 border border-[var(--accent-100)] rounded-lg p-4 max-w-2xl mx-auto">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[var(--accent-100)] mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-red-800">{error}</span>
+              <span className="text-[var(--accent-100)]">{error}</span>
             </div>
           </div>
         )}
 
         {/* 计费周期切换 */}
         <div className="flex justify-center mb-12">
-          <div className="bg-gray-800/50 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-gray-700">
+          <div className="bg-[var(--bg-200)] backdrop-blur-sm p-1 rounded-lg shadow-sm border border-[var(--bg-300)]">
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${
                 billingCycle === 'monthly'
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                  : 'text-gray-300 hover:text-white'
+                  ? 'bg-gradient-to-r from-[var(--primary-100)] to-[var(--secondary-400)] text-[var(--bg-100)]'
+                  : 'text-[var(--text-200)] hover:text-[var(--text-100)]'
               }`}
             >
               {t('common:monthly')}
@@ -391,12 +391,12 @@ const PricingSection = ({ params, isAdmin, handleLoginModal}: { params: { lang: 
               onClick={() => setBillingCycle('yearly')}
               className={`px-6 py-2 rounded-md text-sm font-medium transition-colors relative ${
                 billingCycle === 'yearly'
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                  : 'text-gray-300 hover:text-white'
+                  ? 'bg-gradient-to-r from-[var(--primary-100)] to-[var(--secondary-400)] text-[var(--bg-100)]'
+                  : 'text-[var(--text-200)] hover:text-[var(--text-100)]'
               }`}
             >
               {t('common:yearly')}
-              <span className="absolute -top-3 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+              <span className="absolute -top-5 -right-6 bg-gradient-to-r from-[var(--accent-100)] to-[var(--accent-200)] text-[var(--bg-100)] text-xs px-2 py-1 rounded-full shadow-lg">
                 {t('common:save20')}
               </span>
             </button>

@@ -177,6 +177,7 @@ export class PromptService {
     content: string;
     description?: string;
     tags?: string[];
+    imageUrls?: string[];
     isPublic?: boolean;
     useCount?: number;
     spaceId: string;
@@ -192,6 +193,7 @@ export class PromptService {
       content: promptData.content,
       description: promptData.description,
       tags: JSON.stringify(promptData.tags || []),
+      imageUrls: JSON.stringify(promptData.imageUrls || []),
       isPublic: promptData.isPublic ?? false,
       useCount: promptData.useCount ?? 0,
       spaceId: promptData.spaceId,
@@ -291,6 +293,26 @@ export class PromptService {
       });
     }
 
+    // 解析JSON字段
+    prompts = prompts.map(p => {
+      const parsed = { ...p };
+      if (parsed.tags) {
+        try {
+          parsed.tags = JSON.parse(parsed.tags);
+        } catch (e) {
+          parsed.tags = [];
+        }
+      }
+      if (parsed.imageUrls) {
+        try {
+          parsed.imageUrls = JSON.parse(parsed.imageUrls);
+        } catch (e) {
+          parsed.imageUrls = [];
+        }
+      }
+      return parsed;
+    });
+
     // 获取总数
     const total = await db.$count(prompt, and(...conditions));
 
@@ -308,11 +330,15 @@ export class PromptService {
     content?: string;
     description?: string;
     tags?: string[];
+    imageUrls?: string[];
     isPublic?: boolean;
   }) {
     const updateData: any = { ...updates };
     if (updates.tags) {
       updateData.tags = JSON.stringify(updates.tags);
+    }
+    if (updates.imageUrls !== undefined) {
+      updateData.imageUrls = JSON.stringify(updates.imageUrls);
     }
     
     // 自动设置更新时间
@@ -324,6 +350,9 @@ export class PromptService {
       .returning();
     
     updatedPrompt.tags = JSON.parse(updatedPrompt.tags);
+    if (updatedPrompt.imageUrls) {
+      updatedPrompt.imageUrls = JSON.parse(updatedPrompt.imageUrls);
+    }
     return updatedPrompt;
   }
   
@@ -337,8 +366,13 @@ export class PromptService {
       where: eq(prompt.id, promptId),
     });
     
-    if (foundPrompt && foundPrompt.tags) {
-      foundPrompt.tags = JSON.parse(foundPrompt.tags);
+    if (foundPrompt) {
+      if (foundPrompt.tags) {
+        foundPrompt.tags = JSON.parse(foundPrompt.tags);
+      }
+      if (foundPrompt.imageUrls) {
+        foundPrompt.imageUrls = JSON.parse(foundPrompt.imageUrls);
+      }
     }
     
     return foundPrompt;

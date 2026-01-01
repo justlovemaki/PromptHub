@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, use } from 'react'
 import AdminPageWrapper from '@/components/admin/AdminPageWrapper'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { DataTable, Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalTitle } from '@promptmanager/ui-components'
@@ -13,9 +13,9 @@ import { useTags } from '@/hooks/useTags'
 import { UI_CONFIG, PromptVisibility, PROMPT_VISIBILITY } from '@/lib/constants';
 
 interface AdminPromptsPageProps {
-  params: {
+  params: Promise<{
     lang: string
-  }
+  }>
 }
 
 interface PromptFormData {
@@ -27,8 +27,9 @@ interface PromptFormData {
 }
 
 export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
-  const { t: tAdminPrompt } = useTranslation(params.lang, 'admin')
-  const { t: tCommon } = useTranslation(params.lang, 'common')
+  const { lang } = use(params)
+  const { t: tAdminPrompt } = useTranslation(lang, 'admin')
+  const { t: tCommon } = useTranslation(lang, 'common')
 
   // 状态管理
   const [searchQuery, setSearchQuery] = useState('')
@@ -40,7 +41,6 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   const { isLoading, setLanguage } = useAuth()
 
   // 标签相关
-  const lang = params.lang
   const { getTagNameByKey, allTags } = useTags(lang)
 
   // 创建标签键到名称的映射，用于快速查找
@@ -66,8 +66,8 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
 
   // 设置语言属性
   useEffect(() => {
-    setLanguage(params.lang);
-  }, [params.lang, setLanguage]);
+    setLanguage(lang);
+  }, [lang, setLanguage]);
 
   // 获取提示词列表
   const fetchPrompts = async (page = currentPage, search = searchQuery, sort = sortBy, order = sortOrder) => {
@@ -82,7 +82,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         sortBy: sort || 'updatedAt',
         sortOrder: order || 'desc',
         isPublic: filterStatus === 'public' ? true : filterStatus === 'private' ? false : undefined
-      }, params.lang)
+      }, lang)
 
       if (response.success) {
         setPrompts(response.data.prompts || [])
@@ -167,7 +167,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       setOperationLoading(true)
       setError(null)
 
-      const response = await api.deletePrompt({ id: promptId }, params.lang)
+      const response = await api.deletePrompt({ id: promptId }, lang)
       if (response.success) {
         await fetchPrompts()
       } else {
@@ -188,7 +188,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   // 创建提示词
   const handleCreate = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
-      const { t: tDashboard } = useTranslation(params.lang, 'dashboard')
+      const { t: tDashboard } = useTranslation(lang, 'dashboard')
       setError(tDashboard('titleAndContentRequired') || '标题和内容为必填项')
       setTimeout(() => setError(null), UI_CONFIG.TOAST_DEFAULT_DURATION)
       return
@@ -205,7 +205,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         tags: formData.tags.length > 0 ? formData.tags : undefined,
         isPublic: formData.visibility === 'public',
         spaceId: 'admin'
-      }, params.lang)
+      }, lang)
 
       if (response.success) {
         setIsCreateModalOpen(false)
@@ -242,7 +242,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
     if (!editingPrompt) return
 
     if (!formData.title.trim() || !formData.content.trim()) {
-      const { t: tDashboard } = useTranslation(params.lang, 'dashboard')
+      const { t: tDashboard } = useTranslation(lang, 'dashboard')
       setError(tDashboard('titleAndContentRequired') || '标题和内容为必填项')
       setTimeout(() => setError(null), UI_CONFIG.TOAST_DEFAULT_DURATION)
       return
@@ -259,7 +259,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
         isPublic: formData.visibility === 'public'
-      }, params.lang)
+      }, lang)
 
       if (response.success) {
         setIsEditModalOpen(false)
@@ -282,7 +282,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   }
 
   return (
-    <AdminPageWrapper lang={params.lang}>
+    <AdminPageWrapper lang={lang}>
       <div className="space-y-6">
         {/* 错误消息显示 */}
         {error && (
@@ -436,9 +436,9 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                     width: '20%',
                     render: (value: string) => (
                       <div className="text-sm text-text-200">
-                        <div>{new Date(value).toLocaleDateString(params.lang)}</div>
+                        <div>{new Date(value).toLocaleDateString(lang)}</div>
                         <div className="text-xs text-text-300">
-                          {new Date(value).toLocaleTimeString(params.lang)}
+                          {new Date(value).toLocaleTimeString(lang)}
                         </div>
                       </div>
                     )
@@ -451,9 +451,9 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                       <div className="text-sm text-text-200">
                         {record.updatedAt !== record.createdAt ? (
                           <>
-                            <div>{new Date(value).toLocaleDateString(params.lang)}</div>
+                            <div>{new Date(value).toLocaleDateString(lang)}</div>
                             <div className="text-xs text-text-300">
-                              {new Date(value).toLocaleTimeString(params.lang)}
+                              {new Date(value).toLocaleTimeString(lang)}
                             </div>
                           </>
                         ) : (
@@ -531,7 +531,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
           editingPrompt={editingPrompt}
           operationLoading={operationLoading}
           onSubmit={editingPrompt ? handleUpdate : handleCreate}
-          lang={params.lang}
+          lang={lang}
           existingTags={allTags.map(tag => tag.key)}
         />
       </div>

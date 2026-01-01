@@ -1,48 +1,82 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Menu, X as XIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LoginButton from '@/components/LoginButton';
+import { useTranslation } from '@/i18n/client';
 
 interface TopNavbarProps {
   lang: string;
 }
 
 export default function TopNavbar({ lang }: TopNavbarProps) {
-  const [showNav, setShowNav] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setShowNav(scrollPosition > 100);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useTranslation(lang, 'landing');
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        showNav ? 'bg-gray-900/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
-      }`}
-    >
-      <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href={`/${lang}`} className="flex items-center space-x-2">
-          <Sparkles className="w-8 h-8 text-purple-500" />
-          <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            PromptHub
-          </span>
-        </Link>
-        
-        <div className="flex items-center space-x-6">
-          <LanguageSwitcher lang={lang} />
-          <LoginButton lng={lang} />
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-100)]/80 backdrop-blur-lg border-b border-[var(--bg-300)]">
+      <nav className="container mx-auto px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href={`/${lang}`} className="flex items-center space-x-2">
+            <Sparkles className="w-7 h-7 text-[var(--primary-100)]" />
+            <span className="text-xl font-bold text-[var(--text-100)]">
+              PromptHub
+            </span>
+          </Link>
+
+          {/* 桌面端导航 */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link href={`/${lang}/download`} className="text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors">
+              {t('nav.download')}
+            </Link>
+            <Link href={`/${lang}/explore`} className="text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors">
+              {t('nav.explore')}
+            </Link>
+          </div>
+
+          {/* 右侧操作区 */}
+          <div className="hidden md:flex items-center space-x-4">
+            <LanguageSwitcher lang={lang} />
+            <LoginButton lng={lang} />
+          </div>
+
+          {/* 移动端菜单按钮 */}
+          <button
+            className="md:hidden p-2 text-[var(--text-200)] hover:text-[var(--text-100)]"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <XIcon className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {/* 移动端菜单 */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden mt-4 py-4 border-t border-[var(--bg-300)]"
+            >
+              <div className="flex flex-col space-y-4">
+                <Link href={`/${lang}/explore`} className="text-[var(--text-200)] hover:text-[var(--text-100)]" onClick={() => setIsMobileMenuOpen(false)}>
+                  {t('nav.explore')}
+                </Link>
+                <Link href={`/${lang}/download`} className="text-[var(--text-200)] hover:text-[var(--text-100)]" onClick={() => setIsMobileMenuOpen(false)}>
+                  {t('nav.download')}
+                </Link>
+                <div className="pt-4 border-t border-[var(--bg-300)] flex flex-col space-y-3">
+                  <LanguageSwitcher lang={lang} />
+                  <LoginButton lng={lang} />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </header>
   );

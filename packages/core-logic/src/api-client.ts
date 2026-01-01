@@ -587,7 +587,7 @@ export const getApiClient = (): ApiClient => {
       console.log('API client not initialized, auto initializing...');
       const baseURL = process.env.NEXT_PUBLIC_APP_URL ||
                      process.env.BETTER_AUTH_URL?.replace(/\/$/, '') ||
-                     window.location.origin || 'http://localhost:3000';
+                     window.location.origin ;
       
       return createApiClient({
         baseURL,

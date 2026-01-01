@@ -101,6 +101,7 @@ export const prompt = pgTable("prompt", {
 	content: text("content").notNull().default(""), // 支持变量语法
 	description: text("description").default(""),
 	tags: text("tags").default("[]"), // 使用string存储标签数组
+	imageUrls: text("image_urls").default("[]"), // JSON字符串存储图片链接数组
 	isPublic: boolean("is_public").default(false),
 	useCount: integer("use_count").default(0),
 	spaceId: text("space_id").notNull().references(() => space.id, { onDelete: "cascade" }),

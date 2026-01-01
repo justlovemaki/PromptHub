@@ -1,0 +1,54 @@
+{
+  "pageTitle": "プロンプト広場",
+  "pageDescription": "コミュニティが共有する高品質なプロンプトを発見・探索",
+  "searchPlaceholder": "プロンプトを検索...",
+  "noPromptsFound": "一致するプロンプトが見つかりません",
+  "noPromptsYet": "公開プロンプトはまだありません",
+  "loading": "読み込み中...",
+  "loadMore": "もっと読み込む",
+  "usePrompt": "使用",
+  "copyPrompt": "コピー",
+  "copied": "コピーしました",
+  "viewDetail": "詳細を見る",
+  "author": "作成者",
+  "usageCount": "使用回数",
+  "updatedAt": "更新日時",
+  "tags": "タグ",
+  "description": "説明",
+  "content": "内容",
+  "close": "閉じる",
+  "noDescription": "説明なし",
+  "hasImages": "画像を含む",
+  "imagesCount": "{{count}} 枚の画像",
+  "filterByTag": "タグでフィルター",
+  "clearFilter": "フィルターをクリア",
+  "allTags": "すべてのタグ",
+  "sortBy": {
+    "label": "並び替え",
+    "updatedAt": "更新日時",
+    "useCount": "使用回数",
+    "createdAt": "作成日時"
+  },
+  "sortOrder": {
+    "desc": "降順",
+    "asc": "昇順"
+  },
+  "viewMode": {
+    "label": "表示モード",
+    "list": "リストモード",
+    "image": "画像モード"
+  },
+  "noImage": "画像なし",
+  "totalPrompts": "合計",
+  "totalPromptsUnit": "件のプロンプト",
+  "backToExplore": "探索に戻る",
+  "useCount": "使用回数",
+  "images": "枚の画像",
+  "footer": {
+    "pricing": "料金",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "copyright": "All Rights Reserved."
+  }
+}

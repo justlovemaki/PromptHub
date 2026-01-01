@@ -45,6 +45,7 @@ export async function middleware(request: NextRequest) {
     // The new URL is now /en-US/products
 
     requestHeaders.set('x-next-pathname', "");
+    requestHeaders.set('proxy-pathname', pathname);
     return NextResponse.rewrite(
       new URL(`/${fallbackLng}${pathname}`, request.url),
       {
@@ -56,6 +57,7 @@ export async function middleware(request: NextRequest) {
   }
 
   requestHeaders.set('x-next-pathname', pathname.split('/')[1]);
+  requestHeaders.set('proxy-pathname', pathname);
   return NextResponse.next(
     {
       request: {
@@ -74,6 +76,8 @@ async function handleApiRoutes(request: NextRequest) {
     '/api/billing/webhook', // Stripe webhook
     '/api/health', // 健康检查
     '/api/mcp', // MCP服务
+    '/api/prompts/public', // 公开提示词列表
+    '/api/prompts/', // 公开提示词详情（动态路由）
   ];
   
   // 检查是否为公开路由

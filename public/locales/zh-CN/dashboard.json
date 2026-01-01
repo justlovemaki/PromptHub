@@ -73,7 +73,8 @@
   "placeholders": {
     "title": "为你的提示词起一个清晰的标题",
     "description": "简短描述这个提示词的用途和场景",
-    "content": "输入提示词的具体内容...\n\n提示：你可以使用变量占位符，如 {用户输入}、{主题} 等"
+    "content": "输入提示词的具体内容...\n\n提示：你可以使用变量占位符，如 {用户输入}、{主题} 等",
+    "imageUrl": "输入图片链接地址 (https://...)"
   },
   "templateVariableExample": {
     "title": "模板变量使用示例",
@@ -104,5 +105,9 @@
   "existingTags": "已存在标签",
   "loadingTags": "标签加载中...",
   "noTagsAvailable": "暂无可用标签",
-  "clearTagSearch": "清除标签搜索"
+  "clearTagSearch": "清除标签搜索",
+  "imageUrls": "图片链接",
+  "addImageUrl": "添加图片链接",
+  "hasImages": "包含图片",
+  "viewImages": "查看图片"
 }

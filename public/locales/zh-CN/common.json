@@ -1,5 +1,6 @@
 {
   "home": "首页",
+  "promptExplore": "提示词广场",
   "pricing": "价格",
   "contact": "联系我们",
   "terms": "服务条款",
@@ -107,5 +108,12 @@
       "desc": "降序",
       "asc": "升序"
     }
+  },
+  "footer": {
+    "copyright": "© 2026 PromptHub. 保留所有权利。",
+    "pricing": "价格",
+    "privacy": "隐私协议",
+    "terms": "服务条款",
+    "contact": "联系我们"
   }
 }

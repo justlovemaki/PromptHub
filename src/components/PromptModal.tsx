@@ -2,7 +2,7 @@ import { Modal, ModalContent, ModalHeader, ModalTitle, Button, Input, Textarea }
 import TagSelector from './TagSelector'
 import { useTranslation } from '@/i18n/client'
 import { type Prompt } from '@promptmanager/core-logic'
-import { type FormEvent } from 'react'
+import { type FormEvent, useState } from 'react'
 
 interface PromptModalProps {
   open: boolean
@@ -12,6 +12,7 @@ interface PromptModalProps {
     description: string
     content: string
     tags: string[]
+    imageUrls?: string[]
     visibility: 'public' | 'private'
   }
   setFormData: (data: any) => void
@@ -34,6 +35,7 @@ export default function PromptModal({
   existingTags
 }: PromptModalProps) {
   const { t } = useTranslation(lang, 'dashboard')
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
 
   const isEditing = !!editingPrompt
 
@@ -47,6 +49,7 @@ export default function PromptModal({
       description: '',
       content: '',
       tags: [],
+      imageUrls: [],
       visibility: 'private'
     })
   }
@@ -62,6 +65,7 @@ export default function PromptModal({
           description: '',
           content: '',
           tags: [],
+          imageUrls: [],
           visibility: 'private'
         })
       }
@@ -224,6 +228,72 @@ export default function PromptModal({
                     existingTags={existingTags}
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-200 mb-2">
+                    {t('imageUrls')}
+                  </label>
+                  <div className="space-y-2">
+                    {Array.isArray(formData.imageUrls) && formData.imageUrls.map((url, index) => (
+                      <div key={index} className="flex gap-2">
+                        <div className="flex-1">
+                          <Input
+                            value={url}
+                            onChange={(e) => {
+                              const currentUrls = Array.isArray(formData.imageUrls) ? formData.imageUrls : []
+                              const newUrls = [...currentUrls]
+                              newUrls[index] = e.target.value
+                              handleInputChange('imageUrls', newUrls)
+                            }}
+                            placeholder={t('placeholders.imageUrl')}
+                            className="w-full transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
+                          />
+                        </div>
+                        <Button
+                          onClick={() => {
+                            const currentUrls = Array.isArray(formData.imageUrls) ? formData.imageUrls : []
+                            const newUrls = currentUrls.filter((_, i) => i !== index)
+                            handleInputChange('imageUrls', newUrls)
+                          }}
+                          variant="outline"
+                          className="px-3 flex-shrink-0"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (url && url.trim()) {
+                              setPreviewImageUrl(url)
+                            }
+                          }}
+                          variant="outline"
+                          className="px-3 flex-shrink-0"
+                          disabled={!url || !url.trim()}
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      onClick={() => {
+                        const currentUrls = Array.isArray(formData.imageUrls) ? formData.imageUrls : []
+                        handleInputChange('imageUrls', [...currentUrls, ''])
+                      }}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      {t('addImageUrl')}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -282,6 +352,47 @@ export default function PromptModal({
           </div>
         </div>
       </ModalContent>
+
+      {/* 图片预览全屏模态框 */}
+      {previewImageUrl && (
+        <div
+          className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4"
+          onClick={() => setPreviewImageUrl(null)}
+        >
+          <button
+            onClick={() => setPreviewImageUrl(null)}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
+          >
+            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div
+            className="max-w-[95vw] max-h-[95vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={previewImageUrl}
+              alt="预览图片"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+                const errorDiv = document.createElement('div')
+                errorDiv.className = 'text-white text-center p-8 bg-red-500/20 rounded-lg'
+                errorDiv.innerHTML = `
+                  <svg class="h-16 w-16 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p class="text-lg font-medium">图片加载失败</p>
+                  <p class="text-sm text-gray-300 mt-2">请检查图片链接是否正确</p>
+                `
+                target.parentElement?.appendChild(errorDiv)
+              }}
+            />
+          </div>
+        </div>
+      )}
     </Modal>
   )
 }

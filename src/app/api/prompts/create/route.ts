@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
     content: z.string().min(1, t('validation.contentRequired')),
     description: z.string().optional(),
     tags: z.array(z.string()).optional(),
+    imageUrls: z.array(z.string().url()).optional(),
     isPublic: z.boolean().optional().default(false),
   });
 
@@ -40,10 +41,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, content, description, tags, isPublic } = validation.data;
+    const { title, content, description, tags, imageUrls, isPublic } = validation.data;
 
     // 处理标签默认值
     const processedTags = tags && tags.length > 0 ? tags : [];
+    // 处理图片链接默认值
+    const processedImageUrls = imageUrls && imageUrls.length > 0 ? imageUrls : [];
 
     // 创建提示词
     const newPrompt = await PromptService.createPrompt({
@@ -51,6 +54,7 @@ export async function POST(request: NextRequest) {
       content,
       description,
       tags: processedTags,
+      imageUrls: processedImageUrls,
       isPublic: isPublic ?? false,
       spaceId: user.personalSpaceId,
       createdBy: user.id,

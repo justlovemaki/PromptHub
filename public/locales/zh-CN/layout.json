@@ -1,4 +1,13 @@
 {
-  "title": "PromptHub - 你的一站式提示词解决方案",
-  "description": "告别低效的提示词管理！PromptHub提供一站式解决方案，集成了强大的模板库、便捷的管理工具和创新的交易市场。专为提升您的AI工作流而设计，让每个Prompt都发挥最大价值。"
+  "title": "PromptHub - AI提示词管理平台",
+  "description": "PromptHub提供专业的AI提示词管理工具，海量模板库助您高效创作，提升AI工作流效率。",
+  "seo": {
+    "siteName": "PromptHub",
+    "siteDescription": "PromptHub提供专业的AI提示词管理工具，海量模板库助您高效创作，提升AI工作流效率。",
+    "siteKeywords": "AI提示词, ChatGPT提示词, Claude提示词, 提示词管理, 提示词模板, AI工作流",
+    "siteUrl": "",
+    "ogImage": "/logo.png",
+    "twitterHandle": "@prompthub",
+    "twitterCard": "summary_large_image"
+  }
 }

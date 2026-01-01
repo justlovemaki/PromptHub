@@ -73,7 +73,8 @@
   "placeholders": {
     "title": "プロンプトにわかりやすいタイトルを付けてください",
     "description": "このプロンプトの用途と使用シーンを簡単に説明してください",
-    "content": "プロンプトの具体的な内容を入力してください...\n\nヒント: {ユーザー入力}、{トピック} などの変数プレースホルダーを使用できます"
+    "content": "プロンプトの具体的な内容を入力してください...\n\nヒント: {ユーザー入力}、{トピック} などの変数プレースホルダーを使用できます",
+    "imageUrl": "画像URLを入力してください (https://...)"
   },
   "templateVariableExample": {
     "title": "テンプレート変数使用例",
@@ -104,5 +105,9 @@
   "existingTags": "既存のタグ",
   "loadingTags": "タグを読み込み中...",
   "noTagsAvailable": "利用可能なタグがありません",
-  "clearTagSearch": "タグ検索をクリア"
+  "clearTagSearch": "タグ検索をクリア",
+  "imageUrls": "画像リンク",
+  "addImageUrl": "画像リンクを追加",
+  "hasImages": "画像あり",
+  "viewImages": "画像を表示"
 }

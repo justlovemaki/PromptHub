@@ -73,7 +73,8 @@
   "placeholders": {
     "title": "Give your prompt a clear title",
     "description": "Briefly describe the purpose and usage of this prompt",
-    "content": "Enter the specific content of the prompt...\n\nHint: You can use variable placeholders like {user_input}, {topic}, etc."
+    "content": "Enter the specific content of the prompt...\n\nHint: You can use variable placeholders like {user_input}, {topic}, etc.",
+    "imageUrl": "Enter image URL (https://...)"
   },
   "templateVariableExample": {
     "title": "Template Variable Usage Example",
@@ -104,5 +105,9 @@
   "existingTags": "Existing Tags",
   "loadingTags": "Loading tags...",
   "noTagsAvailable": "No tags available",
-  "clearTagSearch": "Clear tag search"
+  "clearTagSearch": "Clear tag search",
+  "imageUrls": "Image URLs",
+  "addImageUrl": "Add Image URL",
+  "hasImages": "Has Images",
+  "viewImages": "View Images"
 }

@@ -54,6 +54,7 @@ export const PromptSchema = z.object({
   content: z.string().default(''),
   description: z.string().default('').optional(),
   tags: z.array(z.string()).default([]).optional(), // 字符串数组存储标签
+  imageUrls: z.array(z.string()).default([]).optional(), // 字符串数组存储图片链接
   isPublic: z.boolean().default(false),
   useCount: z.number().default(0),
   spaceId: z.string(),
@@ -100,6 +101,7 @@ export const CreatePromptRequestSchema = z.object({
   content: z.string().min(1, '内容不能为空'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  imageUrls: z.array(z.string()).optional(),
   isPublic: z.boolean().default(false),
   useCount: z.number().default(0).optional(),
   spaceId: z.string(),
@@ -114,6 +116,7 @@ export const UpdatePromptRequestSchema = z.object({
   content: z.string().min(1, '内容不能为空').optional(),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  imageUrls: z.array(z.string()).optional(),
   isPublic: z.boolean().optional(),
 });
 

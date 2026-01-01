@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useAuth, api } from '@promptmanager/core-logic'
 import SearchToolbar from '@promptmanager/ui-components/src/components/search-toolbar'
 import { DataTable } from '@promptmanager/ui-components/src/components/data-table'
@@ -10,14 +10,14 @@ import { useTranslation } from '@/i18n/client'
 import { LogLevel, LogCategory } from '@/lib/constants';
 
 interface LogsPageProps {
-  params: {
+  params: Promise<{
     lang: string
-  }
+  }>
 }
 
 export default function LogsPage({ params }: LogsPageProps) {
-  const { t } = useTranslation(params.lang, 'logs')
-  const { lang } = params
+  const { lang } = use(params)
+  const { t } = useTranslation(lang, 'logs')
   const { isLoading, setLanguage } = useAuth()
 
 
@@ -41,8 +41,8 @@ export default function LogsPage({ params }: LogsPageProps) {
 
   // 设置语言属性
   useEffect(() => {
-    setLanguage(params.lang);
-  }, [params.lang, setLanguage]);
+    setLanguage(lang);
+  }, [lang, setLanguage]);
 
   // 搜索、筛选、排序变化时重新获取数据（防抖处理）
   useEffect(() => {
@@ -189,7 +189,7 @@ export default function LogsPage({ params }: LogsPageProps) {
                 sortable: true,
                 render: (value: string) => (
                   <span className="text-text-300 text-xs">
-                    {new Date(value).toLocaleString(params.lang)}
+                    {new Date(value).toLocaleString(lang)}
                   </span>
                 )
               },

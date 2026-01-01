@@ -1,0 +1,54 @@
+{
+  "pageTitle": "Prompt Explore",
+  "pageDescription": "Discover and explore quality prompts shared by the community",
+  "searchPlaceholder": "Search prompts...",
+  "noPromptsFound": "No matching prompts found",
+  "noPromptsYet": "No public prompts yet",
+  "loading": "Loading...",
+  "loadMore": "Load More",
+  "usePrompt": "Use",
+  "copyPrompt": "Copy",
+  "copied": "Copied",
+  "viewDetail": "View Detail",
+  "author": "Author",
+  "usageCount": "Usage Count",
+  "updatedAt": "Updated At",
+  "tags": "Tags",
+  "description": "Description",
+  "content": "Content",
+  "close": "Close",
+  "noDescription": "No description",
+  "hasImages": "Contains images",
+  "imagesCount": "{{count}} image(s)",
+  "filterByTag": "Filter by Tag",
+  "clearFilter": "Clear Filter",
+  "allTags": "All Tags",
+  "sortBy": {
+    "label": "Sort By",
+    "updatedAt": "Updated At",
+    "useCount": "Usage Count",
+    "createdAt": "Created At"
+  },
+  "sortOrder": {
+    "desc": "Descending",
+    "asc": "Ascending"
+  },
+  "viewMode": {
+    "label": "View Mode",
+    "list": "List Mode",
+    "image": "Image Mode"
+  },
+  "noImage": "No Image",
+  "totalPrompts": "Total",
+  "totalPromptsUnit": "prompt(s)",
+  "backToExplore": "Back to Explore",
+  "useCount": "Usage Count",
+  "images": "image(s)",
+  "footer": {
+    "pricing": "Pricing",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us",
+    "copyright": "All Rights Reserved."
+  }
+}

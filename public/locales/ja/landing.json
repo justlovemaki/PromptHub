@@ -1,173 +1,162 @@
 {
   "hero": {
-    "title": "管理、最適化、ワンクリック",
-    "subtitle": "AIプロンプトの可能性を最大限に引き出す",
-    "cta": "無料で始める"
+    "badge": "AI プロンプト管理エキスパート",
+    "title": "すべてのプロンプトを",
+    "titleHighlight": "最大限に活用",
+    "subtitle": "PromptHub は AI プロンプトの一元管理、スマート分類、クイックアクセスを支援し、AI ワークフローをより効率的にします",
+    "cta": "無料で始める",
+    "ctaSecondary": "詳しく見る",
+    "stats": {
+      "users": "アクティブユーザー",
+      "prompts": "管理プロンプト数",
+      "satisfaction": "ユーザー満足度"
+    }
   },
   "nav": {
     "features": "機能",
     "pricing": "料金",
-    "download": "ダウンロード"
+    "download": "ダウンロード",
+    "explore": "プロンプト広場",
+    "faq": "よくある質問"
   },
-  "problem": {
-    "title": "まだ散らばった",
-    "highlight": "プロンプト",
-    "title2": "に悩んでいますか？",
-    "description": "散在するドキュメントやスプレッドシートから解放されましょう。繰り返し作業にさよならして、最適なプロンプト探しに時間を無駄にするのをやめましょう。"
-  },
-  "management": {
-    "title": "一元化、タグ付け、",
-    "highlight": "瞬間検索",
-    "description": "すべてのAIモデル（GPT、Midjourney、Claudeなど）のための統一プロンプトライブラリを構築。タグで整理し、必要なものを瞬時に見つけられます。",
-    "features": {
-      "smartCategory": "自動入力",
-      "multiTag": "多次元タグ", 
-      "instantSearch": "即座に検索"
+  "features": {
+    "title": "なぜ",
+    "titleHighlight": "PromptHub",
+    "subtitle": "ワンストップ AI プロンプト管理ソリューションで、より効率的な AI 作業を",
+    "management": {
+      "title": "一元管理",
+      "description": "散在するプロンプトを一箇所に統合。フォルダ分類、多次元タグ、全文検索で、乱雑なドキュメントやスプレッドシートとはお別れ"
     },
-    "demo": {
-      "folder": "作業プロジェクト",
-      "folderContent": "製品説明ジェネレーター v2.0",
-      "tags": "#マーケティング #コピーライティング",
-      "tagsContent": "ソーシャルメディアバイラルコピーテンプレート",
-      "search": "検索：コード最適化",
-      "searchResult": "15個の関連プロンプトが見つかりました..."
+    "mcp": {
+      "title": "MCP サービス統合",
+      "description": "Model Context Protocol 標準をサポートし、AI アシスタント向けの MCP サーバーとしてプロンプトを提供、インテリジェントなワークフロー自動化を実現"
+    },
+    "quickAccess": {
+      "title": "クイックアクセス",
+      "description": "ブラウザ拡張機能やデスクトップアプリで、任意のウェブページからホットキーでプロンプトライブラリにアクセス。ワンクリックでコピーまたは AI チャットに直接送信"
+    },
+    "multiPlatform": {
+      "title": "クロスプラットフォーム対応",
+      "description": "Windows、macOS、Linux のデスクトップアプリと、Chrome、Edge、Firefox などの主要ブラウザ拡張機能を提供。どこでもプロンプトを管理"
+    },
+    "cloudSync": {
+      "title": "クラウド同期",
+      "description": "データをクラウドに安全に保存し、マルチデバイス同期をサポート。いつでもどこでもプロンプトライブラリにアクセス"
+    },
+    "importExport": {
+      "title": "インポート・エクスポート",
+      "description": "JSON 形式の一括インポート・エクスポートをサポート。既存プロンプトの簡単移行とチームでの高品質 Prompt 共有が可能"
     }
   },
-  "optimization": {
-    "title": "ワンクリック最適化、",
-    "highlight": "どこでもアクセス",
-    "description": "内蔵のAI最適化提案で、プロンプトをより正確で効率的に。フローティングウィジェットやホットキーで、どこからでもプロンプトライブラリに瞬時にアクセス。",
-    "features": {
-      "aiOptimize": "AI最適化",
-      "quickAccess": "クイックアクセス",
-      "globalAccess": "グローバルアクセス"
-    },
-    "demo": {
-      "title": "プロンプト最適化ツール",
-      "optimizeBtn": "AI最適化",
-      "before": "元のプロンプト：",
-      "beforeExample": "人工知能について記事を書く",
-      "after": "最適化されたプロンプト：",
-      "role": "役割：",
-      "roleText": "あなたはベテランのテクノロジージャーナリストです",
-      "task": "タスク：",
-      "taskText": "2000文字の詳細な分析記事を執筆",
-      "topic": "トピック：",
-      "topicText": "医療分野でのAIの応用と課題",
-      "requirements": "要件：",
-      "requirementsText": "ケーススタディ、データサポート、将来の展望を含む"
-    }
-  },
-  "cards": {
-    "gpt": "GPT コピー最適化",
-    "claude": "Claude コード生成",
-    "banana": "Nano Banana 画像編集",
-    "midjourney": "Midjourney アート創作",
-    "sd": "Stable Diffusion シーン"
-  },
-  "pricing": {
-    "title": "あなたに合った",
-    "highlight": "プラン",
-    "subtitle": "シンプルで透明な価格設定、いつでもアップグレードまたはキャンセル可能",
-    "mostPopular": "最も人気",
-    "free": {
-      "name": "無料版",
-      "price": "0",
-      "features": {
-        "storage": "100個のプロンプト保存",
-        "basicCategory": "多次元タグ",
-        "simpleSearch": "シンプル検索機能",
-        "browserExt": "ブラウザ拡張",
-        "dataSync": "データのインポート・エクスポート"
-      },
-      "notIncluded": {
-        "aiOptimize": "AIスマート最適化",
-        "teamCollab": "チームコラボレーション"
-      }
-    },
-    "pro": {
-      "name": "プロフェッショナル版",
-      "price": "1999",
-      "features": {
-        "allFree": "無料版のすべての機能を含む",
-        "unlimited": "無制限プロンプト保存",
-        "aiOptimize": "AIスマート最適化",
-        "smartTagging": "スマートタグ付け",
-        "versionControl": "バージョン管理",
-        "globalHotkey": "カスタムホットキー",
-        "allExt": "全プラットフォーム対応エクステンション",
-        "prioritySupport": "優先技術サポート"
-      }
-    },
-    "team": {
-      "name": "チーム版",
-      "price": "9999",
-      "features": {
-        "allPro": "プロフェッショナル版のすべての機能を含む",
-        "teamLib": "チーム共有ライブラリ",
-        "permission": "権限管理",
-        "analytics": "使用分析レポート",
-        "apiAccess": "APIアクセス",
-        "accountManager": "専任アカウントマネージャー"
-      }
-    }
-  },
-  "howto": {
-    "title": "使い方",
-    "subtitle": "3ステップで効率的なプロンプト管理と使用を開始",
+  "howItWorks": {
+    "title": "3ステップで始める",
+    "titleHighlight": "効率的な旅",
+    "subtitle": "シンプルな3ステップでプロフェッショナルなプロンプト管理を体験",
     "step1": {
-      "title": "プロンプトの作成と管理",
-      "description": "PromptHubでプロンプトライブラリを構築し、タグでスマートに分類管理します。",
-      "tip1": "スマートタグ付けシステムでプロンプトライブラリを整理",
-      "tip2": "複数のタグを追加して素早く検索とフィルタリング"
+      "number": "01",
+      "title": "作成と整理",
+      "description": "PromptHub でプロンプトを作成し、タグとフォルダでスマートに分類管理"
     },
     "step2": {
-      "title": "AI による最適化",
-      "description": "prompt generator 機能を使用して、AIがプロンプトの最適化と改善をサポートし、出力品質を向上させます。",
-      "tip1": "ワンクリック最適化でプロンプトをより構造化してプロフェッショナルに",
-      "tip2": "AIがベストプラクティスに基づいて自動的にプロンプトを改善"
+      "number": "02",
+      "title": "分類とタグ付け",
+      "description": "多次元タグシステムでプロンプトを整理し、必要なものを素早く見つける"
     },
     "step3": {
-      "title": "ワンクリックで素早く使用",
-      "description": "ブラウザ拡張機能またはデスクトップアプリを通じて、どこでも prompt use ライブラリに素早くアクセスできます。",
-      "tip1": "キーボードショートカットでプロンプトパネルを素早く開く",
-      "tip2": "ワンクリックでコピーまたはAIチャットに直接送信"
+      "number": "03",
+      "title": "いつでもアクセス",
+      "description": "ホットキーでどこからでも素早くアクセス、ワンクリックでコピーまたは AI チャットに直接送信"
     }
   },
   "faq": {
     "title": "よくある質問",
-    "subtitle": "PromptHubに関するよくある質問",
+    "subtitle": "PromptHub に関するよくある質問",
     "q1": {
-      "question": "PromptHubとは何ですか？",
-      "answer": "PromptHubは、様々なAIプロンプトを一元管理、最適化、素早く使用できるプロフェッショナルなAIプロンプト管理プラットフォームです。ChatGPT、Claude、その他のAIツールのプロンプトをすべて一箇所で管理できます。"
+      "question": "PromptHub とは何ですか？",
+      "answer": "PromptHub は、様々な AI プロンプトを一元管理し、素早く使用できるプロフェッショナルな AI プロンプト管理プラットフォームです。ChatGPT、Claude、Midjourney、その他の AI ツールの Prompt をすべて一箇所で管理し、AI 生産性を向上させます。"
     },
     "q2": {
-      "question": "prompt generator 機能の使い方は？",
-      "answer": "プロンプトを編集する際に「AI最適化」ボタンをクリックすると、prompt generatorがプロンプトを分析し、最適化の提案を提供します。より構造化された効果的なプロンプトを構築し、AI出力の品質を向上させます。"
+      "question": "PromptHub はどのオペレーティングシステムをサポートしていますか？",
+      "answer": "PromptHub は Windows、macOS、Linux のデスクトップアプリケーションと、Chrome、Edge、Firefox などの主要ブラウザ拡張機能を含む完全なクロスプラットフォームサポートを提供しています。どのデバイスでも PromptHub を使用できます。"
     },
     "q3": {
-      "question": "prompt use 機能はどのように動作しますか？",
-      "answer": "ブラウザ拡張機能またはデスクトップアプリをインストールすると、キーボードショートカットを使用して任意のウェブページで保存されたプロンプトに素早くアクセスできます。必要なプロンプトを選択し、ワンクリックでコピーまたはAIチャットに直接送信して、作業効率を大幅に向上させます。"
+      "question": "MCP サービス統合とは何ですか？",
+      "answer": "MCP（Model Context Protocol）は、AI アシスタントが外部ツールやデータにアクセスできる標準プロトコルです。PromptHub は MCP サーバーとして機能し、AI アシスタントが保存されたプロンプトに直接アクセスして、よりスマートなワークフローを実現できます。"
     },
     "q4": {
-      "question": "無料版と有料版の違いは何ですか？",
-      "answer": "無料版は、プロンプトの作成、編集、使用を含む基本的なプロンプト管理機能を提供します。有料版では、AI最適化、高度な検索、チームコラボレーション、クラウド同期などのプロフェッショナル機能が利用でき、ヘビーユーザーやチームに適しています。"
+      "question": "他のウェブサイトでプロンプトを使用するには？",
+      "answer": "ブラウザ拡張機能をインストールすると、任意のウェブページでホットキー（デフォルト Alt+O）を使用してプロンプトパネルを素早く開き、必要なプロンプトを検索・選択し、ワンクリックでコピーまたは現在のページの入力フィールドに直接送信できます。"
     },
     "q5": {
-      "question": "必要なプロンプトを素早く見つけるには？",
-      "answer": "PromptHubは強力な検索とフィルタリング機能を提供します。キーワードでプロンプト内容を検索したり、タグで素早くフィルタリングしたり、使用頻度や作成時間などで並べ替えることができ、必要なプロンプトを瞬時に見つけられます。"
+      "question": "データは安全ですか？",
+      "answer": "データセキュリティを非常に重視しています。すべてのデータは暗号化されて安全に保存され、クラウド同期とローカルバックアップをサポートしています。いつでもすべてのプロンプトデータをエクスポートでき、コンテンツを完全にコントロールできます。"
     },
     "q6": {
-      "question": "複数のデバイスで使用できますか？",
-      "answer": "はい！PromptHubはクラウド同期機能（プロフェッショナル版）をサポートしており、パソコン、スマートフォン、タブレットなど複数のデバイスでプロンプトライブラリにアクセスできます。ブラウザ拡張機能とデスクトップアプリも提供しており、どのデバイスでも効率的にプロンプトを使用できます。"
-    },
-    "q7": {
       "question": "既存のプロンプトをインポートするには？",
-      "answer": "PromptHubはJSON形式の一括インポート機能をサポートしています。既存のプロンプトをJSON形式に整理してワンクリックでインポートできます。システムが自動的に認識して整理を手伝うため、移行プロセスが簡単で便利です。"
+      "answer": "PromptHub は JSON 形式の一括インポートをサポートしています。既存のプロンプトを JSON 形式に整理してワンクリックでインポートできます。システムが自動的に認識して整理を手伝います。インポートテンプレートと詳細なインポートガイドも提供しています。"
     }
   },
+  "pricing": {
+    "title": "あなたに合った",
+    "highlight": "プランを選択",
+    "subtitle": "さまざまなニーズに対応する柔軟な料金プラン",
+    "mostPopular": "最も人気",
+    "free": {
+      "name": "無料版",
+      "price": "0",
+      "period": "永久無料",
+      "button": "始める",
+      "features": {
+        "storage": "100 プロンプト保存",
+        "basicCategory": "基本カテゴリ管理",
+        "simpleSearch": "シンプル検索",
+        "browserExt": "ブラウザ拡張機能",
+        "dataSync": "クラウドデータ同期"
+      },
+      "notIncluded": {
+        "aiOptimize": "AI スマート最適化",
+        "teamCollab": "チームコラボレーション"
+      }
+    },
+    "pro": {
+      "name": "プロ版",
+      "price": "29",
+      "period": "月額",
+      "button": "プロ版にアップグレード",
+      "features": {
+        "allFree": "無料版のすべての機能",
+        "unlimited": "無制限プロンプト保存",
+        "aiOptimize": "AI スマート提案",
+        "smartTagging": "スマートタグ推奨",
+        "versionControl": "バージョン履歴",
+        "globalHotkey": "グローバルホットキー",
+        "allExt": "全プラットフォーム拡張機能",
+        "prioritySupport": "優先サポート"
+      }
+    },
+    "team": {
+      "name": "チーム版",
+      "price": "99",
+      "period": "月額/ユーザー",
+      "button": "営業に連絡",
+      "features": {
+        "allPro": "プロ版のすべての機能",
+        "teamLib": "チーム共有プロンプトライブラリ",
+        "permission": "権限管理",
+        "analytics": "使用状況分析",
+        "apiAccess": "API アクセス",
+        "accountManager": "専任アカウントマネージャー"
+      }
+    }
+  },
+  "cta": {
+    "title": "AI 効率を向上させる準備はできましたか？",
+    "subtitle": "数千人のユーザーに参加して、よりスマートにプロンプトを管理しましょう",
+    "button": "無料で始める",
+    "note": "クレジットカード不要、すぐに開始"
+  },
   "footer": {
-    "copyright": "© 2025 PromptHub. All Rights Reserved.",
+    "copyright": "© 2026 PromptHub. All Rights Reserved.",
     "pricing": "料金",
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
