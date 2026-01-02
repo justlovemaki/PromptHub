@@ -1,1 +1,0 @@
-ALTER TABLE `prompt` ADD `image_urls` text DEFAULT '[]';

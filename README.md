@@ -40,7 +40,6 @@
 ### 集成与部署
 - [MCP 集成](./docs/mcp-integration.md) - AI 工具集成
 - [部署指南](./docs/deployment.md) - Vercel、Docker
-- [开发指南](./docs/development.md) - 开发脚本
 - [SEO 配置](./docs/seo.md) - 搜索引擎优化
 
 ### 定制指南

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Copy, Check, X, ArrowLeft } from 'lucide-react'
+import { Copy, Check, X, ArrowLeft, Share2 } from 'lucide-react'
 import { useTranslation } from '@/i18n/client'
 import { useTags } from '@/hooks/useTags'
 import ParticlesBackground from '@/components/landing/ParticlesBackground'
@@ -19,6 +19,7 @@ interface Prompt {
   imageUrls?: string[]
   isPublic: boolean
   useCount: number
+  author?: string
   createdAt: string
   updatedAt: string
   createdBy: string
@@ -39,6 +40,7 @@ export default function PromptDetailClient({ prompt, lang }: PromptDetailClientP
   const [copied, setCopied] = useState(false)
   const [showImageViewer, setShowImageViewer] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [shareCopied, setShareCopied] = useState(false)
 
   // 格式化时间到分钟
   const formatDateTime = (dateString: string) => {
@@ -65,6 +67,17 @@ export default function PromptDetailClient({ prompt, lang }: PromptDetailClientP
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy:', error)
+    }
+  }
+
+  // 复制当前页面链接
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy link:', error)
     }
   }
 
@@ -99,6 +112,15 @@ export default function PromptDetailClient({ prompt, lang }: PromptDetailClientP
                   {prompt.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-300)]">
+                  {prompt.author && (
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-[var(--primary-100)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="text-[var(--text-300)]">{t('author')}:</span>
+                      <span className="font-semibold text-[var(--primary-100)]">{prompt.author}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -125,18 +147,36 @@ export default function PromptDetailClient({ prompt, lang }: PromptDetailClientP
                   </button>
                 )}
                 <button
+                  onClick={handleShare}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-300)] hover:bg-[var(--bg-400)] text-[var(--text-200)] rounded-lg border border-[var(--bg-400)] transition-colors"
+                  title={t('share') || '分享'}
+                >
+                  {shareCopied ? (
+                    <>
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="hidden sm:inline">{t('shareSuccess') || '链接已复制'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-5 h-5" />
+                      <span className="hidden sm:inline">{t('share') || '分享'}</span>
+                    </>
+                  )}
+                </button>
+                <button
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-[var(--primary-100)] hover:bg-[var(--primary-200)] text-white rounded-lg transition-colors"
+                  className="inline-flex items-center gap-2 px-4 md:px-6 py-2 bg-[var(--primary-100)] hover:bg-[var(--primary-200)] text-white rounded-lg transition-colors"
+                  title={t('copyPrompt') || '复制提示词'}
                 >
                   {copied ? (
                     <>
                       <Check className="w-5 h-5" />
-                      <span>{t('copied') || '已复制'}</span>
+                      <span className="hidden sm:inline">{t('copied') || '已复制'}</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-5 h-5" />
-                      <span>{t('copyPrompt') || '复制提示词'}</span>
+                      <span className="hidden sm:inline">{t('copyPrompt') || '复制提示词'}</span>
                     </>
                   )}
                 </button>

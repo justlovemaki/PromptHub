@@ -28,23 +28,45 @@ public/
 
 ### SEO 元数据
 
-编辑 [`src/lib/services/settings/seo-settings-service.ts`](../../src/lib/services/settings/seo-settings-service.ts)：
+SEO 配置通过多语言翻译文件管理，编辑各语言目录下的 [`public/locales/*/layout.json`](../../public/locales/zh-CN/layout.json)：
 
-```typescript
-const seoConfig = {
-  'zh-CN': {
-    siteTitle: '你的站点标题',
-    siteName: '你的站点名称',
-    siteDescription: '你的站点描述...',
-    siteKeywords: '关键词1, 关键词2, 关键词3',
-    siteUrl: 'https://your-domain.com',
-    ogImage: '/og-image.png',
-    twitterHandle: '@yourhandle',
-    twitterCard: 'summary_large_image'
-  },
-  // 其他语言...
-};
+**中文配置示例** (`public/locales/zh-CN/layout.json`)：
+
+```json
+{
+  "title": "你的站点标题 - 副标题",
+  "description": "你的站点描述...",
+  "seo": {
+    "siteName": "你的站点名称",
+    "siteDescription": "你的站点描述...",
+    "siteKeywords": "关键词1, 关键词2, 关键词3",
+    "siteUrl": "",
+    "ogImage": "/og-image.png",
+    "twitterHandle": "@yourhandle",
+    "twitterCard": "summary_large_image"
+  }
+}
 ```
+
+**英文配置示例** (`public/locales/en/layout.json`)：
+
+```json
+{
+  "title": "Your Site Title - Subtitle",
+  "description": "Your site description...",
+  "seo": {
+    "siteName": "Your Site Name",
+    "siteDescription": "Your site description...",
+    "siteKeywords": "keyword1, keyword2, keyword3",
+    "siteUrl": "",
+    "ogImage": "/og-image.png",
+    "twitterHandle": "@yourhandle",
+    "twitterCard": "summary_large_image"
+  }
+}
+```
+
+> **注意**：`siteUrl` 留空时会自动使用环境变量 `BETTER_AUTH_URL` 或 `NEXT_PUBLIC_BASE_URL` 的值。
 
 ### package.json
 

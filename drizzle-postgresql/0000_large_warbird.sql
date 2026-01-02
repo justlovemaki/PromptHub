@@ -55,12 +55,21 @@ CREATE TABLE "prompt" (
 	"content" text DEFAULT '' NOT NULL,
 	"description" text DEFAULT '',
 	"tags" text DEFAULT '[]',
+	"image_urls" text DEFAULT '[]',
+	"author" text DEFAULT '',
 	"is_public" boolean DEFAULT false,
 	"use_count" integer DEFAULT 0,
 	"space_id" text NOT NULL,
 	"created_by" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "prompt_favorite" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"prompt_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "prompt_usage" (
@@ -139,6 +148,8 @@ ALTER TABLE "membership" ADD CONSTRAINT "membership_user_id_user_id_fk" FOREIGN 
 ALTER TABLE "membership" ADD CONSTRAINT "membership_space_id_space_id_fk" FOREIGN KEY ("space_id") REFERENCES "public"."space"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prompt" ADD CONSTRAINT "prompt_space_id_space_id_fk" FOREIGN KEY ("space_id") REFERENCES "public"."space"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prompt" ADD CONSTRAINT "prompt_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "prompt_favorite" ADD CONSTRAINT "prompt_favorite_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "prompt_favorite" ADD CONSTRAINT "prompt_favorite_prompt_id_prompt_id_fk" FOREIGN KEY ("prompt_id") REFERENCES "public"."prompt"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prompt_usage" ADD CONSTRAINT "prompt_usage_prompt_id_prompt_id_fk" FOREIGN KEY ("prompt_id") REFERENCES "public"."prompt"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prompt_usage" ADD CONSTRAINT "prompt_usage_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -151,6 +162,9 @@ CREATE INDEX "ai_point_transaction_user_id_idx" ON "ai_point_transaction" USING 
 CREATE UNIQUE INDEX "membership_user_space_unique" ON "membership" USING btree ("user_id","space_id");--> statement-breakpoint
 CREATE INDEX "prompt_space_id_idx" ON "prompt" USING btree ("space_id");--> statement-breakpoint
 CREATE INDEX "prompt_created_by_idx" ON "prompt" USING btree ("created_by");--> statement-breakpoint
+CREATE UNIQUE INDEX "prompt_favorite_user_prompt_unique" ON "prompt_favorite" USING btree ("user_id","prompt_id");--> statement-breakpoint
+CREATE INDEX "prompt_favorite_user_id_idx" ON "prompt_favorite" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "prompt_favorite_prompt_id_idx" ON "prompt_favorite" USING btree ("prompt_id");--> statement-breakpoint
 CREATE INDEX "prompt_usage_prompt_id_idx" ON "prompt_usage" USING btree ("prompt_id");--> statement-breakpoint
 CREATE INDEX "prompt_usage_user_id_idx" ON "prompt_usage" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "system_logs_timestamp_idx" ON "system_logs" USING btree ("timestamp");--> statement-breakpoint

@@ -61,6 +61,8 @@ CREATE TABLE `prompt` (
 	`content` text DEFAULT '' NOT NULL,
 	`description` text DEFAULT '',
 	`tags` text DEFAULT '',
+	`image_urls` text DEFAULT '[]',
+	`author` text DEFAULT '',
 	`is_public` integer DEFAULT false,
 	`use_count` integer DEFAULT 0,
 	`space_id` text NOT NULL,
@@ -73,6 +75,18 @@ CREATE TABLE `prompt` (
 --> statement-breakpoint
 CREATE INDEX `prompt_space_id_idx` ON `prompt` (`space_id`);--> statement-breakpoint
 CREATE INDEX `prompt_created_by_idx` ON `prompt` (`created_by`);--> statement-breakpoint
+CREATE TABLE `prompt_favorite` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`prompt_id` text NOT NULL,
+	`created_at` integer NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`prompt_id`) REFERENCES `prompt`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `prompt_favorite_user_prompt_unique` ON `prompt_favorite` (`user_id`,`prompt_id`);--> statement-breakpoint
+CREATE INDEX `prompt_favorite_user_id_idx` ON `prompt_favorite` (`user_id`);--> statement-breakpoint
+CREATE INDEX `prompt_favorite_prompt_id_idx` ON `prompt_favorite` (`prompt_id`);--> statement-breakpoint
 CREATE TABLE `prompt_usage` (
 	`id` text PRIMARY KEY NOT NULL,
 	`prompt_id` text NOT NULL,

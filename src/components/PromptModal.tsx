@@ -13,6 +13,7 @@ interface PromptModalProps {
     content: string
     tags: string[]
     imageUrls?: string[]
+    author: string
     visibility: 'public' | 'private'
   }
   setFormData: (data: any) => void
@@ -50,6 +51,7 @@ export default function PromptModal({
       content: '',
       tags: [],
       imageUrls: [],
+      author: '',
       visibility: 'private'
     })
   }
@@ -66,6 +68,7 @@ export default function PromptModal({
           content: '',
           tags: [],
           imageUrls: [],
+          author: '',
           visibility: 'private'
         })
       }
@@ -113,7 +116,7 @@ export default function PromptModal({
               <div className="grid gap-3 md:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-text-200 mb-2">
-                    {t('title')} <span className="text-error-500">*</span>
+                    {t('fieldTitle')} <span className="text-error-500">*</span>
                   </label>
                   <Input
                     value={formData.title}
@@ -125,12 +128,24 @@ export default function PromptModal({
 
                 <div>
                   <label className="block text-sm font-medium text-text-200 mb-2">
-                    {t('description')}
+                    {t('fieldDescription')}
                   </label>
                   <Input
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder={t('placeholders.description')}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-200 mb-2">
+                    {t('fieldAuthor') || '作者'}
+                  </label>
+                  <Input
+                    value={formData.author}
+                    onChange={(e) => handleInputChange('author', e.target.value)}
+                    placeholder={t('placeholders.author') || '请输入作者名称'}
                     className="transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:border-transparent rounded-xl px-4 py-3"
                   />
                 </div>

@@ -23,6 +23,7 @@ interface PromptFormData {
   content: string
   description: string
   tags: string[]
+  author: string
   visibility: PromptVisibility
 }
 
@@ -59,6 +60,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
     content: '',
     description: '',
     tags: [],
+    author: '',
     visibility: PROMPT_VISIBILITY.PRIVATE
   })
   const [operationLoading, setOperationLoading] = useState(false)
@@ -154,6 +156,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       content: prompt.content || '',
       description: prompt.description || '',
       tags: prompt.tags || [],
+      author: (prompt as any).author || '',
       visibility: prompt.isPublic ? PROMPT_VISIBILITY.PUBLIC : PROMPT_VISIBILITY.PRIVATE
     })
     setIsEditModalOpen(true)
@@ -203,6 +206,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
+        author: formData.author,
         isPublic: formData.visibility === 'public',
         spaceId: 'admin'
       }, lang)
@@ -233,6 +237,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       content: '',
       description: '',
       tags: [],
+      author: '',
       visibility: PROMPT_VISIBILITY.PRIVATE
     })
   }
@@ -258,6 +263,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
+        author: formData.author,
         isPublic: formData.visibility === 'public'
       }, lang)
 
@@ -388,9 +394,17 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                     )
                   },
                   {
+                    key: 'author',
+                    title: tAdminPrompt('table.author') || '作者',
+                    width: '15%',
+                    render: (value: string) => (
+                      <span className="text-sm text-text-200">{value || '-'}</span>
+                    )
+                  },
+                  {
                     key: 'tags',
                     title: tAdminPrompt('table.tags'),
-                    width: '20%',
+                    width: '15%',
                     render: (value: string[], record: Prompt) => {
                       const tagsToDisplay = (value || []).map(getName).slice(0, 3)
                       const remainingCount = (value?.length || 0) - 3

@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       description: z.string().optional(),
       tags: z.array(z.string()).optional(),
       imageUrls: z.array(z.string().url()).optional(),
+      author: z.string().optional(),
       isPublic: z.boolean().optional(),
     }),
   });
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
         content: body.content !== undefined && body.content !== null ? body.content.trim() : body.content,
         description: body.description !== undefined && body.description !== null ? body.description.trim() : body.description,
         tags: body.tags !== undefined && body.tags !== null ? body.tags.map((tag: string) => tag.trim()) : body.tags,
+        author: body.author !== undefined && body.author !== null ? body.author.trim() : body.author,
         imageUrls: body.imageUrls,
         isPublic: body.isPublic
       }

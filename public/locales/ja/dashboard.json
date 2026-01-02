@@ -31,6 +31,7 @@
   "content": "内容",
   "contentRequired": "内容 *",
   "characterCount": "文字数：",
+  "fieldAuthor": "作成者",
   "creating": "作成中...",
   "createPrompt": "プロンプトを作成",
   "saving": "保存中...",
@@ -74,7 +75,8 @@
     "title": "プロンプトにわかりやすいタイトルを付けてください",
     "description": "このプロンプトの用途と使用シーンを簡単に説明してください",
     "content": "プロンプトの具体的な内容を入力してください...\n\nヒント: {ユーザー入力}、{トピック} などの変数プレースホルダーを使用できます",
-    "imageUrl": "画像URLを入力してください (https://...)"
+    "imageUrl": "画像URLを入力してください (https://...)",
+    "author": "作成者名を入力してください"
   },
   "templateVariableExample": {
     "title": "テンプレート変数使用例",
@@ -85,6 +87,7 @@
     "title": "タイトル",
     "description": "説明",
     "tags": "タグ",
+    "author": "作成者",
     "visibility": "可視性",
     "createdAt": "作成日時",
     "updatedAt": "更新日時",

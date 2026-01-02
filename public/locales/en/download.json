@@ -8,7 +8,7 @@
   "downloadUrl": "https://source.hubtoday.app/prompt-app/",
   "downloadButton": "Download",
   "chromeExtensionTitle": "Chrome Extension",
-  "chromeExtensionName": "Prompt Manager Extension",
+  "chromeExtensionName": "PromptHub Extension",
   "chromeExtensionDescription": "Enhance your browsing experience with our Chrome extension that provides quick access to all your prompts.",
   "chromeExtensionUrl": "https://chromewebstore.google.com/detail/prompthub/agfndihommcfegdgglfgepoeecakllfn",
   "installChromeExtensionButton": "Install Chrome Extension",

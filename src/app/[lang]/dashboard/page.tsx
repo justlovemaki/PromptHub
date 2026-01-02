@@ -72,6 +72,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
     content: '',
     tags: [] as string[], // Changed to array
     imageUrls: [] as string[],
+    author: '',
     visibility: 'private' as 'public' | 'private'
   })
 
@@ -297,6 +298,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags, // 传递实际的标签数组，包括空数组
+        author: formData.author,
         imageUrls: formData.imageUrls?.filter(url => url.trim() !== '') || undefined, // 过滤空字符串
         isPublic: formData.visibility === 'public',
         spaceId: user.personalSpaceId
@@ -341,6 +343,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags, // 传递实际的标签数组，包括空数组
+        author: formData.author,
         imageUrls: formData.imageUrls?.filter(url => url.trim() !== '') || undefined, // 过滤空字符串
         isPublic: formData.visibility === 'public'
       }
@@ -401,6 +404,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
       content: '',
       tags: [],
       imageUrls: [],
+      author: '',
       visibility: 'private'
     })
   }
@@ -419,6 +423,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
       content: prompt.content || '',
       tags: tagsArray,
       imageUrls: imageUrlsArray,
+      author: (prompt as any).author || '',
       visibility: prompt.isPublic ? 'public' : 'private'
     })
     setShowPromptModal(true)
@@ -486,6 +491,14 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
         }`}>
           {prompt ? tDashboard('public') : tDashboard('private')}
         </span>
+      )
+    },
+    {
+      key: 'author',
+      title: tDashboard('table.author') || '作者',
+      width: 120,
+      render: (value: string) => (
+        <span className="text-sm text-text-200">{value || '-'}</span>
       )
     },
     {

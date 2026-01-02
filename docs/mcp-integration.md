@@ -235,4 +235,3 @@ Authorization: Bearer your-access-token
 
 - 查看 [数据库架构](./database.md)
 - 阅读 [部署指南](./deployment.md)
-- 了解 [开发指南](./development.md)

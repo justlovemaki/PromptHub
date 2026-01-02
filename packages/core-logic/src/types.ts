@@ -55,6 +55,7 @@ export const PromptSchema = z.object({
   description: z.string().default('').optional(),
   tags: z.array(z.string()).default([]).optional(), // 字符串数组存储标签
   imageUrls: z.array(z.string()).default([]).optional(), // 字符串数组存储图片链接
+  author: z.string().default('').optional(),
   isPublic: z.boolean().default(false),
   useCount: z.number().default(0),
   spaceId: z.string(),
@@ -102,6 +103,7 @@ export const CreatePromptRequestSchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   imageUrls: z.array(z.string()).optional(),
+  author: z.string().optional(),
   isPublic: z.boolean().default(false),
   useCount: z.number().default(0).optional(),
   spaceId: z.string(),
@@ -117,6 +119,7 @@ export const UpdatePromptRequestSchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   imageUrls: z.array(z.string()).optional(),
+  author: z.string().optional(),
   isPublic: z.boolean().optional(),
 });
 

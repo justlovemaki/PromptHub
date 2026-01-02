@@ -176,83 +176,6 @@ import Script from 'next/script';
 </Script>
 ```
 
-## 🔗 页面元数据
-
-### 动态元数据
-
-每个页面可以定义自己的元数据：
-
-```typescript
-// src/app/[lang]/page.tsx
-import { Metadata } from 'next';
-
-export async function generateMetadata({
-  params: { lang }
-}: {
-  params: { lang: string }
-}): Promise<Metadata> {
-  const seoConfig = await getSeoConfig(lang);
-  
-  return {
-    title: seoConfig.siteTitle,
-    description: seoConfig.siteDescription,
-    keywords: seoConfig.siteKeywords,
-    openGraph: {
-      title: seoConfig.siteTitle,
-      description: seoConfig.siteDescription,
-      url: seoConfig.siteUrl,
-      siteName: seoConfig.siteName,
-      images: [seoConfig.ogImage],
-      locale: lang,
-      type: 'website',
-    },
-    twitter: {
-      card: seoConfig.twitterCard,
-      title: seoConfig.siteTitle,
-      description: seoConfig.siteDescription,
-      creator: seoConfig.twitterHandle,
-    },
-    alternates: {
-      canonical: `${seoConfig.siteUrl}/${lang}`,
-      languages: {
-        'zh-CN': `${seoConfig.siteUrl}/zh-CN`,
-        'en': `${seoConfig.siteUrl}/en`,
-        'ja': `${seoConfig.siteUrl}/ja`,
-      },
-    },
-  };
-}
-```
-
-### 提示词详情页
-
-提示词详情页使用动态元数据：
-
-```typescript
-// src/app/[lang]/prompt/[id]/page.tsx
-export async function generateMetadata({
-  params: { lang, id }
-}: {
-  params: { lang: string; id: string }
-}): Promise<Metadata> {
-  const prompt = await PromptService.findById(id);
-  
-  if (!prompt) {
-    return { title: 'Not Found' };
-  }
-  
-  return {
-    title: `${prompt.title} | PromptHub`,
-    description: prompt.description || prompt.content.slice(0, 160),
-    openGraph: {
-      title: prompt.title,
-      description: prompt.description,
-      type: 'article',
-    },
-  };
-}
-```
-
 ## ✅ SEO 检查清单
 
 ### 基础配置
@@ -306,4 +229,3 @@ NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
 
 - 阅读 [定制指南](./customization/branding.md)
 - 查看 [部署指南](./deployment.md)
-- 了解 [开发指南](./development.md)

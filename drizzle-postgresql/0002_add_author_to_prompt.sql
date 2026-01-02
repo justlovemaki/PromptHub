@@ -1,0 +1,1 @@
+ALTER TABLE "prompt" ADD COLUMN "author" text DEFAULT '';

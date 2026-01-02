@@ -102,6 +102,7 @@ export const prompt = sqliteTable("prompt", {
 	description: text("description").default(""),
 	tags: text("tags").default(""), // JSON字符串存储标签数组
 	imageUrls: text("image_urls").default("[]"), // JSON字符串存储图片链接数组
+	author: text("author").default(""),
 	isPublic: integer("is_public", { mode: 'boolean' }).default(false),
 	useCount: integer("use_count").default(0),
 	spaceId: text("space_id").notNull().references(() => space.id, { onDelete: "cascade" }),
@@ -186,6 +187,20 @@ export const accessTokens = sqliteTable("access_tokens", {
 	createdAtIndex: index("access_token_created_at_idx").on(table.createdAt),
 }));
 
+// ============== 收藏表 ==============
+
+// 提示词收藏表 - 用户收藏公开提示词到个人库
+export const promptFavorite = sqliteTable("prompt_favorite", {
+	id: text("id").primaryKey().notNull(),
+	userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+	promptId: text("prompt_id").notNull().references(() => prompt.id, { onDelete: "cascade" }),
+	createdAt: integer("created_at", { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+}, (table) => ({
+	userPromptUnique: uniqueIndex("prompt_favorite_user_prompt_unique").on(table.userId, table.promptId),
+	userIdIndex: index("prompt_favorite_user_id_idx").on(table.userId),
+	promptIdIndex: index("prompt_favorite_prompt_id_idx").on(table.promptId),
+}));
+
 // ============== 类型导出 ==============
 
 export type User = typeof user.$inferSelect;
@@ -206,3 +221,5 @@ export type SystemLogs = typeof systemLogs.$inferSelect;
 export type NewSystemLogs = typeof systemLogs.$inferInsert;
 export type AccessToken = typeof accessTokens.$inferSelect;
 export type NewAccessToken = typeof accessTokens.$inferInsert;
+export type PromptFavorite = typeof promptFavorite.$inferSelect;
+export type NewPromptFavorite = typeof promptFavorite.$inferInsert;

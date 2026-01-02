@@ -280,6 +280,50 @@ if (requireAuth) {
     return this.post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang);
   }
 
+  // ============== Favorite Related APIs ==============
+
+  async addFavorite(promptId: string, lang?: string): Promise<ApiResponse<{
+    favorited: boolean;
+    alreadyExists: boolean;
+    promptAlreadyInLibrary?: boolean;
+    copiedPromptId?: string;
+    existingPromptId?: string;
+  }>> {
+    return this.post<{
+      favorited: boolean;
+      alreadyExists: boolean;
+      promptAlreadyInLibrary?: boolean;
+      copiedPromptId?: string;
+      existingPromptId?: string;
+    }>('/api/prompts/favorite', { promptId }, true, lang);
+  }
+
+  async removeFavorite(promptId: string, lang?: string): Promise<ApiResponse<{
+    favorited: boolean;
+    removed: boolean;
+  }>> {
+    return this.delete<{
+      favorited: boolean;
+      removed: boolean;
+    }>(`/api/prompts/favorite?promptId=${encodeURIComponent(promptId)}`, true, lang);
+  }
+
+  async checkFavorite(promptId: string, lang?: string): Promise<ApiResponse<{
+    favorited: boolean;
+  }>> {
+    return this.get<{
+      favorited: boolean;
+    }>(`/api/prompts/favorite?promptId=${encodeURIComponent(promptId)}`, true, lang);
+  }
+
+  async checkFavorites(promptIds: string[], lang?: string): Promise<ApiResponse<{
+    favorites: Record<string, boolean>;
+  }>> {
+    return this.get<{
+      favorites: Record<string, boolean>;
+    }>(`/api/prompts/favorite?promptIds=${promptIds.join(',')}`, true, lang);
+  }
+
   async importPrompts(data: any[], spaceId?: string, lang?: string): Promise<ApiResponse<{ importedCount: number }>> {
     return this.post<{ importedCount: number }>('/api/prompts/import', { prompts: data, spaceId }, true, lang);
   }
@@ -646,6 +690,11 @@ export const api = {
   getDashboardStats: (lang?: string) => getApiClient().get<DashboardStats>('/api/dashboard/stats', true, lang),
   getPromptTags: (query?: PromptStatsQuery, lang?: string) => getApiClient().get<TagWithCount[]>(createUrlWithQuery('/api/prompts/tags', query), true, lang),
   incrementPromptUseCount: (promptId: string, lang?: string) => getApiClient().post<{ id: string; useCount: number }>('/api/prompts/use', { promptId }, true, lang),
+  // Favorites
+  addFavorite: (promptId: string, lang?: string) => getApiClient().addFavorite(promptId, lang),
+  removeFavorite: (promptId: string, lang?: string) => getApiClient().removeFavorite(promptId, lang),
+  checkFavorite: (promptId: string, lang?: string) => getApiClient().checkFavorite(promptId, lang),
+  checkFavorites: (promptIds: string[], lang?: string) => getApiClient().checkFavorites(promptIds, lang),
   importPrompts: (data: any[], spaceId?: string, lang?: string) => getApiClient().importPrompts(data, spaceId, lang),
   exportPrompts: (spaceId?: string, lang?: string) => getApiClient().exportPrompts(spaceId, lang),
   clearPrompts: (spaceId?: string, lang?: string) => getApiClient().clearPrompts(spaceId, lang),

@@ -33,11 +33,13 @@ export async function GET(request: NextRequest) {
       sortOrder: 'desc'
     });
 
-    // 处理返回数据，解析tags等JSON字段
+    // 处理返回数据
     const processedPrompts = result.prompts.map(prompt => ({
       content: prompt.content,
       isPublic: prompt.isPublic,
-      tags: prompt.tags ? JSON.parse(prompt.tags) : [],
+      tags: Array.isArray(prompt.tags) ? prompt.tags : [],
+      imageUrls: Array.isArray(prompt.imageUrls) ? prompt.imageUrls : [],
+      author: prompt.author || '',
       title: prompt.title,
       description: prompt.description || '',
       useCount: prompt.useCount || 0,

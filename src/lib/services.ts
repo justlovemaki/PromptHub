@@ -1,7 +1,7 @@
 import { eq, and, desc, asc, like, or, sql, gte, lte } from 'drizzle-orm';
 
 import { db } from './database';
-import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction } from '../drizzle-schema';
+import { user, space, membership, prompt, systemLogs, NewSystemLogs, aiPointTransaction, promptFavorite } from '../drizzle-schema';
 import { generateId } from './utils';
 import { SPACE_TYPES, USER_ROLES, LOG_LEVELS, LOG_CATEGORIES, AI_POINTS_TYPES, SORT_FIELDS, SORT_ORDERS } from './constants';
 const isNeon = !!process.env.NEON_DATABASE_URL;
@@ -178,12 +178,12 @@ export class PromptService {
     description?: string;
     tags?: string[];
     imageUrls?: string[];
+    author?: string;
     isPublic?: boolean;
     useCount?: number;
     spaceId: string;
     createdBy: string;
-        id?: string;
-
+    id?: string;
   }) {
     const promptId = generateId();
     
@@ -194,6 +194,7 @@ export class PromptService {
       description: promptData.description,
       tags: JSON.stringify(promptData.tags || []),
       imageUrls: JSON.stringify(promptData.imageUrls || []),
+      author: promptData.author || "",
       isPublic: promptData.isPublic ?? false,
       useCount: promptData.useCount ?? 0,
       spaceId: promptData.spaceId,
@@ -244,7 +245,8 @@ export class PromptService {
         or(
           like(prompt.title, `%${search}%`),
           like(prompt.description, `%${search}%`),
-          like(prompt.tags, `%${search}%`)
+          like(prompt.tags, `%${search}%`),
+          like(prompt.author, `%${search}%`)
         )!
       );
     }
@@ -331,6 +333,7 @@ export class PromptService {
     description?: string;
     tags?: string[];
     imageUrls?: string[];
+    author?: string;
     isPublic?: boolean;
   }) {
     const updateData: any = { ...updates };
@@ -686,4 +689,216 @@ export class AIPointsService {
   }
   
 
+}
+
+// ============== 收藏服务 ==============
+
+export class FavoriteService {
+  /**
+   * 添加收藏并复制提示词到用户的个人提示词库
+   * 如果用户的提示词库中已存在相同标题和内容的提示词，则不会重复复制
+   */
+  static async addFavorite(userId: string, promptId: string) {
+    const favoriteId = generateId();
+    
+    // 检查是否已经收藏
+    const existing = await db.query.promptFavorite.findFirst({
+      where: and(
+        eq(promptFavorite.userId, userId),
+        eq(promptFavorite.promptId, promptId)
+      ),
+    });
+    
+    if (existing) {
+      return { alreadyExists: true, favorite: existing, copiedPrompt: null, promptAlreadyInLibrary: false };
+    }
+    
+    // 获取原始提示词信息
+    const originalPrompt = await PromptService.getPromptsById(promptId);
+    if (!originalPrompt) {
+      throw new Error('Prompt not found');
+    }
+    
+    // 获取用户的个人空间
+    const personalSpace = await UserService.getUserPersonalSpace(userId);
+    if (!personalSpace) {
+      throw new Error('User personal space not found');
+    }
+    
+    // 检查用户的提示词库中是否已存在相同标题和内容的提示词
+    const existingPromptInLibrary = await db.query.prompt.findFirst({
+      where: and(
+        eq(prompt.spaceId, personalSpace.id),
+        eq(prompt.title, originalPrompt.title),
+        eq(prompt.content, originalPrompt.content)
+      ),
+    });
+    
+    // 使用事务同时添加收藏和复制提示词（如果不存在）
+    return db.transaction(async (tx) => {
+      // 1. 添加收藏记录
+      const [newFavorite] = await tx.insert(promptFavorite).values({
+        id: favoriteId,
+        userId,
+        promptId,
+      }).returning();
+      
+      // 2. 如果用户的提示词库中不存在相同的提示词，则复制
+      if (existingPromptInLibrary) {
+        // 提示词已存在于用户的库中，不需要复制
+        return {
+          alreadyExists: false,
+          favorite: newFavorite,
+          copiedPrompt: null,
+          promptAlreadyInLibrary: true,
+          existingPromptId: existingPromptInLibrary.id
+        };
+      }
+      
+      // 复制提示词到用户的个人提示词库
+      const copiedPromptId = generateId();
+      const [copiedPrompt] = await tx.insert(prompt).values({
+        id: copiedPromptId,
+        title: originalPrompt.title,
+        content: originalPrompt.content,
+        description: originalPrompt.description,
+        tags: Array.isArray(originalPrompt.tags) ? JSON.stringify(originalPrompt.tags) : originalPrompt.tags,
+        imageUrls: Array.isArray(originalPrompt.imageUrls) ? JSON.stringify(originalPrompt.imageUrls) : originalPrompt.imageUrls,
+        author: originalPrompt.author || "",
+        isPublic: false, // 复制的提示词默认为私有
+        useCount: 0, // 重置使用次数
+        spaceId: personalSpace.id,
+        createdBy: userId,
+        updatedAt: DateService.getCurrentUTCDate(),
+      }).returning();
+      
+      return { alreadyExists: false, favorite: newFavorite, copiedPrompt, promptAlreadyInLibrary: false };
+    });
+  }
+  
+  /**
+   * 取消收藏
+   */
+  static async removeFavorite(userId: string, promptId: string) {
+    const result = await db.delete(promptFavorite)
+      .where(and(
+        eq(promptFavorite.userId, userId),
+        eq(promptFavorite.promptId, promptId)
+      ))
+      .returning();
+    
+    return result.length > 0;
+  }
+  
+  /**
+   * 检查是否已收藏
+   */
+  static async isFavorited(userId: string, promptId: string) {
+    const existing = await db.query.promptFavorite.findFirst({
+      where: and(
+        eq(promptFavorite.userId, userId),
+        eq(promptFavorite.promptId, promptId)
+      ),
+    });
+    
+    return !!existing;
+  }
+  
+  /**
+   * 批量检查是否已收藏
+   */
+  static async checkFavorites(userId: string, promptIds: string[]) {
+    if (promptIds.length === 0) {
+      return {};
+    }
+    
+    const favorites = await db.query.promptFavorite.findMany({
+      where: and(
+        eq(promptFavorite.userId, userId),
+        sql`${promptFavorite.promptId} IN (${sql.join(promptIds.map(id => sql`${id}`), sql`, `)})`
+      ),
+    });
+    
+    const favoriteMap: Record<string, boolean> = {};
+    promptIds.forEach(id => {
+      favoriteMap[id] = favorites.some(f => f.promptId === id);
+    });
+    
+    return favoriteMap;
+  }
+  
+  /**
+   * 获取用户的收藏列表
+   */
+  static async getUserFavorites(userId: string, options?: {
+    page?: number;
+    limit?: number;
+  }) {
+    const { page = 1, limit = 20 } = options || {};
+    const offset = (page - 1) * limit;
+    
+    // 获取收藏记录并关联提示词信息
+    const favorites = await db.query.promptFavorite.findMany({
+      where: eq(promptFavorite.userId, userId),
+      orderBy: [desc(promptFavorite.createdAt)],
+      limit,
+      offset,
+    });
+    
+    // 获取关联的提示词详情
+    const promptIds = favorites.map(f => f.promptId);
+    if (promptIds.length === 0) {
+      return {
+        favorites: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0
+      };
+    }
+    
+    const prompts = await db.query.prompt.findMany({
+      where: sql`${prompt.id} IN (${sql.join(promptIds.map(id => sql`${id}`), sql`, `)})`,
+    });
+    
+    // 解析JSON字段
+    const parsedPrompts = prompts.map(p => {
+      const parsed = { ...p };
+      if (parsed.tags) {
+        try {
+          parsed.tags = JSON.parse(parsed.tags);
+        } catch (e) {
+          parsed.tags = [];
+        }
+      }
+      if (parsed.imageUrls) {
+        try {
+          parsed.imageUrls = JSON.parse(parsed.imageUrls);
+        } catch (e) {
+          parsed.imageUrls = [];
+        }
+      }
+      return parsed;
+    });
+    
+    // 合并收藏信息和提示词信息
+    const result = favorites.map(f => {
+      const promptData = parsedPrompts.find(p => p.id === f.promptId);
+      return {
+        ...f,
+        prompt: promptData || null
+      };
+    });
+    
+    // 获取总数
+    const total = await db.$count(promptFavorite, eq(promptFavorite.userId, userId));
+    
+    return {
+      favorites: result,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
 }

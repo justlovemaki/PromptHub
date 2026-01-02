@@ -116,6 +116,7 @@
   },
   "table": {
     "title": "标题",
+    "author": "作者",
     "tags": "标签",
     "useCount": "使用次数",
     "times": "次",
@@ -141,6 +142,7 @@
   },
   "labels": {
     "title": "标题",
+    "author": "作者",
     "description": "描述",
     "content": "内容",
     "visibility": "可见性",
@@ -150,7 +152,8 @@
     "title": "为你的提示词起一个清晰的标题",
     "description": "简短描述这个提示词的用途和场景",
     "content": "输入提示词的具体内容...",
-    "tags": "点击选择标签..."
+    "tags": "点击选择标签...",
+    "author": "请输入作者名称"
   },
   "createModal": {
     "title": "创建新提示词",

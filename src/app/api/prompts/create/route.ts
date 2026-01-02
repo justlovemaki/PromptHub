@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
     description: z.string().optional(),
     tags: z.array(z.string()).optional(),
     imageUrls: z.array(z.string().url()).optional(),
+    author: z.string().optional(),
     isPublic: z.boolean().optional().default(false),
   });
 
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, content, description, tags, imageUrls, isPublic } = validation.data;
+    const { title, content, description, tags, imageUrls, author, isPublic } = validation.data;
 
     // 处理标签默认值
     const processedTags = tags && tags.length > 0 ? tags : [];
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       description,
       tags: processedTags,
       imageUrls: processedImageUrls,
+      author: author || "",
       isPublic: isPublic ?? false,
       spaceId: user.personalSpaceId,
       createdBy: user.id,

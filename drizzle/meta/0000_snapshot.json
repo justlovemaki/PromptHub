@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "4c844e64-2723-4745-a7dd-106cef85d626",
+  "id": "6f456f03-b47c-45a2-85c5-204fc7010f35",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "access_tokens": {
@@ -440,6 +440,22 @@
           "autoincrement": false,
           "default": "''"
         },
+        "image_urls": {
+          "name": "image_urls",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'[]'"
+        },
+        "author": {
+          "name": "author",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "''"
+        },
         "is_public": {
           "name": "is_public",
           "type": "integer",
@@ -521,6 +537,94 @@
           "tableTo": "user",
           "columnsFrom": [
             "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "prompt_favorite": {
+      "name": "prompt_favorite",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prompt_id": {
+          "name": "prompt_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "prompt_favorite_user_prompt_unique": {
+          "name": "prompt_favorite_user_prompt_unique",
+          "columns": [
+            "user_id",
+            "prompt_id"
+          ],
+          "isUnique": true
+        },
+        "prompt_favorite_user_id_idx": {
+          "name": "prompt_favorite_user_id_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "prompt_favorite_prompt_id_idx": {
+          "name": "prompt_favorite_prompt_id_idx",
+          "columns": [
+            "prompt_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "prompt_favorite_user_id_user_id_fk": {
+          "name": "prompt_favorite_user_id_user_id_fk",
+          "tableFrom": "prompt_favorite",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "prompt_favorite_prompt_id_prompt_id_fk": {
+          "name": "prompt_favorite_prompt_id_prompt_id_fk",
+          "tableFrom": "prompt_favorite",
+          "tableTo": "prompt",
+          "columnsFrom": [
+            "prompt_id"
           ],
           "columnsTo": [
             "id"

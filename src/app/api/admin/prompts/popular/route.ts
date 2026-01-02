@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
       .select({
         id: prompt.id,
         title: prompt.title,
+        author: prompt.author,
         description: prompt.description,
         tags: prompt.tags,
         useCount: prompt.useCount,

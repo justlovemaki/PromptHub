@@ -37,6 +37,7 @@ export const space = schema.space;
 export const membership = schema.membership;
 export const prompt = schema.prompt;
 export const promptUsage = schema.promptUsage;
+export const promptFavorite = schema.promptFavorite;
 
 // ============================================
 // AI点数相关表
@@ -82,3 +83,5 @@ export type SystemLogs = typeof systemLogs.$inferSelect;
 export type NewSystemLogs = typeof systemLogs.$inferInsert;
 export type AccessToken = typeof accessTokens.$inferSelect;
 export type NewAccessToken = typeof accessTokens.$inferInsert;
+export type PromptFavorite = typeof promptFavorite.$inferSelect;
+export type NewPromptFavorite = typeof promptFavorite.$inferInsert;

@@ -6,6 +6,11 @@
     "subtitle": "PromptHub helps you centrally manage, intelligently categorize, and quickly access AI prompts, making your AI workflow more efficient",
     "cta": "Start Free",
     "ctaSecondary": "Learn More",
+    "typewriter": {
+      "text1": "Count",
+      "text2": "Boost Productivity",
+      "text3": "Spark Creativity"
+    },
     "stats": {
       "users": "Active Users",
       "prompts": "Prompts Managed",

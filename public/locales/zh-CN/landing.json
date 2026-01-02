@@ -6,6 +6,11 @@
     "subtitle": "PromptHub 帮助您集中管理、智能分类、快速调用 AI 提示词，让您的 AI 工作流程更高效",
     "cta": "免费开始使用",
     "ctaSecondary": "了解更多",
+    "typewriter": {
+      "text1": "发挥最大价值",
+      "text2": "提升工作效率",
+      "text3": "激发创意灵感"
+    },
     "stats": {
       "users": "活跃用户",
       "prompts": "提示词管理",

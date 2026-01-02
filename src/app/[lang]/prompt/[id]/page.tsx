@@ -1,6 +1,10 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import PromptDetailClient from './PromptDetailClient'
+import { getSEOSettingsForLang } from '@/lib/services/settings/seo-settings-service'
+import { FALLBACK_DEFAULT_CONFIG } from "@/lib/constants"
+import { languages } from '@/i18n'
 
 interface Prompt {
   id: string
@@ -11,6 +15,7 @@ interface Prompt {
   imageUrls?: string[]
   isPublic: boolean
   useCount: number
+  author?: string
   createdAt: string
   updatedAt: string
   createdBy: string
@@ -59,19 +64,25 @@ export async function generateMetadata({
 
   const title = `${prompt.title} - AI Prompt`
   const description = prompt.description || prompt.content.substring(0, 160)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-  const url = `${baseUrl}/${lang}/prompt/${id}`
+  // 获取当前语言的 SEO 设置
+  const seoSettings = await getSEOSettingsForLang(lang)
+  const siteUrl = seoSettings.siteUrl || process.env.BETTER_AUTH_URL?.replace(/\/$/, '') || FALLBACK_DEFAULT_CONFIG.AUTH_BASE_URL
+  
+  // 获取真实路径用于 canonical URL
+  const headersList = await headers()
+  const proxyPathname = headersList.get('proxy-pathname') || `/${lang}/prompt/${id}`
+  const url = `${siteUrl}${proxyPathname}`
 
   // 获取第一张图片作为OG图片
-  const ogImage = prompt.imageUrls && prompt.imageUrls.length > 0 
-    ? prompt.imageUrls[0] 
-    : `${baseUrl}/logo.png`
+  const ogImage = prompt.imageUrls && prompt.imageUrls.length > 0
+    ? prompt.imageUrls[0]
+    : `${siteUrl}/logo.png`
 
   return {
     title,
     description,
-    keywords: prompt.tags.join(', '),
-    authors: [{ name: 'AI Prompt Manager' }],
+    // keywords: prompt.tags.join(', '),
+    // authors: [{ name: prompt.author || 'AI Prompt Manager' }],
     openGraph: {
       title,
       description,
@@ -99,11 +110,9 @@ export async function generateMetadata({
     },
     alternates: {
       canonical: url,
-      languages: {
-        'en': `${baseUrl}/en/prompt/${id}`,
-        'zh-CN': `${baseUrl}/zh-CN/prompt/${id}`,
-        'ja': `${baseUrl}/ja/prompt/${id}`,
-      },
+      languages: Object.fromEntries(
+        languages.map(lng => [lng, `${siteUrl}/${lng}/prompt/${id}`])
+      ),
     },
     robots: {
       index: true,
@@ -120,8 +129,9 @@ export async function generateMetadata({
 }
 
 // 生成结构化数据
-function generateStructuredData(prompt: Prompt, lang: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+async function generateStructuredData(prompt: Prompt, lang: string) {
+  const seoSettings = await getSEOSettingsForLang(lang)
+  const siteUrl = seoSettings.siteUrl || process.env.BETTER_AUTH_URL?.replace(/\/$/, '') || FALLBACK_DEFAULT_CONFIG.AUTH_BASE_URL
   
   return {
     '@context': 'https://schema.org',
@@ -129,12 +139,12 @@ function generateStructuredData(prompt: Prompt, lang: string) {
     headline: prompt.title,
     description: prompt.description || prompt.content.substring(0, 160),
     image: prompt.imageUrls && prompt.imageUrls.length > 0 
-      ? prompt.imageUrls 
-      : [`${baseUrl}/logo.png`],
+      ? prompt.imageUrls
+      : [`${siteUrl}/logo.png`],
     datePublished: prompt.createdAt,
     dateModified: prompt.updatedAt,
     author: {
-      '@type': 'Organization',
+      '@type': 'Person',
       name: 'AI Prompt Manager',
     },
     publisher: {
@@ -142,12 +152,12 @@ function generateStructuredData(prompt: Prompt, lang: string) {
       name: 'AI Prompt Manager',
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`,
+        url: `${siteUrl}/logo.png`,
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `${baseUrl}/${lang}/prompt/${prompt.id}`,
+      '@id': `${siteUrl}/${lang}/prompt/${prompt.id}`,
     },
     keywords: prompt.tags.join(', '),
     articleBody: prompt.content,
@@ -171,7 +181,7 @@ export default async function PromptDetailPage({
     notFound()
   }
 
-  const structuredData = generateStructuredData(prompt, lang)
+  const structuredData = await generateStructuredData(prompt, lang)
 
   return (
     <>

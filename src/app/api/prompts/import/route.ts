@@ -11,6 +11,8 @@ export interface PromptData {
   content: string;
   isPublic: boolean;
   tags: string[];
+  imageUrls?: string[];
+  author?: string;
   description?: string;
   useCount?: number;
 }
@@ -64,6 +66,8 @@ export async function POST(request: NextRequest) {
         content: promptData.content,
         description: promptData.description || '',
         tags: promptData.tags ? promptData.tags : [],
+        imageUrls: promptData.imageUrls ? promptData.imageUrls : [],
+        author: promptData.author || '',
         isPublic: promptData.isPublic,
         useCount: promptData.useCount || 0, // 使用提供的useCount或默认为0
         spaceId: spaceId,

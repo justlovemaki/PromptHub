@@ -116,6 +116,7 @@
   },
   "table": {
     "title": "Title",
+    "author": "Author",
     "tags": "Tags",
     "useCount": "Use Count",
     "times": "times",
@@ -141,6 +142,7 @@
   },
   "labels": {
     "title": "Title",
+    "author": "Author",
     "description": "Description",
     "content": "Content",
     "visibility": "Visibility",
@@ -150,7 +152,8 @@
     "title": "Give your prompt a clear title",
     "description": "Briefly describe the purpose and usage of this prompt",
     "content": "Enter the specific content of the prompt...",
-    "tags": "Click to select tags..."
+    "tags": "Click to select tags...",
+    "author": "Enter author name"
   },
   "createModal": {
     "title": "Create New Prompt",

@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
     // 构建where条件
     let whereCondition
     if (search && isPublicBool !== undefined) {
-      whereCondition = sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`
+      whereCondition = sql`(${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`
     } else if (search) {
-      whereCondition = sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}`
+      whereCondition = sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}`
     } else if (isPublicBool !== undefined) {
       whereCondition = sql`${prompt.isPublic} = ${isPublicBool}`
     }
@@ -87,10 +87,10 @@ export async function GET(request: NextRequest) {
     let totalQuery
     if (search && isPublicBool !== undefined) {
       totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
-        .where(sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`)
+        .where(sql`(${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`)
     } else if (search) {
       totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
-        .where(sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`}`)
+        .where(sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}`)
     } else if (isPublicBool !== undefined) {
       totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
         .where(sql`${prompt.isPublic} = ${isPublicBool}`)

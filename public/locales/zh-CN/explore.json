@@ -1,7 +1,7 @@
 {
   "pageTitle": "提示词广场",
   "pageDescription": "发现和探索社区分享的优质提示词",
-  "searchPlaceholder": "搜索提示词...",
+  "searchPlaceholder": "搜索提示词标题、作者或标签...",
   "noPromptsFound": "没有找到匹配的提示词",
   "noPromptsYet": "暂无公开的提示词",
   "loading": "加载中...",
@@ -10,6 +10,8 @@
   "copyPrompt": "复制",
   "copied": "已复制",
   "viewDetail": "查看详情",
+  "share": "分享",
+  "shareSuccess": "链接已复制",
   "author": "作者",
   "usageCount": "使用次数",
   "updatedAt": "更新时间",
@@ -23,6 +25,25 @@
   "filterByTag": "按标签筛选",
   "clearFilter": "清除筛选",
   "allTags": "全部标签",
+  "favorite": "收藏",
+  "unfavorite": "取消收藏",
+  "validation": {
+    "promptIdRequired": "提示词ID不能为空"
+  },
+  "error": {
+    "unauthorized": "请先登录",
+    "promptNotFound": "提示词不存在",
+    "promptNotPublic": "无法收藏私有提示词",
+    "internalServer": "服务器错误",
+    "favoriteNotFound": "收藏记录不存在"
+  },
+  "success": {
+    "favoriteAdded": "收藏成功",
+    "favoriteAddedAndCopied": "收藏成功，已添加到您的提示词库",
+    "favoriteAddedPromptExists": "收藏成功（提示词已存在于您的库中）",
+    "favoriteRemoved": "已取消收藏",
+    "alreadyFavorited": "已经收藏过了"
+  },
   "sortBy": {
     "label": "排序",
     "updatedAt": "更新时间",

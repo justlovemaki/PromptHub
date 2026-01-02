@@ -6,7 +6,7 @@
  * 1. 按语言拆分生成多个 sitemap 文件 (sitemap-en.xml, sitemap-zh-CN.xml, sitemap-ja.xml)
  * 2. 生成 sitemap index 文件 (sitemap.xml)
  * 3. 从数据库获取公开提示词并生成 sitemap
- * 4. 支持 hreflang 多语言标签
+ * 4. 每个语言的 sitemap 只包含该语言的 URL
  *
  * 使用方法: node scripts/generate-sitemap.js
  */
@@ -23,7 +23,6 @@ require('dotenv').config({ path: path.join(process.cwd(), '.env.production.local
 // 配置
 const BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 const LANGUAGES = ['en', 'zh-CN', 'ja'];
-const DEFAULT_LANGUAGE = 'en';
 
 // 公开的静态页面路径配置
 const publicStaticPages = [
@@ -37,45 +36,21 @@ const publicStaticPages = [
 ];
 
 /**
- * 生成 hreflang 链接
+ * 生成单语言 sitemap XML 内容（不包含 hreflang 链接）
+ * 每个语言的 sitemap 只包含该语言的 URL
  */
-function generateHreflangLinks(basePath, languages, baseUrl) {
-  const links = languages.map(lang => {
-    const url = basePath === ''
-      ? `${baseUrl}/${lang}`
-      : `${baseUrl}/${lang}${basePath}`;
-    return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${url}"/>`;
-  });
-  
-  // 添加 x-default
-  const defaultUrl = basePath === ''
-    ? `${baseUrl}/${DEFAULT_LANGUAGE}`
-    : `${baseUrl}/${DEFAULT_LANGUAGE}${basePath}`;
-  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultUrl}"/>`);
-  
-  return links.join('\n');
-}
-
-/**
- * 生成单语言 sitemap XML 内容
- */
-function generateLanguageSitemapXml(entries, languages, baseUrl) {
+function generateLanguageSitemapXml(entries) {
   const urlElements = entries.map(entry => {
-    // 生成 hreflang 链接
-    const hreflangLinks = generateHreflangLinks(entry.basePath, languages, baseUrl);
-    
     return `  <url>
     <loc>${entry.url}</loc>
     <lastmod>${entry.lastModified}</lastmod>
     <changefreq>${entry.changeFrequency}</changefreq>
     <priority>${entry.priority}</priority>
-${hreflangLinks}
   </url>`;
   }).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urlElements}
 </urlset>`;
 }
@@ -231,7 +206,6 @@ async function generateStaticSitemap() {
       
       entries.push({
         url,
-        basePath: page.path,
         lastModified: now,
         changeFrequency: page.changeFrequency,
         priority: page.priority,
@@ -240,12 +214,10 @@ async function generateStaticSitemap() {
     
     // 生成提示词页面条目
     for (const p of publicPrompts) {
-      const promptPath = `/prompt/${p.id}`;
-      const url = `${BASE_URL}/${lang}${promptPath}`;
+      const url = `${BASE_URL}/${lang}/prompt/${p.id}`;
       
       entries.push({
         url,
-        basePath: promptPath,
         lastModified: p.updatedAt ? new Date(p.updatedAt).toISOString() : now,
         changeFrequency: 'weekly',
         priority: 0.7,
@@ -253,7 +225,7 @@ async function generateStaticSitemap() {
     }
     
     // 生成该语言的 sitemap XML
-    const sitemapXml = generateLanguageSitemapXml(entries, LANGUAGES, BASE_URL);
+    const sitemapXml = generateLanguageSitemapXml(entries);
     
     // 写入文件
     const filename = `sitemap-${lang}.xml`;

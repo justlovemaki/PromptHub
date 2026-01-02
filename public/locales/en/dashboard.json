@@ -31,6 +31,7 @@
   "content": "Content",
   "contentRequired": "Content *",
   "characterCount": "Characters: ",
+  "fieldAuthor": "Author",
   "creating": "Creating...",
   "createPrompt": "Create Prompt",
   "saving": "Saving...",
@@ -74,7 +75,8 @@
     "title": "Give your prompt a clear title",
     "description": "Briefly describe the purpose and usage of this prompt",
     "content": "Enter the specific content of the prompt...\n\nHint: You can use variable placeholders like {user_input}, {topic}, etc.",
-    "imageUrl": "Enter image URL (https://...)"
+    "imageUrl": "Enter image URL (https://...)",
+    "author": "Enter author name"
   },
   "templateVariableExample": {
     "title": "Template Variable Usage Example",
@@ -85,6 +87,7 @@
     "title": "Title",
     "description": "Description",
     "tags": "Tags",
+    "author": "Author",
     "visibility": "Visibility",
     "createdAt": "Created At",
     "updatedAt": "Updated At",

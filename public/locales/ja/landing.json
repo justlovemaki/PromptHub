@@ -6,6 +6,11 @@
     "subtitle": "PromptHub は AI プロンプトの一元管理、スマート分類、クイックアクセスを支援し、AI ワークフローをより効率的にします",
     "cta": "無料で始める",
     "ctaSecondary": "詳しく見る",
+    "typewriter": {
+      "text1": "最大限に活用",
+      "text2": "生産性を向上",
+      "text3": "創造性を刺激"
+    },
     "stats": {
       "users": "アクティブユーザー",
       "prompts": "管理プロンプト数",

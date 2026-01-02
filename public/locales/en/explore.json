@@ -1,7 +1,7 @@
 {
   "pageTitle": "Prompt Explore",
   "pageDescription": "Discover and explore quality prompts shared by the community",
-  "searchPlaceholder": "Search prompts...",
+  "searchPlaceholder": "Search by title, author, or tags...",
   "noPromptsFound": "No matching prompts found",
   "noPromptsYet": "No public prompts yet",
   "loading": "Loading...",
@@ -10,6 +10,8 @@
   "copyPrompt": "Copy",
   "copied": "Copied",
   "viewDetail": "View Detail",
+  "share": "Share",
+  "shareSuccess": "Link copied",
   "author": "Author",
   "usageCount": "Usage Count",
   "updatedAt": "Updated At",
@@ -23,6 +25,25 @@
   "filterByTag": "Filter by Tag",
   "clearFilter": "Clear Filter",
   "allTags": "All Tags",
+  "favorite": "Favorite",
+  "unfavorite": "Unfavorite",
+  "validation": {
+    "promptIdRequired": "Prompt ID is required"
+  },
+  "error": {
+    "unauthorized": "Please login first",
+    "promptNotFound": "Prompt not found",
+    "promptNotPublic": "Cannot favorite a private prompt",
+    "internalServer": "Internal server error",
+    "favoriteNotFound": "Favorite not found"
+  },
+  "success": {
+    "favoriteAdded": "Added to favorites",
+    "favoriteAddedAndCopied": "Added to favorites and copied to your library",
+    "favoriteAddedPromptExists": "Added to favorites (prompt already exists in your library)",
+    "favoriteRemoved": "Removed from favorites",
+    "alreadyFavorited": "Already in favorites"
+  },
   "sortBy": {
     "label": "Sort By",
     "updatedAt": "Updated At",

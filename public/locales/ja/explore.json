@@ -1,7 +1,7 @@
 {
   "pageTitle": "プロンプト広場",
   "pageDescription": "コミュニティが共有する高品質なプロンプトを発見・探索",
-  "searchPlaceholder": "プロンプトを検索...",
+  "searchPlaceholder": "タイトル、作成者、タグで検索...",
   "noPromptsFound": "一致するプロンプトが見つかりません",
   "noPromptsYet": "公開プロンプトはまだありません",
   "loading": "読み込み中...",
@@ -10,6 +10,8 @@
   "copyPrompt": "コピー",
   "copied": "コピーしました",
   "viewDetail": "詳細を見る",
+  "share": "共有",
+  "shareSuccess": "リンクをコピーしました",
   "author": "作成者",
   "usageCount": "使用回数",
   "updatedAt": "更新日時",
@@ -23,6 +25,25 @@
   "filterByTag": "タグでフィルター",
   "clearFilter": "フィルターをクリア",
   "allTags": "すべてのタグ",
+  "favorite": "お気に入り",
+  "unfavorite": "お気に入り解除",
+  "validation": {
+    "promptIdRequired": "プロンプトIDは必須です"
+  },
+  "error": {
+    "unauthorized": "ログインしてください",
+    "promptNotFound": "プロンプトが見つかりません",
+    "promptNotPublic": "非公開プロンプトはお気に入りに追加できません",
+    "internalServer": "サーバーエラー",
+    "favoriteNotFound": "お気に入りが見つかりません"
+  },
+  "success": {
+    "favoriteAdded": "お気に入りに追加しました",
+    "favoriteAddedAndCopied": "お気に入りに追加し、ライブラリにコピーしました",
+    "favoriteAddedPromptExists": "お気に入りに追加しました（プロンプトはすでにライブラリに存在します）",
+    "favoriteRemoved": "お気に入りから削除しました",
+    "alreadyFavorited": "すでにお気に入りに追加されています"
+  },
   "sortBy": {
     "label": "並び替え",
     "updatedAt": "更新日時",

@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
         or(
           like(prompt.title, `%${search}%`),
           like(prompt.description, `%${search}%`),
-          like(prompt.tags, `%${search}%`)
+          like(prompt.tags, `%${search}%`),
+          like(prompt.author, `%${search}%`)
         )!
       );
     }
