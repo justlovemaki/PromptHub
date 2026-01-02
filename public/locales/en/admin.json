@@ -132,13 +132,26 @@
     "publicOption": "🌐 Public - Visible to everyone",
     "privateOption": "🔒 Private - Visible only to yourself"
   },
+  "approval": {
+    "filterLabel": "Approval Status",
+    "all": "All",
+    "pending": "Pending",
+    "approved": "Approved",
+    "confirmApproveTitle": "Confirm Approval",
+    "confirmUnapproveTitle": "Confirm Unapproval",
+    "confirmApproveMessage": "Are you sure you want to approve the prompt \"{{title}}\"? Once approved, it will be publicly displayed in the Prompt Plaza.",
+    "confirmUnapproveMessage": "Are you sure you want to unapprove the prompt \"{{title}}\"? Once unapproved, it will no longer be displayed in the Prompt Plaza.",
+    "cancel": "Cancel"
+  },
   "buttons": {
     "edit": "Edit",
     "delete": "Delete",
     "create": "Create Prompt",
     "creating": "Creating...",
     "save": "Save Changes",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "approve": "Approve",
+    "unapprove": "Unapprove"
   },
   "labels": {
     "title": "Title",
@@ -178,7 +191,9 @@
     "createError": "Error creating prompt:",
     "updateFailed": "Update failed",
     "updateError": "Error updating prompt:",
-    "noPrompts": "No prompts found"
+    "noPrompts": "No prompts found",
+    "approveFailed": "Approval operation failed",
+    "approveError": "Error during approval:"
   },
   "pagination": {
     "previous": "Previous",
@@ -201,7 +216,8 @@
     "promptsRetrieved": "Prompt data retrieved successfully",
     "statsRetrieved": "Statistics data retrieved successfully",
     "usersRetrieved": "User data retrieved successfully",
-    "operationCompleted": "Operation completed successfully"
+    "operationCompleted": "Operation completed successfully",
+    "approvalUpdated": "Approval status updated successfully"
   },
   "loading": {
     "systemLoading": "System Loading",

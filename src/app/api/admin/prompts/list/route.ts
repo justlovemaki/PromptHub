@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc'
     const spaceId = searchParams.get('spaceId') || undefined
     const isPublic = searchParams.get('isPublic')
+    const isApproved = searchParams.get('isApproved')
 
     // 验证分页参数
     const validatedPage = Math.max(1, page)
@@ -45,15 +46,21 @@ export async function GET(request: NextRequest) {
 
     // 处理isPublic参数
     const isPublicBool = isPublic === 'true' ? true : isPublic === 'false' ? false : undefined
+    // 处理isApproved参数
+    const isApprovedBool = isApproved === 'true' ? true : isApproved === 'false' ? false : undefined
 
     // 构建where条件
     let whereCondition
-    if (search && isPublicBool !== undefined) {
-      whereCondition = sql`(${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`
-    } else if (search) {
-      whereCondition = sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}`
-    } else if (isPublicBool !== undefined) {
-      whereCondition = sql`${prompt.isPublic} = ${isPublicBool}`
+    const searchCondition = search ? sql`(${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`})` : null
+    const publicCondition = isPublicBool !== undefined ? sql`${prompt.isPublic} = ${isPublicBool}` : null
+    const approvedCondition = isApprovedBool !== undefined ? sql`${prompt.isApproved} = ${isApprovedBool}` : null
+    
+    // 组合条件
+    const conditions = [searchCondition, publicCondition, approvedCondition].filter(Boolean)
+    if (conditions.length > 0) {
+      whereCondition = conditions.length === 1
+        ? conditions[0]
+        : sql`${conditions.reduce((acc, cond, idx) => idx === 0 ? cond : sql`${acc} AND ${cond}`)}`
     }
 
     // 构建orderBy

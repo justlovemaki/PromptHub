@@ -132,13 +132,26 @@
     "publicOption": "🌐 公開 - すべての人が表示可能",
     "privateOption": "🔒 非公開 - 自分のみ表示可能"
   },
+  "approval": {
+    "filterLabel": "承認状態",
+    "all": "すべて",
+    "pending": "承認待ち",
+    "approved": "承認済み",
+    "confirmApproveTitle": "承認の確認",
+    "confirmUnapproveTitle": "承認取り消しの確認",
+    "confirmApproveMessage": "プロンプト「{{title}}」を承認してもよろしいですか？承認後、プロンプト広場に公開されます。",
+    "confirmUnapproveMessage": "プロンプト「{{title}}」の承認を取り消してもよろしいですか？取り消し後、プロンプト広場に表示されなくなります。",
+    "cancel": "キャンセル"
+  },
   "buttons": {
     "edit": "編集",
     "delete": "削除",
     "create": "プロンプトを作成",
     "creating": "作成中...",
     "save": "変更を保存",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "approve": "承認する",
+    "unapprove": "承認を取り消す"
   },
   "labels": {
     "title": "タイトル",
@@ -178,7 +191,9 @@
     "createError": "プロンプト作成エラー:",
     "updateFailed": "更新に失敗しました",
     "updateError": "更新プロンプトエラー:",
-    "noPrompts": "プロンプトが見つかりません"
+    "noPrompts": "プロンプトが見つかりません",
+    "approveFailed": "承認操作に失敗しました",
+    "approveError": "承認操作エラー:"
   },
   "pagination": {
     "previous": "前へ",
@@ -201,7 +216,8 @@
     "promptsRetrieved": "プロンプトデータの取得に成功しました",
     "statsRetrieved": "統計データの取得に成功しました",
     "usersRetrieved": "ユーザーデータの取得に成功しました",
-    "operationCompleted": "操作が正常に完了しました"
+    "operationCompleted": "操作が正常に完了しました",
+    "approvalUpdated": "承認状態が正常に更新されました"
   },
   "loading": {
     "systemLoading": "システム読み込み中",

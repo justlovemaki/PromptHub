@@ -35,6 +35,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   // 状态管理
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [approvalFilter, setApprovalFilter] = useState('all') // 审核状态筛选
   const [sortBy, setSortBy] = useState('updatedAt')
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
 
@@ -65,6 +66,10 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   })
   const [operationLoading, setOperationLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  // 审核确认弹窗状态
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false)
+  const [pendingApproval, setPendingApproval] = useState<{ promptId: string; promptTitle: string; isApproved: boolean } | null>(null)
 
   // 设置语言属性
   useEffect(() => {
@@ -77,13 +82,25 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       setLoading(true)
       setError(null)
 
+      // 当选择"待审核"或"已审核"时，自动添加 isPublic: true 条件
+      // 因为审核状态只对公开的提示词有意义
+      let isPublicParam: boolean | undefined = undefined
+      if (approvalFilter === 'pending' || approvalFilter === 'approved') {
+        isPublicParam = true // 审核筛选时强制只查公开提示词
+      } else if (filterStatus === 'public') {
+        isPublicParam = true
+      } else if (filterStatus === 'private') {
+        isPublicParam = false
+      }
+
       const response = await api.getAdminPrompts({
         page,
         limit: 8,
         search: search || undefined,
         sortBy: sort || 'updatedAt',
         sortOrder: order || 'desc',
-        isPublic: filterStatus === 'public' ? true : filterStatus === 'private' ? false : undefined
+        isPublic: isPublicParam,
+        isApproved: approvalFilter === 'approved' ? true : approvalFilter === 'pending' ? false : undefined
       }, lang)
 
       if (response.success) {
@@ -119,7 +136,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
 
       return () => clearTimeout(debounceTimer)
     }
-  }, [searchQuery, filterStatus, sortBy, sortOrder])
+  }, [searchQuery, filterStatus, approvalFilter, sortBy, sortOrder])
 
   // 页码变化时获取数据
   // useEffect(() => {
@@ -146,6 +163,50 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   // 处理排序顺序变化
   const handleSortOrderChange = (value: 'desc' | 'asc') => {
     setSortOrder(value)
+  }
+
+  // 处理审核状态筛选变化
+  const handleApprovalFilterChange = (value: string) => {
+    setApprovalFilter(value)
+  }
+
+  // 打开审核确认弹窗
+  const openApprovalModal = (promptId: string, promptTitle: string, isApproved: boolean) => {
+    setPendingApproval({ promptId, promptTitle, isApproved })
+    setApprovalModalOpen(true)
+  }
+
+  // 关闭审核确认弹窗
+  const closeApprovalModal = () => {
+    setApprovalModalOpen(false)
+    setPendingApproval(null)
+  }
+
+  // 确认审核操作
+  const confirmApproval = async () => {
+    if (!pendingApproval) return
+
+    try {
+      setOperationLoading(true)
+      setError(null)
+
+      const response = await api.approvePrompt(pendingApproval.promptId, pendingApproval.isApproved, lang)
+      if (response.success) {
+        closeApprovalModal()
+        await fetchPrompts()
+      } else {
+        const errorMessage = (response as any).error?.message || tAdminPrompt('messages.approveFailed')
+        setError(errorMessage)
+        setTimeout(() => setError(null), UI_CONFIG.TOAST_ERROR_DURATION)
+      }
+    } catch (error) {
+      console.error(tAdminPrompt('messages.approveError'), error)
+      const errorMessage = tAdminPrompt('messages.approveError') || '审核操作失败，请稍后重试'
+      setError(errorMessage)
+      setTimeout(() => setError(null), UI_CONFIG.TOAST_ERROR_DURATION)
+    } finally {
+      setOperationLoading(false)
+    }
   }
 
   // 打开编辑模态框
@@ -356,6 +417,32 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
           t={tAdminPrompt}
         />
 
+        {/* 审核状态筛选 */}
+        <div className="bg-white rounded-lg shadow-sm border p-4">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-text-200">{tAdminPrompt('approval.filterLabel') || '审核状态'}:</span>
+            <div className="flex gap-2">
+              {[
+                { value: 'all', label: tAdminPrompt('approval.all') || '全部' },
+                { value: 'pending', label: tAdminPrompt('approval.pending') || '待审核' },
+                { value: 'approved', label: tAdminPrompt('approval.approved') || '已审核' }
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleApprovalFilterChange(option.value)}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    approvalFilter === option.value
+                      ? 'bg-primary-100 text-white'
+                      : 'bg-bg-200 text-text-200 hover:bg-bg-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* 提示词列表 */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-6">
@@ -374,7 +461,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'title',
                     title: tAdminPrompt('table.title'),
-                    width: '25%',
+                    width: '30%',
                     render: (value: string, record: Prompt) => (
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -385,6 +472,15 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                                 {tAdminPrompt('visibility.public')}
                               </span>
                             )}
+                            {(record as any).isApproved ? (
+                              <span className="px-2 py-0.5 text-xs bg-success-300 text-success-500 rounded-full">
+                                {tAdminPrompt('approval.approved') || '已审核'}
+                              </span>
+                            ) : record.isPublic ? (
+                              <span className="px-2 py-0.5 text-xs bg-warning-300 text-warning-500 rounded-full">
+                                {tAdminPrompt('approval.pending') || '待审核'}
+                              </span>
+                            ) : null}
                           </div>
                         </div>
                         {record.description && (
@@ -396,7 +492,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'author',
                     title: tAdminPrompt('table.author') || '作者',
-                    width: '15%',
+                    width: '10%',
                     render: (value: string) => (
                       <span className="text-sm text-text-200">{value || '-'}</span>
                     )
@@ -404,7 +500,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'tags',
                     title: tAdminPrompt('table.tags'),
-                    width: '15%',
+                    width: '12%',
                     render: (value: string[], record: Prompt) => {
                       const tagsToDisplay = (value || []).map(getName).slice(0, 3)
                       const remainingCount = (value?.length || 0) - 3
@@ -437,7 +533,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'useCount',
                     title: tAdminPrompt('table.useCount'),
-                    width: '15%',
+                    width: '8%',
                     render: (value: number) => (
                       <span className="px-2 py-1 text-sm bg-secondary-400 text-secondary-500 rounded-full">
                         {value || 0}{tAdminPrompt('table.times')}
@@ -447,7 +543,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'createdAt',
                     title: tAdminPrompt('table.createdAt'),
-                    width: '20%',
+                    width: '12%',
                     render: (value: string) => (
                       <div className="text-sm text-text-200">
                         <div>{new Date(value).toLocaleDateString(lang)}</div>
@@ -460,7 +556,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'updatedAt',
                     title: tAdminPrompt('table.updatedAt'),
-                    width: '20%',
+                    width: '12%',
                     render: (value: string, record: Prompt) => (
                       <div className="text-sm text-text-200">
                         {record.updatedAt !== record.createdAt ? (
@@ -479,9 +575,35 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'actions',
                     title: tAdminPrompt('table.actions'),
-                    width: '10%',
+                    width: '16%',
                     render: (_, record: Prompt) => (
                       <div className="flex gap-1">
+                        {/* 审核按钮 - 只对公开提示词显示 */}
+                        {record.isPublic && (
+                          (record as any).isApproved ? (
+                            <button
+                              onClick={() => openApprovalModal(record.id, record.title, false)}
+                              disabled={operationLoading}
+                              className="p-1.5 rounded-md text-warning-500 hover:bg-warning-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={tAdminPrompt('buttons.unapprove') || '取消审核'}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                              </svg>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => openApprovalModal(record.id, record.title, true)}
+                              disabled={operationLoading}
+                              className="p-1.5 rounded-md text-success-500 hover:bg-success-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={tAdminPrompt('buttons.approve') || '审核通过'}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </button>
+                          )
+                        )}
                         <button
                           onClick={() => handleEdit(record)}
                           disabled={operationLoading}
@@ -522,6 +644,50 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
           </div>
         </div>
 
+
+        {/* 审核确认弹窗 */}
+        <Modal open={approvalModalOpen} onOpenChange={setApprovalModalOpen}>
+          <ModalContent className="sm:max-w-md">
+            <ModalHeader>
+              <ModalTitle>
+                {pendingApproval?.isApproved
+                  ? (tAdminPrompt('approval.confirmApproveTitle') || '确认审核通过')
+                  : (tAdminPrompt('approval.confirmUnapproveTitle') || '确认取消审核')
+                }
+              </ModalTitle>
+            </ModalHeader>
+            <div className="p-6 pt-0">
+              <p className="text-text-200 mb-4">
+                {pendingApproval?.isApproved
+                  ? (tAdminPrompt('approval.confirmApproveMessage', { title: pendingApproval?.promptTitle }) || `确定要审核通过提示词「${pendingApproval?.promptTitle}」吗？审核通过后，该提示词将在提示词广场公开显示。`)
+                  : (tAdminPrompt('approval.confirmUnapproveMessage', { title: pendingApproval?.promptTitle }) || `确定要取消审核提示词「${pendingApproval?.promptTitle}」吗？取消审核后，该提示词将不再在提示词广场显示。`)
+                }
+              </p>
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={closeApprovalModal}
+                  disabled={operationLoading}
+                >
+                  {tAdminPrompt('approval.cancel') || '取消'}
+                </Button>
+                <Button
+                  variant={pendingApproval?.isApproved ? 'default' : 'destructive'}
+                  onClick={confirmApproval}
+                  disabled={operationLoading}
+                >
+                  {operationLoading
+                    ? (tCommon('processing') || '处理中...')
+                    : (pendingApproval?.isApproved
+                        ? (tAdminPrompt('buttons.approve') || '审核通过')
+                        : (tAdminPrompt('buttons.unapprove') || '取消审核')
+                      )
+                  }
+                </Button>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
 
         {/* 提示词模态框 - 用于创建和编辑 */}
         <PromptModal

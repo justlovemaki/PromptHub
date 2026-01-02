@@ -132,13 +132,26 @@
     "publicOption": "🌐 公开 - 所有人可见",
     "privateOption": "🔒 私有 - 仅自己可见"
   },
+  "approval": {
+    "filterLabel": "审核状态",
+    "all": "全部",
+    "pending": "待审核",
+    "approved": "已审核",
+    "confirmApproveTitle": "确认审核通过",
+    "confirmUnapproveTitle": "确认取消审核",
+    "confirmApproveMessage": "确定要审核通过提示词「{{title}}」吗？审核通过后，该提示词将在提示词广场公开显示。",
+    "confirmUnapproveMessage": "确定要取消审核提示词「{{title}}」吗？取消审核后，该提示词将不再在提示词广场显示。",
+    "cancel": "取消"
+  },
   "buttons": {
     "edit": "编辑",
     "delete": "删除",
     "create": "创建提示词",
     "creating": "创建中...",
     "save": "保存更改",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "approve": "审核通过",
+    "unapprove": "取消审核"
   },
   "labels": {
     "title": "标题",
@@ -178,7 +191,9 @@
     "createError": "创建提示词错误:",
     "updateFailed": "更新失败",
     "updateError": "更新提示词错误:",
-    "noPrompts": "暂无提示词"
+    "noPrompts": "暂无提示词",
+    "approveFailed": "审核操作失败",
+    "approveError": "审核操作错误:"
   },
   "pagination": {
     "previous": "上一页",
@@ -201,7 +216,8 @@
     "promptsRetrieved": "提示词数据获取成功",
     "statsRetrieved": "统计数据获取成功",
     "usersRetrieved": "用户数据获取成功",
-    "operationCompleted": "操作已完成"
+    "operationCompleted": "操作已完成",
+    "approvalUpdated": "审核状态更新成功"
   },
   "loading": {
     "systemLoading": "系统加载中",

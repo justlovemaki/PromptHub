@@ -104,6 +104,7 @@ export const prompt = sqliteTable("prompt", {
 	imageUrls: text("image_urls").default("[]"), // JSON字符串存储图片链接数组
 	author: text("author").default(""),
 	isPublic: integer("is_public", { mode: 'boolean' }).default(false),
+	isApproved: integer("is_approved", { mode: 'boolean' }).default(false), // 审核状态：只有公开且已审核的提示词才能在广场显示
 	useCount: integer("use_count").default(0),
 	spaceId: text("space_id").notNull().references(() => space.id, { onDelete: "cascade" }),
 	createdBy: text("created_by").notNull().references(() => user.id, { onDelete: "cascade" }),
@@ -112,6 +113,7 @@ export const prompt = sqliteTable("prompt", {
 }, (table) => ({
 	spaceIdIndex: index("prompt_space_id_idx").on(table.spaceId),
 	createdByIndex: index("prompt_created_by_idx").on(table.createdBy),
+	isApprovedIndex: index("prompt_is_approved_idx").on(table.isApproved), // 审核状态索引，用于快速筛选已审核的提示词
 }));
 
 // 提示词使用历史表（为统计和分析准备）

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6f456f03-b47c-45a2-85c5-204fc7010f35",
+  "id": "7b83a6da-cdf4-4c9c-91be-9d7222c95e0b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "access_tokens": {
@@ -464,6 +464,14 @@
           "autoincrement": false,
           "default": false
         },
+        "is_approved": {
+          "name": "is_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "use_count": {
           "name": "use_count",
           "type": "integer",
@@ -513,6 +521,13 @@
           "name": "prompt_created_by_idx",
           "columns": [
             "created_by"
+          ],
+          "isUnique": false
+        },
+        "prompt_is_approved_idx": {
+          "name": "prompt_is_approved_idx",
+          "columns": [
+            "is_approved"
           ],
           "isUnique": false
         }

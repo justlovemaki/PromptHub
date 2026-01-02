@@ -33,9 +33,12 @@ export async function GET(request: NextRequest) {
     const finalSortBy = validSortFields.includes(sortBy as any) ? sortBy as PromptSortField : 'updatedAt';
     const finalSortOrder = validSortOrders.includes(sortOrder.toLowerCase() as any) ? sortOrder.toLowerCase() as SortOrder : 'desc';
     
-    // 构建查询条件 - 只查询公开的提示词
+    // 构建查询条件 - 只查询公开且已审核的提示词
     // Drizzle ORM 会自动处理布尔值与数据库整数的转换
-    const conditions = [eq(prompt.isPublic, true)];
+    const conditions = [
+      eq(prompt.isPublic, true),
+      eq(prompt.isApproved, true)  // 只显示已审核的提示词
+    ];
     
     // 添加搜索条件
     if (search) {

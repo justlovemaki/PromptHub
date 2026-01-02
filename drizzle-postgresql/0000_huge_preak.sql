@@ -58,6 +58,7 @@ CREATE TABLE "prompt" (
 	"image_urls" text DEFAULT '[]',
 	"author" text DEFAULT '',
 	"is_public" boolean DEFAULT false,
+	"is_approved" boolean DEFAULT false,
 	"use_count" integer DEFAULT 0,
 	"space_id" text NOT NULL,
 	"created_by" text NOT NULL,
@@ -162,6 +163,7 @@ CREATE INDEX "ai_point_transaction_user_id_idx" ON "ai_point_transaction" USING 
 CREATE UNIQUE INDEX "membership_user_space_unique" ON "membership" USING btree ("user_id","space_id");--> statement-breakpoint
 CREATE INDEX "prompt_space_id_idx" ON "prompt" USING btree ("space_id");--> statement-breakpoint
 CREATE INDEX "prompt_created_by_idx" ON "prompt" USING btree ("created_by");--> statement-breakpoint
+CREATE INDEX "prompt_is_approved_idx" ON "prompt" USING btree ("is_approved");--> statement-breakpoint
 CREATE UNIQUE INDEX "prompt_favorite_user_prompt_unique" ON "prompt_favorite" USING btree ("user_id","prompt_id");--> statement-breakpoint
 CREATE INDEX "prompt_favorite_user_id_idx" ON "prompt_favorite" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "prompt_favorite_prompt_id_idx" ON "prompt_favorite" USING btree ("prompt_id");--> statement-breakpoint

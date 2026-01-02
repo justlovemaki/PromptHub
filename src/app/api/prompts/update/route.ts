@@ -81,6 +81,13 @@ export async function POST(request: NextRequest) {
     if (data.description === undefined || data.description === null) {
       data.description = ''; // 将 null 转换为空字符串，以清空描述
     }
+
+    // 如果设置为未公开，自动将审核状态设置为待审核
+    // 这样当提示词重新公开时，需要重新审核
+    const updateData: typeof data & { isApproved?: boolean } = { ...data };
+    if (data.isPublic === false) {
+      updateData.isApproved = false;
+    }
  
     // 验证提示词所有权
     const isOwner = await PromptService.verifyPromptOwnership(id, user.personalSpaceId);
@@ -92,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
  
     // 更新提示词
-    const updatedPrompt = await PromptService.updatePrompt(id, data);
+    const updatedPrompt = await PromptService.updatePrompt(id, updateData);
  
     if (!updatedPrompt) {
       return NextResponse.json(
