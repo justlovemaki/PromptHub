@@ -32,6 +32,7 @@
 - [项目结构](./docs/project-structure.md) - 目录组织
 - [数据库架构](./docs/database.md) - 表设计
 - [API 接口](./docs/api-reference.md) - REST API
+- [认证与令牌](./docs/auth-tokens.md) - 会话与令牌过期策略
 
 ### 客户端应用
 - [Chrome 扩展](./docs/chrome-extension.md) - 浏览器扩展安装与使用
@@ -39,7 +40,7 @@
 
 ### 集成与部署
 - [MCP 集成](./docs/mcp-integration.md) - AI 工具集成
-- [部署指南](./docs/deployment.md) - Vercel、Docker
+- [部署指南](./docs/deployment.md) - Vercel
 - [SEO 配置](./docs/seo.md) - 搜索引擎优化
 
 ### 定制指南
@@ -130,7 +131,7 @@ import {
 
 ## 📄 许可证
 
-MIT License
+[Apache License 2.0](./LICENSE)
 
 ---
 

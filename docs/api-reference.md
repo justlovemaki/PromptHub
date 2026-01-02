@@ -486,6 +486,8 @@ Content-Type: application/json
 
 ### 获取访问令牌
 
+关于令牌过期策略的详细说明，请参考 [身份验证与令牌过期策略](./auth-tokens.md)。
+
 ```http
 GET /api/user/access-token
 ```

@@ -216,6 +216,7 @@ import Script from 'next/script';
 
 ```env
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-umami-website-id
 ```
 
 ### 提交 Sitemap

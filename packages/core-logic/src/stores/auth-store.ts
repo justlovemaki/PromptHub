@@ -81,13 +81,13 @@ export const useAuthStore = create<AuthState>()(  persist(
             return true;
           } else {
             set({
-              error: (response as any).error?.message || 'auth.loginFailed',
+              error: (response as any).error?.message || 'Login Failed',
               isLoading: false,
             });
             return false;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'auth.loginFailed';
+          const errorMessage = error instanceof Error ? error.message : 'Login Failed';
           set({
             error: errorMessage,
             isLoading: false,
