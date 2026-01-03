@@ -197,10 +197,10 @@ const LandingPage = ({ params }: { params: Promise<{ lang: string }> }) => {
 
             <div className="hidden md:flex items-center space-x-8">
               {[
-                { href: '#features', label: t('nav.features') },
-                { href: '#faq', label: t('nav.faq') },
-                { href: `/${lang}/download`, label: t('nav.download') },
-                { href: `/${lang}/explore`, label: t('nav.explore') },
+                { href: '#features', label: t('nav.features'), hot: false },
+                { href: '#faq', label: t('nav.faq'), hot: false },
+                { href: `/${lang}/download`, label: t('nav.download'), hot: false },
+                { href: `/${lang}/explore`, label: t('nav.explore'), hot: true },
               ].map((item, index) => (
                 <motion.div
                   key={item.href}
@@ -208,11 +208,16 @@ const LandingPage = ({ params }: { params: Promise<{ lang: string }> }) => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Link 
-                    href={item.href} 
-                    className="relative text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors group"
+                  <Link
+                    href={item.href}
+                    className="relative text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors group flex items-center gap-1"
                   >
                     {item.label}
+                    {item.hot && (
+                      <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-[var(--orange-200)] to-[var(--orange-100)] text-white rounded-full uppercase tracking-wide">
+                        Hot
+                      </span>
+                    )}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[var(--primary-100)] to-[var(--accent-100)] group-hover:w-full transition-all duration-300" />
                   </Link>
                 </motion.div>
@@ -251,8 +256,11 @@ const LandingPage = ({ params }: { params: Promise<{ lang: string }> }) => {
                   <Link href={`/${lang}/download`} className="text-[var(--text-200)] hover:text-[var(--text-100)]" onClick={() => setIsMobileMenuOpen(false)}>
                     {t('nav.download')}
                   </Link>
-                  <Link href={`/${lang}/explore`} className="text-[var(--text-200)] hover:text-[var(--text-100)]" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link href={`/${lang}/explore`} className="text-[var(--text-200)] hover:text-[var(--text-100)] flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                     {t('nav.explore')}
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-[var(--orange-200)] to-[var(--orange-100)] text-white rounded-full uppercase tracking-wide">
+                      Hot
+                    </span>
                   </Link>
                   <div className="pt-4 border-t border-[var(--bg-300)] flex flex-col space-y-3">
                     <LanguageSwitcher lang={lang} />

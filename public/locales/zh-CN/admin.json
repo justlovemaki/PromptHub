@@ -117,6 +117,7 @@
   "table": {
     "title": "标题",
     "author": "作者",
+    "creatorName": "创建用户",
     "tags": "标签",
     "useCount": "使用次数",
     "times": "次",

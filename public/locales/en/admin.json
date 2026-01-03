@@ -117,6 +117,7 @@
   "table": {
     "title": "Title",
     "author": "Author",
+    "creatorName": "Created By",
     "tags": "Tags",
     "useCount": "Use Count",
     "times": "times",

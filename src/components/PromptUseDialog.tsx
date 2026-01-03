@@ -16,6 +16,7 @@ import { parsePromptVariables, replacePromptVariables, replacePromptVariablesFor
 import type { Prompt } from '@promptmanager/core-logic'
 import { useToast } from './ToastProvider'
 import { useTranslation } from '@/i18n/client'
+import { trackPromptAction } from '@/lib/umami'
 
 // ============== 接口定义 ==============
 
@@ -138,6 +139,12 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
         toast.showSuccess(tPrompt('toast.success.title'), tPrompt('toast.success.message'))
         onCopySuccess?.(prompt.content)
         
+        // 追踪提示词使用事件
+        trackPromptAction('use', prompt.id, {
+          has_variables: false,
+          content_length: prompt.content.length,
+        })
+        
         // 增加使用次数
         try {
           await api.incrementPromptUseCount(prompt.id, lang)
@@ -169,6 +176,13 @@ export const PromptUseDialog: React.FC<PromptUseDialogProps> = ({
     if (success) {
       toast.showSuccess(tPrompt('toast.success.title'), tPrompt('toast.success.message'))
       onCopySuccess?.(finalContent)
+      
+      // 追踪提示词使用事件（带变量）
+      trackPromptAction('use', prompt.id, {
+        has_variables: true,
+        variables_count: variables.length,
+        content_length: finalContent.length,
+      })
       
       // 增加使用次数
       try {

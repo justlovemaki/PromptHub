@@ -117,6 +117,7 @@
   "table": {
     "title": "タイトル",
     "author": "作成者",
+    "creatorName": "作成ユーザー",
     "tags": "タグ",
     "useCount": "使用回数",
     "times": "回",

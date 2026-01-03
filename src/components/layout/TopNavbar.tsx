@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LoginButton from '@/components/LoginButton';
 import { useTranslation } from '@/i18n/client';
+import { trackNavClick } from '@/lib/umami';
 
 interface TopNavbarProps {
   lang: string;
@@ -30,11 +31,22 @@ export default function TopNavbar({ lang }: TopNavbarProps) {
 
           {/* 桌面端导航 */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href={`/${lang}/download`} className="text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors">
+            <Link
+              href={`/${lang}/download`}
+              className="text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors"
+              onClick={() => trackNavClick('download', 'navbar')}
+            >
               {t('nav.download')}
             </Link>
-            <Link href={`/${lang}/explore`} className="text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors">
+            <Link
+              href={`/${lang}/explore`}
+              className="relative text-[var(--text-200)] hover:text-[var(--text-100)] transition-colors flex items-center gap-1"
+              onClick={() => trackNavClick('explore', 'navbar')}
+            >
               {t('nav.explore')}
+              <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-[var(--orange-200)] to-[var(--orange-100)] text-white rounded-full uppercase tracking-wide">
+                Hot
+              </span>
             </Link>
           </div>
 
@@ -63,10 +75,27 @@ export default function TopNavbar({ lang }: TopNavbarProps) {
               className="md:hidden mt-4 py-4 border-t border-[var(--bg-300)]"
             >
               <div className="flex flex-col space-y-4">
-                <Link href={`/${lang}/explore`} className="text-[var(--text-200)] hover:text-[var(--text-100)]" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link
+                  href={`/${lang}/explore`}
+                  className="text-[var(--text-200)] hover:text-[var(--text-100)] flex items-center gap-2"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    trackNavClick('explore', 'mobile_menu')
+                  }}
+                >
                   {t('nav.explore')}
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-[var(--orange-200)] to-[var(--orange-100)] text-white rounded-full uppercase tracking-wide">
+                    Hot
+                  </span>
                 </Link>
-                <Link href={`/${lang}/download`} className="text-[var(--text-200)] hover:text-[var(--text-100)]" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link
+                  href={`/${lang}/download`}
+                  className="text-[var(--text-200)] hover:text-[var(--text-100)]"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    trackNavClick('download', 'mobile_menu')
+                  }}
+                >
                   {t('nav.download')}
                 </Link>
                 <div className="pt-4 border-t border-[var(--bg-300)] flex flex-col space-y-3">

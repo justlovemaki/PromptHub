@@ -7,6 +7,7 @@ import { useTranslation } from '../i18n/client'
 import { usePathname } from 'next/navigation';
 import { getTruePathFromPathname } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { trackAuth } from '../lib/umami';
 
 interface LoginModalProps {
   isOpen: boolean
@@ -44,7 +45,15 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
 
       if (result.error) {
         setError(result.error.message || t('loginError'))
+        // 追踪登录失败
+        trackAuth('login_failed', 'email')
       } else if ('data' in result && result.data?.user) {
+          // 追踪登录/注册成功
+          if ('isnew' in result && result.isnew){
+            trackAuth('signup_success', 'email')
+          } else {
+            trackAuth('login_success', 'email')
+          }
           // 成功后关闭模态框并刷新页面
           onClose()
           if ('isnew' in result && result.isnew){
@@ -55,6 +64,8 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
       }
     } catch (err) {
       setError(t('unexpectedError'))
+      // 追踪登录失败
+      trackAuth('login_failed', 'email')
     } finally {
       setIsLoading(false)
     }
@@ -65,6 +76,8 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
     setError('')
     
     try {
+      // 追踪 GitHub 登录尝试（成功后会重定向，所以在这里追踪）
+      trackAuth('login_success', 'github')
       // 使用 GitHub 登录，重定向到回调页面
       await signIn.social({
         provider: "github",
@@ -75,6 +88,8 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
     } catch (err) {
       console.error('GitHub login error:', err)
       setError(t('githubLoginFailed'))
+      // 追踪登录失败
+      trackAuth('login_failed', 'github')
       setIsLoading(false)
     }
   }
@@ -84,6 +99,8 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
     setError('')
     
     try {
+      // 追踪 Google 登录尝试（成功后会重定向，所以在这里追踪）
+      trackAuth('login_success', 'google')
       // 使用 Google 登录，重定向到回调页面
       await signIn.social({
         provider: "google",
@@ -94,6 +111,8 @@ export default function LoginModal({ isOpen, onClose, lng }: LoginModalProps) {
     } catch (err) {
       console.error('Google login error:', err)
       setError(t('googleLoginFailed'))
+      // 追踪登录失败
+      trackAuth('login_failed', 'google')
       setIsLoading(false)
     }
   }

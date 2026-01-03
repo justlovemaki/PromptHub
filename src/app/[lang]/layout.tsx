@@ -2,17 +2,27 @@ import '../globals.css'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers';
 import Script from 'next/script'
+import { Inter, Noto_Sans_SC } from 'next/font/google'
 import { ApiProvider } from '../../components/ApiProvider'
 import { ToastProvider } from '../../components/ToastProvider'
 import { languages } from '../../i18n'
 import { getSEOSettingsForLang } from '../../lib/services/settings/seo-settings-service';
 import { FALLBACK_DEFAULT_CONFIG, UMAMI_WEBSITE_ID } from "../../lib/constants";
 
-// 使用系统字体栈作为备选
-const systemFont = {
-  className: 'font-sans',
-  style: { fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }
-}
+// 配置 Inter 字体（英文）
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
+// 配置 Noto Sans SC 字体（中文）
+const notoSansSC = Noto_Sans_SC({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-noto-sans-sc',
+})
 
 export async function generateMetadata({
   params,
@@ -157,8 +167,8 @@ export default async function RootLayout({
 }) {
   const { lang } = await params
   return (
-    <html lang={lang}>
-      <body className="font-sans" style={systemFont.style}>
+    <html lang={lang} className={`${inter.variable} ${notoSansSC.variable}`}>
+      <body className="font-sans antialiased">
         {UMAMI_WEBSITE_ID && (
           <Script
             defer

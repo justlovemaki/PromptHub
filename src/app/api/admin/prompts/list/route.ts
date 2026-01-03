@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminInApiRoute } from '@/lib/auth-helpers'
 import { db } from '@/lib/database'
-import { prompt } from '@/drizzle-schema'
+import { prompt, user } from '@/drizzle-schema'
 import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils'
-import { desc, asc, sql } from 'drizzle-orm'
+import { desc, asc, sql, eq } from 'drizzle-orm'
 import { getTranslation } from '@/i18n'
 import { SORT_FIELDS, SORT_ORDERS } from '@/lib/constants'
 
@@ -82,13 +82,32 @@ export async function GET(request: NextRequest) {
         orderBy = desc(prompt.updatedAt)
     }
 
-    // 获取提示词列表
-    const prompts = await db.query.prompt.findMany({
-      limit: validatedLimit,
-      offset,
-      where: whereCondition,
-      orderBy,
-    })
+    // 获取提示词列表，并关联查询创建用户信息
+    const promptsWithUser = await db
+      .select({
+        id: prompt.id,
+        title: prompt.title,
+        content: prompt.content,
+        description: prompt.description,
+        tags: prompt.tags,
+        imageUrls: prompt.imageUrls,
+        author: prompt.author,
+        isPublic: prompt.isPublic,
+        isApproved: prompt.isApproved,
+        useCount: prompt.useCount,
+        spaceId: prompt.spaceId,
+        createdBy: prompt.createdBy,
+        createdAt: prompt.createdAt,
+        updatedAt: prompt.updatedAt,
+        creatorName: user.name,
+        creatorEmail: user.email,
+      })
+      .from(prompt)
+      .leftJoin(user, eq(prompt.createdBy, user.id))
+      .where(whereCondition)
+      .orderBy(orderBy)
+      .limit(validatedLimit)
+      .offset(offset)
 
     // 获取总数
     let totalQuery
@@ -108,7 +127,7 @@ export async function GET(request: NextRequest) {
     const total = totalPrompts[0].count
 
     // 处理返回数据，解析tags等JSON字段
-    const processedPrompts = prompts.map(p => ({
+    const processedPrompts = promptsWithUser.map(p => ({
       ...p,
       tags: p.tags ? JSON.parse(p.tags) : [],
     }))

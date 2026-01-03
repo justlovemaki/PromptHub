@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import TopNavbar from '@/components/layout/TopNavbar';
 import { useTranslation } from '@/i18n/client';
 import { useEffect, useState, use } from 'react';
+import { trackDownload } from '@/lib/umami';
 
 export default function Download({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = use(params);
@@ -66,10 +67,10 @@ export default function Download({ params }: { params: Promise<{ lang: string }>
                   </div>
                   <p className="text-[var(--text-200)] mb-6 text-sm leading-relaxed">{t('windowsDescription')}</p>
                   <a
-                        href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop.Setup.${appVersion}.exe
-`}
+                    href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop.Setup.${appVersion}.exe`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackDownload('windows', appVersion)}
                     className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[var(--primary-100)] to-[var(--primary-200)] hover:from-[var(--primary-200)] hover:to-[var(--secondary-400)] text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg shadow-[var(--primary-100)]/20 hover:shadow-[var(--primary-100)]/40"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,6 +101,7 @@ export default function Download({ params }: { params: Promise<{ lang: string }>
                     href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.dmg`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackDownload('macos', appVersion)}
                     className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[var(--secondary-400)] to-[var(--accent-100)] hover:from-[var(--accent-100)] hover:to-[var(--secondary-400)] text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg shadow-[var(--secondary-400)]/20 hover:shadow-[var(--secondary-400)]/40"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +132,7 @@ export default function Download({ params }: { params: Promise<{ lang: string }>
                     href={t('downloadUrl') + `${appVersion}/ai-prompt-hub-desktop-PromptHub.Desktop-${appVersion}.AppImage`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackDownload('linux', appVersion)}
                     className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[var(--accent-100)] to-[var(--accent-200)] hover:from-[var(--accent-200)] hover:to-[var(--accent-100)] text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg shadow-[var(--accent-100)]/20 hover:shadow-[var(--accent-100)]/40"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,6 +170,7 @@ export default function Download({ params }: { params: Promise<{ lang: string }>
                   href={t('chromeExtensionUrl')}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackDownload('chrome_extension', appVersion)}
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary-100)] via-[var(--secondary-400)] to-[var(--accent-100)] hover:from-[var(--accent-100)] hover:via-[var(--secondary-400)] hover:to-[var(--primary-100)] text-white px-8 py-4 rounded-xl transition-all duration-500 font-medium shadow-xl shadow-[var(--primary-100)]/20 hover:shadow-[var(--secondary-400)]/40 flex-shrink-0"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

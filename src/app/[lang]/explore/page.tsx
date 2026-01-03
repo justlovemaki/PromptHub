@@ -10,6 +10,7 @@ import { api } from '@promptmanager/core-logic'
 import ParticlesBackground from '@/components/landing/ParticlesBackground'
 import TopNavbar from '@/components/layout/TopNavbar'
 import Footer from '@/components/layout/Footer'
+import { trackPromptAction, trackFavorite, trackSearch, trackFilter, trackViewModeChange } from '@/lib/umami'
 
 interface Prompt {
   id: string
@@ -161,6 +162,11 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
     try {
       await navigator.clipboard.writeText(prompt.content)
       setCopiedId(prompt.id)
+      // 追踪复制事件
+      trackPromptAction('copy', prompt.id, {
+        content_length: prompt.content.length,
+        source: 'explore',
+      })
       setTimeout(() => setCopiedId(null), 2000)
     } catch (error) {
       console.error('Failed to copy:', error)
@@ -213,6 +219,8 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
         
         if (result.success) {
           setFavorites(prev => ({ ...prev, [promptId]: false }))
+          // 追踪取消收藏事件
+          trackFavorite('remove', promptId)
         }
       } else {
         // 添加收藏
@@ -220,6 +228,8 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
         
         if (result.success) {
           setFavorites(prev => ({ ...prev, [promptId]: true }))
+          // 追踪添加收藏事件
+          trackFavorite('add', promptId)
         }
       }
     } catch (error) {
@@ -302,6 +312,12 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                   setSearchQuery(e.target.value)
                   setPagination(prev => ({ ...prev, page: 1 }))
                 }}
+                onBlur={() => {
+                  // 当用户完成搜索输入时追踪搜索事件
+                  if (searchQuery.trim()) {
+                    trackSearch(searchQuery, pagination.total)
+                  }
+                }}
                 className="w-full pl-12 pr-4 py-3.5 bg-[var(--bg-100)]/50 border border-[var(--bg-400)]/30 rounded-2xl text-[var(--text-100)] placeholder-[var(--text-300)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]/50 focus:border-[var(--primary-100)]/50 transition-all shadow-inner"
               />
             </div>
@@ -333,6 +349,8 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                           onClick={() => {
                             setSortOrder('desc')
                             setIsSortOpen(false)
+                            // 追踪排序变更
+                            trackFilter('sort', 'desc')
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium ${
                             sortOrder === 'desc'
@@ -347,6 +365,8 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                           onClick={() => {
                             setSortOrder('asc')
                             setIsSortOpen(false)
+                            // 追踪排序变更
+                            trackFilter('sort', 'asc')
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium ${
                             sortOrder === 'asc'
@@ -366,7 +386,11 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
               {/* 视图模式切换 */}
               <div className="flex bg-[var(--bg-100)]/50 p-1 rounded-2xl border border-[var(--bg-400)]/30 shadow-inner">
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => {
+                    setViewMode('list')
+                    // 追踪视图模式切换
+                    trackViewModeChange('list')
+                  }}
                   className={`p-2.5 rounded-xl transition-all ${
                     viewMode === 'list'
                       ? 'bg-white text-[var(--primary-100)] shadow-md'
@@ -377,7 +401,11 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                   <List className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setViewMode('image')}
+                  onClick={() => {
+                    setViewMode('image')
+                    // 追踪视图模式切换
+                    trackViewModeChange('image')
+                  }}
                   className={`p-2.5 rounded-xl transition-all ${
                     viewMode === 'image'
                       ? 'bg-white text-[var(--primary-100)] shadow-md'
@@ -402,6 +430,8 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                   onClick={() => {
                     setSelectedTag(null)
                     setPagination(prev => ({ ...prev, page: 1 }))
+                    // 追踪标签筛选清除
+                    trackFilter('tag', 'all')
                   }}
                   className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${
                     selectedTag === null
@@ -415,8 +445,11 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                   <button
                     key={tag}
                     onClick={() => {
-                      setSelectedTag(selectedTag === tag ? null : tag)
+                      const newTag = selectedTag === tag ? null : tag
+                      setSelectedTag(newTag)
                       setPagination(prev => ({ ...prev, page: 1 }))
+                      // 追踪标签筛选
+                      trackFilter('tag', newTag || 'all')
                     }}
                     className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${
                       selectedTag === tag

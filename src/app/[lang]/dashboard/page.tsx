@@ -11,6 +11,7 @@ import { useTranslation } from '@/i18n/client'
 import { useTags } from '../../../hooks/useTags'
 import { PromptSortField } from '@/lib/constants'
 import PromptModal from '../../../components/PromptModal'
+import { trackPromptAction, trackSearch, trackFilter } from '@/lib/umami'
 
 // 添加样式
 const styles = `
@@ -308,6 +309,12 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
       
       if (response.success) {
         console.log('Prompt created:', response.data)
+        // 追踪提示词创建事件
+        trackPromptAction('create', (response.data as any)?.id, {
+          visibility: formData.visibility,
+          has_tags: formData.tags.length > 0,
+          has_images: (formData.imageUrls?.filter(url => url.trim() !== '') || []).length > 0,
+        })
         // 创建成功后重新获取第一页数据和统计数据
         setPagination(prev => ({ ...prev, page: 1 }))
         fetchPrompts()
@@ -351,6 +358,12 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
       const response = await api.updatePrompt(updateData, paramsLang)
       
       if (response.success) {
+        // 追踪提示词编辑事件
+        trackPromptAction('edit', editingPrompt.id, {
+          visibility: formData.visibility,
+          has_tags: formData.tags.length > 0,
+          has_images: (formData.imageUrls?.filter(url => url.trim() !== '') || []).length > 0,
+        })
         // 更新成功后重新获取当前页数据和统计数据
         fetchPrompts()
         fetchStats()
@@ -376,6 +389,8 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
       const response = await api.deletePrompt({ id: promptId }, paramsLang)
       
       if (response.success) {
+        // 追踪提示词删除事件
+        trackPromptAction('delete', promptId)
         // 删除成功后重新获取当前页数据和统计数据
         fetchPrompts()
         fetchStats()

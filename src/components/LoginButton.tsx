@@ -7,6 +7,7 @@ import { useAuthStore } from '@promptmanager/core-logic'
 import { useTranslation } from '../i18n/client'
 import { usePathname } from 'next/navigation';
 import { getTruePathFromPathname } from '../lib/utils';
+import { trackAuth } from '../lib/umami';
 
 export default function LoginButton({ lng,  textClassName }: { lng: string,  textClassName?: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -48,6 +49,8 @@ export default function LoginButton({ lng,  textClassName }: { lng: string,  tex
   const handleLogout = async () => {
     // 登出处理
     try {
+      // 追踪登出事件
+      trackAuth('logout')
       await signOut();
       // 清理 useAuthStore 状态
       logout();

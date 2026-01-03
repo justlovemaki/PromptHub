@@ -492,15 +492,30 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {
                     key: 'author',
                     title: tAdminPrompt('table.author') || '作者',
-                    width: '10%',
+                    width: '8%',
                     render: (value: string) => (
                       <span className="text-sm text-text-200">{value || '-'}</span>
                     )
                   },
                   {
+                    key: 'creatorName',
+                    title: tAdminPrompt('table.creatorName') || '创建用户',
+                    width: '10%',
+                    render: (value: string, record: any) => (
+                      <div className="space-y-0.5">
+                        <span className="text-sm text-text-200 block">{value || '-'}</span>
+                        {record.creatorEmail && (
+                          <span className="text-xs text-text-300 block truncate" title={record.creatorEmail}>
+                            {record.creatorEmail}
+                          </span>
+                        )}
+                      </div>
+                    )
+                  },
+                  {
                     key: 'tags',
                     title: tAdminPrompt('table.tags'),
-                    width: '12%',
+                    width: '10%',
                     render: (value: string[], record: Prompt) => {
                       const tagsToDisplay = (value || []).map(getName).slice(0, 3)
                       const remainingCount = (value?.length || 0) - 3
