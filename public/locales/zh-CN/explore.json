@@ -62,6 +62,12 @@
   "noImage": "暂无图片",
   "totalPrompts": "共",
   "totalPromptsUnit": "个提示词",
+  "pagination": {
+    "firstPage": "首页",
+    "lastPage": "尾页",
+    "goToPage": "跳转",
+    "pageInputPlaceholder": "页码"
+  },
   "backToExplore": "返回探索",
   "useCount": "使用次数",
   "images": "张图片",

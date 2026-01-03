@@ -1,0 +1,11 @@
+{
+  "searchPlaceholder": "Search prompts...",
+  "noPromptsFound": "No matching prompts found.",
+  "noPromptsYet": "No prompts with images yet.",
+  "viewImages": "View Images",
+  "description": "Description",
+  "copied": "Copied",
+  "copyPrompt": "Copy Prompt",
+  "totalPrompts": "Total",
+  "totalPromptsUnit": "prompts"
+}

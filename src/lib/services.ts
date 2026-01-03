@@ -326,6 +326,85 @@ export class PromptService {
       totalPages: getAll ? 1 : Math.ceil(total / limit)
     };
   }
+
+  static async getPublicPromptsWithImages(options?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: typeof SORT_FIELDS.PROMPTS[number];
+    sortOrder?: typeof SORT_ORDERS[number];
+  }) {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      sortBy = SORT_FIELDS.PROMPTS[2], // 'updatedAt'
+      sortOrder = SORT_ORDERS[1], // 'desc'
+    } = options || {};
+
+    const conditions = [
+      eq(prompt.isPublic, true),
+      eq(prompt.isApproved, true),
+      like(prompt.tags, '%imageGeneration%')
+    ];
+
+    if (search) {
+      conditions.push(
+        or(
+          like(prompt.title, `%${search}%`),
+          like(prompt.description, `%${search}%`),
+          like(prompt.tags, `%${search}%`),
+          like(prompt.author, `%${search}%`)
+        )!
+      );
+    }
+
+    const orderByField = prompt[sortBy as typeof SORT_FIELDS.PROMPTS[number]];
+    const orderByCondition = sortOrder === SORT_ORDERS[0] ? asc(orderByField) : desc(orderByField);
+    
+    // Default secondary sort by updatedAt desc
+    const secondaryOrderBy = sortBy !== SORT_FIELDS.PROMPTS[2] ? desc(prompt.updatedAt) : undefined;
+    const orderByArray = secondaryOrderBy ? [orderByCondition, secondaryOrderBy] : [orderByCondition];
+
+    const offset = (page - 1) * limit;
+
+    const prompts = await db.query.prompt.findMany({
+      where: and(...conditions),
+      orderBy: orderByArray,
+      limit,
+      offset,
+    });
+
+    // Parse JSON fields
+    const parsedPrompts = prompts.map(p => {
+      const parsed = { ...p };
+      if (parsed.tags) {
+        try {
+          parsed.tags = JSON.parse(parsed.tags);
+        } catch (e) {
+          parsed.tags = [];
+        }
+      }
+      if (parsed.imageUrls) {
+        try {
+          parsed.imageUrls = JSON.parse(parsed.imageUrls);
+        } catch (e) {
+          parsed.imageUrls = [];
+        }
+      }
+      return parsed;
+    });
+
+    const total = await db.$count(prompt, and(...conditions));
+
+    return {
+      prompts: parsedPrompts,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
   
   static async updatePrompt(promptId: string, updates: {
     title?: string;

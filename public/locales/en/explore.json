@@ -62,6 +62,12 @@
   "noImage": "No Image",
   "totalPrompts": "Total",
   "totalPromptsUnit": "prompt(s)",
+  "pagination": {
+    "firstPage": "First",
+    "lastPage": "Last",
+    "goToPage": "Go",
+    "pageInputPlaceholder": "Page"
+  },
   "backToExplore": "Back to Explore",
   "useCount": "Usage Count",
   "images": "image(s)",

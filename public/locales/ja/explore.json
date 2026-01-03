@@ -62,6 +62,12 @@
   "noImage": "画像なし",
   "totalPrompts": "合計",
   "totalPromptsUnit": "件のプロンプト",
+  "pagination": {
+    "firstPage": "最初",
+    "lastPage": "最後",
+    "goToPage": "移動",
+    "pageInputPlaceholder": "ページ"
+  },
   "backToExplore": "探索に戻る",
   "useCount": "使用回数",
   "images": "枚の画像",

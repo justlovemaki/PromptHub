@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, use, useCallback } from 'react'
-import { Sparkles, Search, Copy, Check, Globe, X, LayoutGrid, List, Heart, ChevronLeft, ChevronRight, Filter } from 'lucide-react'
+import { Sparkles, Search, Copy, Check, Globe, X, LayoutGrid, List, Heart, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/i18n/client'
 import { useTags } from '@/hooks/useTags'
@@ -63,6 +63,7 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
     totalPages: 0
   })
   const [isSortOpen, setIsSortOpen] = useState(false)
+  const [pageInput, setPageInput] = useState('')
 
   // 格式化时间到分钟
   const formatDateTime = (dateString: string) => {
@@ -651,29 +652,87 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex items-center justify-center gap-4 mt-12 mb-8"
+                className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-12 mb-8"
               >
+                {/* 首页按钮 */}
+                <button
+                  onClick={() => setPagination(prev => ({ ...prev, page: 1 }))}
+                  disabled={pagination.page === 1}
+                  className="p-2.5 sm:p-3 bg-white/40 backdrop-blur-md text-[var(--text-100)] rounded-xl sm:rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-100)] hover:text-white transition-all shadow-md active:scale-95 group"
+                  title={t('pagination.firstPage')}
+                >
+                  <ChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
+                </button>
+
+                {/* 上一页按钮 */}
                 <button
                   onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
                   disabled={pagination.page === 1}
-                  className="p-3 bg-white/40 backdrop-blur-md text-[var(--text-100)] rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-100)] hover:text-white transition-all shadow-md active:scale-95 group"
+                  className="p-2.5 sm:p-3 bg-white/40 backdrop-blur-md text-[var(--text-100)] rounded-xl sm:rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-100)] hover:text-white transition-all shadow-md active:scale-95 group"
                 >
-                  <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
                 </button>
                 
-                <div className="px-6 py-2.5 bg-white/40 backdrop-blur-md rounded-2xl shadow-inner border border-white/20">
-                  <span className="text-sm font-bold text-[var(--text-100)]">
+                {/* 页码显示 */}
+                <div className="px-4 sm:px-6 py-2 sm:py-2.5 bg-white/40 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-inner border border-white/20">
+                  <span className="text-xs sm:text-sm font-bold text-[var(--text-100)]">
                     {pagination.page} <span className="text-[var(--text-300)] font-medium mx-1">/</span> {pagination.totalPages}
                   </span>
                 </div>
 
+                {/* 下一页按钮 */}
                 <button
                   onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
                   disabled={pagination.page === pagination.totalPages}
-                  className="p-3 bg-white/40 backdrop-blur-md text-[var(--text-100)] rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-100)] hover:text-white transition-all shadow-md active:scale-95 group"
+                  className="p-2.5 sm:p-3 bg-white/40 backdrop-blur-md text-[var(--text-100)] rounded-xl sm:rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-100)] hover:text-white transition-all shadow-md active:scale-95 group"
                 >
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
+
+                {/* 尾页按钮 */}
+                <button
+                  onClick={() => setPagination(prev => ({ ...prev, page: prev.totalPages }))}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="p-2.5 sm:p-3 bg-white/40 backdrop-blur-md text-[var(--text-100)] rounded-xl sm:rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-100)] hover:text-white transition-all shadow-md active:scale-95 group"
+                  title={t('pagination.lastPage')}
+                >
+                  <ChevronsRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
+                {/* 页码输入框 */}
+                <div className="flex items-center gap-2 ml-2 sm:ml-4">
+                  <input
+                    type="number"
+                    min={1}
+                    max={pagination.totalPages}
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const page = parseInt(pageInput)
+                        if (page >= 1 && page <= pagination.totalPages) {
+                          setPagination(prev => ({ ...prev, page }))
+                          setPageInput('')
+                        }
+                      }
+                    }}
+                    placeholder={t('pagination.pageInputPlaceholder')}
+                    className="w-14 sm:w-16 px-2 sm:px-3 py-2 sm:py-2.5 bg-white/40 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl text-center text-xs sm:text-sm font-medium text-[var(--text-100)] placeholder-[var(--text-300)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-100)]/50 focus:border-[var(--primary-100)]/50 transition-all shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    onClick={() => {
+                      const page = parseInt(pageInput)
+                      if (page >= 1 && page <= pagination.totalPages) {
+                        setPagination(prev => ({ ...prev, page }))
+                        setPageInput('')
+                      }
+                    }}
+                    disabled={!pageInput || parseInt(pageInput) < 1 || parseInt(pageInput) > pagination.totalPages}
+                    className="px-3 sm:px-4 py-2 sm:py-2.5 bg-[var(--primary-100)] text-white text-xs sm:text-sm font-bold rounded-xl sm:rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary-200)] transition-all shadow-md active:scale-95"
+                  >
+                    {t('pagination.goToPage')}
+                  </button>
+                </div>
               </motion.div>
             )}
           </>

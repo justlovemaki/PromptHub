@@ -1,0 +1,11 @@
+{
+  "searchPlaceholder": "プロンプトを検索...",
+  "noPromptsFound": "一致するプロンプトが見つかりませんでした。",
+  "noPromptsYet": "画像付きのプロンプトはまだありません。",
+  "viewImages": "画像を表示",
+  "description": "説明",
+  "copied": "コピーしました",
+  "copyPrompt": "プロンプトをコピー",
+  "totalPrompts": "合計",
+  "totalPromptsUnit": "件のプロンプト"
+}
