@@ -5,6 +5,7 @@ import { eq, desc, asc, like, or, and, sql } from 'drizzle-orm';
 import { successResponse, errorResponse, HTTP_STATUS, getLanguageFromNextRequest } from '@/lib/utils';
 import { getTranslation } from '@/i18n';
 import { SORT_FIELDS, SORT_ORDERS, PromptSortField, SortOrder } from '@/lib/constants';
+import { encryptData } from '@/lib/crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     // 获取查询参数
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '12', 10);
+    const limit = parseInt('20', 10);
     const search = searchParams.get('search') || undefined;
     const tag = searchParams.get('tag') || undefined;
     const sortBy = searchParams.get('sortBy') || 'updatedAt';
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     // Drizzle ORM 会自动处理布尔值与数据库整数的转换
     const conditions = [
       eq(prompt.isPublic, true),
-      eq(prompt.isApproved, true)  // 只显示已审核的提示词
+      eq(prompt.approvalStatus, "APPROVED")  // 只显示已审核的提示词
     ];
     
     // 添加搜索条件
@@ -95,8 +96,16 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / validatedLimit)
     };
 
+    // 加密数据以防止爬虫直接获取
+    const encryptedData = encryptData(responseData);
+
     return NextResponse.json(
-      successResponse(responseData, t('success.promptsRetrieved')),
+      {
+        success: true,
+        encrypted: true,
+        data: encryptedData,
+        message: t('success.promptsRetrieved')
+      },
       { status: HTTP_STATUS.OK }
     );
     

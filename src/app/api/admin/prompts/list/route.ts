@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc'
     const spaceId = searchParams.get('spaceId') || undefined
     const isPublic = searchParams.get('isPublic')
-    const isApproved = searchParams.get('isApproved')
+    const approvalStatus = searchParams.get('approvalStatus')
 
     // 验证分页参数
     const validatedPage = Math.max(1, page)
@@ -46,17 +46,17 @@ export async function GET(request: NextRequest) {
 
     // 处理isPublic参数
     const isPublicBool = isPublic === 'true' ? true : isPublic === 'false' ? false : undefined
-    // 处理isApproved参数
-    const isApprovedBool = isApproved === 'true' ? true : isApproved === 'false' ? false : undefined
+    // 处理approvalStatus参数 - 支持 PENDING, APPROVED, REJECTED
+    const validApprovalStatus = approvalStatus && ['PENDING', 'APPROVED', 'REJECTED'].includes(approvalStatus) ? approvalStatus : undefined
 
     // 构建where条件
     let whereCondition
     const searchCondition = search ? sql`(${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`})` : null
     const publicCondition = isPublicBool !== undefined ? sql`${prompt.isPublic} = ${isPublicBool}` : null
-    const approvedCondition = isApprovedBool !== undefined ? sql`${prompt.isApproved} = ${isApprovedBool}` : null
+    const approvalCondition = validApprovalStatus ? sql`${prompt.approvalStatus} = ${validApprovalStatus}` : null
     
     // 组合条件
-    const conditions = [searchCondition, publicCondition, approvedCondition].filter(Boolean)
+    const conditions = [searchCondition, publicCondition, approvalCondition].filter(Boolean)
     if (conditions.length > 0) {
       whereCondition = conditions.length === 1
         ? conditions[0]
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         imageUrls: prompt.imageUrls,
         author: prompt.author,
         isPublic: prompt.isPublic,
-        isApproved: prompt.isApproved,
+        approvalStatus: prompt.approvalStatus,
         useCount: prompt.useCount,
         spaceId: prompt.spaceId,
         createdBy: prompt.createdBy,
@@ -109,20 +109,10 @@ export async function GET(request: NextRequest) {
       .limit(validatedLimit)
       .offset(offset)
 
-    // 获取总数
-    let totalQuery
-    if (search && isPublicBool !== undefined) {
-      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
-        .where(sql`(${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}) AND ${prompt.isPublic} = ${isPublicBool}`)
-    } else if (search) {
-      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
-        .where(sql`${prompt.title} LIKE ${`%${search}%`} OR ${prompt.content} LIKE ${`%${search}%`} OR ${prompt.description} LIKE ${`%${search}%`} OR ${prompt.author} LIKE ${`%${search}%`}`)
-    } else if (isPublicBool !== undefined) {
-      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
-        .where(sql`${prompt.isPublic} = ${isPublicBool}`)
-    } else {
-      totalQuery = db.select({ count: sql<number>`count(*)` }).from(prompt)
-    }
+    // 获取总数 - 使用与列表查询相同的条件
+    const totalQuery = whereCondition
+      ? db.select({ count: sql<number>`count(*)` }).from(prompt).where(whereCondition)
+      : db.select({ count: sql<number>`count(*)` }).from(prompt)
     const totalPrompts = await totalQuery
     const total = totalPrompts[0].count
 
@@ -130,6 +120,7 @@ export async function GET(request: NextRequest) {
     const processedPrompts = promptsWithUser.map(p => ({
       ...p,
       tags: p.tags ? JSON.parse(p.tags) : [],
+      imageUrls: p.imageUrls ? JSON.parse(p.imageUrls) : [],
     }))
 
     const totalPages = Math.ceil(total / validatedLimit)

@@ -84,9 +84,9 @@ export async function POST(request: NextRequest) {
 
     // 如果设置为未公开，自动将审核状态设置为待审核
     // 这样当提示词重新公开时，需要重新审核
-    const updateData: typeof data & { isApproved?: boolean } = { ...data };
+    const updateData: typeof data & { approvalStatus?: string } = { ...data };
     if (data.isPublic === false) {
-      updateData.isApproved = false;
+      updateData.approvalStatus = "PENDING";
     }
  
     // 验证提示词所有权

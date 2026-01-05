@@ -125,7 +125,8 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "notUpdated": "Not updated",
-    "noTags": "No tags"
+    "noTags": "No tags",
+    "hasResources": "Contains resources"
   },
   "visibility": {
     "public": "Public",
@@ -138,10 +139,13 @@
     "all": "All",
     "pending": "Pending",
     "approved": "Approved",
+    "rejected": "Rejected",
     "confirmApproveTitle": "Confirm Approval",
-    "confirmUnapproveTitle": "Confirm Unapproval",
+    "confirmRejectTitle": "Confirm Rejection",
+    "confirmResetTitle": "Confirm Reset to Pending",
     "confirmApproveMessage": "Are you sure you want to approve the prompt \"{{title}}\"? Once approved, it will be publicly displayed in the Prompt Plaza.",
-    "confirmUnapproveMessage": "Are you sure you want to unapprove the prompt \"{{title}}\"? Once unapproved, it will no longer be displayed in the Prompt Plaza.",
+    "confirmRejectMessage": "Are you sure you want to reject the prompt \"{{title}}\"? Once rejected, it will not be displayed in the Prompt Plaza.",
+    "confirmResetMessage": "Are you sure you want to reset the prompt \"{{title}}\" to pending status?",
     "cancel": "Cancel"
   },
   "buttons": {
@@ -152,7 +156,8 @@
     "save": "Save Changes",
     "saving": "Saving...",
     "approve": "Approve",
-    "unapprove": "Unapprove"
+    "reject": "Reject",
+    "resetToPending": "Reset to Pending"
   },
   "labels": {
     "title": "Title",

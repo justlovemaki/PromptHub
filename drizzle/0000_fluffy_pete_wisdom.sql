@@ -64,7 +64,7 @@ CREATE TABLE `prompt` (
 	`image_urls` text DEFAULT '[]',
 	`author` text DEFAULT '',
 	`is_public` integer DEFAULT false,
-	`is_approved` integer DEFAULT false,
+	`approval_status` text DEFAULT 'PENDING' NOT NULL,
 	`use_count` integer DEFAULT 0,
 	`space_id` text NOT NULL,
 	`created_by` text NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE `prompt` (
 --> statement-breakpoint
 CREATE INDEX `prompt_space_id_idx` ON `prompt` (`space_id`);--> statement-breakpoint
 CREATE INDEX `prompt_created_by_idx` ON `prompt` (`created_by`);--> statement-breakpoint
-CREATE INDEX `prompt_is_approved_idx` ON `prompt` (`is_approved`);--> statement-breakpoint
+CREATE INDEX `prompt_approval_status_idx` ON `prompt` (`approval_status`);--> statement-breakpoint
 CREATE TABLE `prompt_favorite` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,

@@ -477,7 +477,7 @@ if (requireAuth) {
     sortOrder?: 'asc' | 'desc';
     spaceId?: string;
     isPublic?: boolean;
-    isApproved?: boolean;
+    approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   }, lang?: string): Promise<ApiResponse<PromptListResponse>> {
     const params = new URLSearchParams();
 
@@ -501,8 +501,8 @@ if (requireAuth) {
 
   // ============== Prompt Approval Related APIs ==============
   
-  async approvePrompt(id: string, isApproved: boolean, lang?: string): Promise<ApiResponse<{ prompt: Prompt }>> {
-    return this.post<{ prompt: Prompt }>('/api/admin/prompts/approve', { id, isApproved }, true, lang);
+  async approvePrompt(id: string, approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED', lang?: string): Promise<ApiResponse<{ prompt: Prompt }>> {
+    return this.post<{ prompt: Prompt }>('/api/admin/prompts/approve', { id, approvalStatus }, true, lang);
   }
 
   // ============== System Log Related APIs ==============
@@ -720,8 +720,8 @@ export const api = {
     const endpoint = queryString ? `/api/admin/prompts/popular?${queryString}` : '/api/admin/prompts/popular';
     return getApiClient().get<PopularPromptsResponse>(endpoint, true, lang);
   },
-  getAdminPrompts: (query?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; spaceId?: string; isPublic?: boolean; isApproved?: boolean; }, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/admin/prompts/list', query), true, lang),
-  approvePrompt: (id: string, isApproved: boolean, lang?: string) => getApiClient().approvePrompt(id, isApproved, lang),
+  getAdminPrompts: (query?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; spaceId?: string; isPublic?: boolean; approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED'; }, lang?: string) => getApiClient().get<PromptListResponse>(createUrlWithQuery('/api/admin/prompts/list', query), true, lang),
+  approvePrompt: (id: string, approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED', lang?: string) => getApiClient().approvePrompt(id, approvalStatus, lang),
   getSystemLogs: (query?: SystemLogListQuery, lang?: string) => getApiClient().get<SystemLogListResponse>(createUrlWithQuery('/api/admin/logs/list', query), true, lang),
   
   // Billing

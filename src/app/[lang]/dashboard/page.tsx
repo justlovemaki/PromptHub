@@ -468,7 +468,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
           <div className="font-medium text-text-100 flex items-center gap-2">
             {record.title}
             {Array.isArray((record as any).imageUrls) && (record as any).imageUrls.filter((url: string) => url && url.trim()).length > 0 && (
-              <span className="inline-flex items-center px-2 py-0.5 text-xs bg-purple-100 text-purple-600 rounded" title="包含图片">
+              <span className="inline-flex items-center px-2 py-0.5 text-xs bg-purple-100 text-purple-600 rounded" title={tDashboard('hasImages')}>
                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -498,15 +498,20 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
       key: 'isPublic',
       title: tDashboard('table.visibility'),
       width: 80,
-      render: (prompt: boolean) => (
-        <span className={`px-2 py-1 text-xs rounded-full ${
-          prompt
-            ? 'bg-success-400 text-success-500'
-            : 'bg-primary-300 text-primary-100'
-        }`}>
-          {prompt ? tDashboard('public') : tDashboard('private')}
-        </span>
-      )
+      render: (isPublic: boolean, record: Prompt) => {
+        const isVisible = isPublic && (record as any).approvalStatus === 'APPROVED';
+        return (
+          <span className={`px-2 py-1 text-xs rounded-full ${
+            isVisible
+              ? 'bg-success-400 text-success-500'
+              : isPublic
+                ? 'bg-warning-400 text-warning-500'
+                : 'bg-primary-300 text-primary-100'
+          }`}>
+            {isVisible ? tDashboard('visible') : isPublic ? tDashboard('public') : tDashboard('private')}
+          </span>
+        )
+      }
     },
     {
       key: 'author',
@@ -690,11 +695,14 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
                 {recentPrompts.length > 0 ? (
                   recentPrompts.map((prompt) => {
                     // 获取可见性标签样式和文本
+                    const isVisible = prompt.isPublic && (prompt as any).approvalStatus === 'APPROVED';
                     const visibilityBadge = {
-                      className: prompt.isPublic
+                      className: isVisible
                         ? 'text-xs bg-success-400 text-success-500 px-2 py-1 rounded'
-                        : 'text-xs bg-primary-300 text-primary-100 px-2 py-1 rounded',
-                      text: prompt.isPublic ? tDashboard('public') : tDashboard('private')
+                        : prompt.isPublic
+                          ? 'text-xs bg-warning-400 text-warning-500 px-2 py-1 rounded'
+                          : 'text-xs bg-primary-300 text-primary-100 px-2 py-1 rounded',
+                      text: isVisible ? tDashboard('visible') : prompt.isPublic ? tDashboard('public') : tDashboard('private')
                     }
 
                     return (
@@ -705,7 +713,7 @@ export default function PromptsManagementPage({ params }: { params: Promise<{ la
                               {prompt.title}
                             </h3>
                             {Array.isArray((prompt as any).imageUrls) && (prompt as any).imageUrls.filter((url: string) => url && url.trim()).length > 0 && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 text-xs bg-purple-100 text-purple-600 rounded flex-shrink-0" title="包含图片">
+                              <span className="inline-flex items-center px-1.5 py-0.5 text-xs bg-purple-100 text-purple-600 rounded flex-shrink-0" title={tDashboard('hasImages')}>
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>

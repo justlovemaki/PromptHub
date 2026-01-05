@@ -21,7 +21,9 @@
   "close": "关闭",
   "noDescription": "暂无描述",
   "hasImages": "包含图片",
+  "hasVideos": "包含视频",
   "imagesCount": "{{count}} 张图片",
+  "videosCount": "{{count}} 个视频",
   "filterByTag": "按标签筛选",
   "clearFilter": "清除筛选",
   "allTags": "全部标签",
@@ -60,6 +62,7 @@
     "image": "图片模式"
   },
   "noImage": "暂无图片",
+  "noVideo": "暂无视频",
   "totalPrompts": "共",
   "totalPromptsUnit": "个提示词",
   "pagination": {

@@ -23,6 +23,7 @@ interface PromptFormData {
   content: string
   description: string
   tags: string[]
+  imageUrls: string[]
   author: string
   visibility: PromptVisibility
 }
@@ -35,7 +36,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   // 状态管理
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
-  const [approvalFilter, setApprovalFilter] = useState('all') // 审核状态筛选
+  const [approvalFilter, setApprovalFilter] = useState<'all' | 'PENDING' | 'APPROVED' | 'REJECTED'>('all') // 审核状态筛选
   const [sortBy, setSortBy] = useState('updatedAt')
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
 
@@ -61,6 +62,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
     content: '',
     description: '',
     tags: [],
+    imageUrls: [],
     author: '',
     visibility: PROMPT_VISIBILITY.PRIVATE
   })
@@ -69,7 +71,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   
   // 审核确认弹窗状态
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
-  const [pendingApproval, setPendingApproval] = useState<{ promptId: string; promptTitle: string; isApproved: boolean } | null>(null)
+  const [pendingApproval, setPendingApproval] = useState<{ promptId: string; promptTitle: string; approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED' } | null>(null)
 
   // 设置语言属性
   useEffect(() => {
@@ -77,19 +79,26 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   }, [lang, setLanguage]);
 
   // 获取提示词列表
-  const fetchPrompts = async (page = currentPage, search = searchQuery, sort = sortBy, order = sortOrder) => {
+  const fetchPrompts = async (
+    page = currentPage,
+    search = searchQuery,
+    sort = sortBy,
+    order = sortOrder,
+    filter = filterStatus,
+    approval = approvalFilter
+  ) => {
     try {
       setLoading(true)
       setError(null)
 
-      // 当选择"待审核"或"已审核"时，自动添加 isPublic: true 条件
+      // 当选择审核状态筛选时，自动添加 isPublic: true 条件
       // 因为审核状态只对公开的提示词有意义
       let isPublicParam: boolean | undefined = undefined
-      if (approvalFilter === 'pending' || approvalFilter === 'approved') {
+      if (approval !== 'all') {
         isPublicParam = true // 审核筛选时强制只查公开提示词
-      } else if (filterStatus === 'public') {
+      } else if (filter === 'public') {
         isPublicParam = true
-      } else if (filterStatus === 'private') {
+      } else if (filter === 'private') {
         isPublicParam = false
       }
 
@@ -100,7 +109,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         sortBy: sort || 'updatedAt',
         sortOrder: order || 'desc',
         isPublic: isPublicParam,
-        isApproved: approvalFilter === 'approved' ? true : approvalFilter === 'pending' ? false : undefined
+        approvalStatus: approval !== 'all' ? approval : undefined
       }, lang)
 
       if (response.success) {
@@ -127,23 +136,21 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
   useEffect(() => {
     if (!isLoading) {
       const debounceTimer = setTimeout(() => {
-        if (currentPage !== 1) {
-          setCurrentPage(1) // 重置到第一页
-        } else {
-          fetchPrompts(1, searchQuery, sortBy, sortOrder) // 立即获取数据
-        }
+        // 总是重置到第一页并获取数据
+        setCurrentPage(1)
+        fetchPrompts(1, searchQuery, sortBy, sortOrder, filterStatus, approvalFilter)
       }, searchQuery ? 300 : 0) // 有搜索词时延迟300ms
 
       return () => clearTimeout(debounceTimer)
     }
   }, [searchQuery, filterStatus, approvalFilter, sortBy, sortOrder])
 
-  // 页码变化时获取数据
-  // useEffect(() => {
-  //   if (!isLoading && currentPage > 0) {
-  //     fetchPrompts()
-  //   }
-  // }, [isLoading, currentPage])
+  // 页码变化时获取数据（仅当页码不是由上面的 useEffect 触发时）
+  useEffect(() => {
+    if (!isLoading && currentPage > 1) {
+      fetchPrompts(currentPage, searchQuery, sortBy, sortOrder, filterStatus, approvalFilter)
+    }
+  }, [currentPage])
 
   // 处理搜索变化
   const handleSearchChange = (value: string) => {
@@ -167,12 +174,12 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
 
   // 处理审核状态筛选变化
   const handleApprovalFilterChange = (value: string) => {
-    setApprovalFilter(value)
+    setApprovalFilter(value as 'all' | 'PENDING' | 'APPROVED' | 'REJECTED')
   }
 
   // 打开审核确认弹窗
-  const openApprovalModal = (promptId: string, promptTitle: string, isApproved: boolean) => {
-    setPendingApproval({ promptId, promptTitle, isApproved })
+  const openApprovalModal = (promptId: string, promptTitle: string, approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED') => {
+    setPendingApproval({ promptId, promptTitle, approvalStatus })
     setApprovalModalOpen(true)
   }
 
@@ -190,7 +197,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       setOperationLoading(true)
       setError(null)
 
-      const response = await api.approvePrompt(pendingApproval.promptId, pendingApproval.isApproved, lang)
+      const response = await api.approvePrompt(pendingApproval.promptId, pendingApproval.approvalStatus, lang)
       if (response.success) {
         closeApprovalModal()
         await fetchPrompts()
@@ -217,6 +224,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       content: prompt.content || '',
       description: prompt.description || '',
       tags: prompt.tags || [],
+      imageUrls: (prompt as any).imageUrls || [],
       author: (prompt as any).author || '',
       visibility: prompt.isPublic ? PROMPT_VISIBILITY.PUBLIC : PROMPT_VISIBILITY.PRIVATE
     })
@@ -267,6 +275,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
+        imageUrls: formData.imageUrls?.filter(url => url.trim() !== '') || undefined,
         author: formData.author,
         isPublic: formData.visibility === 'public',
         spaceId: 'admin'
@@ -298,6 +307,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
       content: '',
       description: '',
       tags: [],
+      imageUrls: [],
       author: '',
       visibility: PROMPT_VISIBILITY.PRIVATE
     })
@@ -324,6 +334,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
         content: formData.content,
         description: formData.description || undefined,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
+        imageUrls: formData.imageUrls?.filter(url => url.trim() !== '') || undefined,
         author: formData.author,
         isPublic: formData.visibility === 'public'
       }, lang)
@@ -424,8 +435,9 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
             <div className="flex gap-2">
               {[
                 { value: 'all', label: tAdminPrompt('approval.all') || '全部' },
-                { value: 'pending', label: tAdminPrompt('approval.pending') || '待审核' },
-                { value: 'approved', label: tAdminPrompt('approval.approved') || '已审核' }
+                { value: 'PENDING', label: tAdminPrompt('approval.pending') || '待审核' },
+                { value: 'APPROVED', label: tAdminPrompt('approval.approved') || '已通过' },
+                { value: 'REJECTED', label: tAdminPrompt('approval.rejected') || '已拒绝' }
               ].map((option) => (
                 <button
                   key={option.value}
@@ -452,7 +464,7 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
               </div>
             ) : prompts.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-text-300">{tAdminPrompt('noPrompts')}</div>
+                <div className="text-text-300">{tAdminPrompt('messages.noPrompts')}</div>
               </div>
             ) : (
               <DataTable
@@ -466,21 +478,39 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-text-100">{value}</span>
+                          {Array.isArray((record as any).imageUrls) && (record as any).imageUrls.filter((url: string) => url && url.trim()).length > 0 && (
+                            <span className="inline-flex items-center px-2 py-0.5 text-xs bg-purple-100 text-purple-600 rounded" title={tAdminPrompt('table.hasResources')}>
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              {(record as any).imageUrls.filter((url: string) => url && url.trim()).length}
+                            </span>
+                          )}
                           <div className="flex gap-1">
                             {record.isPublic && (
                               <span className="px-2 py-0.5 text-xs bg-primary-300 text-primary-100 rounded-full">
                                 {tAdminPrompt('visibility.public')}
                               </span>
                             )}
-                            {(record as any).isApproved ? (
-                              <span className="px-2 py-0.5 text-xs bg-success-300 text-success-500 rounded-full">
-                                {tAdminPrompt('approval.approved') || '已审核'}
-                              </span>
-                            ) : record.isPublic ? (
-                              <span className="px-2 py-0.5 text-xs bg-warning-300 text-warning-500 rounded-full">
-                                {tAdminPrompt('approval.pending') || '待审核'}
-                              </span>
-                            ) : null}
+                            {record.isPublic && (
+                              <>
+                                {(record as any).approvalStatus === 'APPROVED' && (
+                                  <span className="px-2 py-0.5 text-xs bg-success-300 text-success-500 rounded-full">
+                                    {tAdminPrompt('approval.approved') || '已通过'}
+                                  </span>
+                                )}
+                                {(record as any).approvalStatus === 'PENDING' && (
+                                  <span className="px-2 py-0.5 text-xs bg-warning-300 text-warning-500 rounded-full">
+                                    {tAdminPrompt('approval.pending') || '待审核'}
+                                  </span>
+                                )}
+                                {(record as any).approvalStatus === 'REJECTED' && (
+                                  <span className="px-2 py-0.5 text-xs bg-error-300 text-error-500 rounded-full">
+                                    {tAdminPrompt('approval.rejected') || '已拒绝'}
+                                  </span>
+                                )}
+                              </>
+                            )}
                           </div>
                         </div>
                         {record.description && (
@@ -595,29 +625,47 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                       <div className="flex gap-1">
                         {/* 审核按钮 - 只对公开提示词显示 */}
                         {record.isPublic && (
-                          (record as any).isApproved ? (
-                            <button
-                              onClick={() => openApprovalModal(record.id, record.title, false)}
-                              disabled={operationLoading}
-                              className="p-1.5 rounded-md text-warning-500 hover:bg-warning-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title={tAdminPrompt('buttons.unapprove') || '取消审核'}
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                              </svg>
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => openApprovalModal(record.id, record.title, true)}
-                              disabled={operationLoading}
-                              className="p-1.5 rounded-md text-success-500 hover:bg-success-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title={tAdminPrompt('buttons.approve') || '审核通过'}
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </button>
-                          )
+                          <>
+                            {/* 审核通过按钮 */}
+                            {(record as any).approvalStatus !== 'APPROVED' && (
+                              <button
+                                onClick={() => openApprovalModal(record.id, record.title, 'APPROVED')}
+                                disabled={operationLoading}
+                                className="p-1.5 rounded-md text-success-500 hover:bg-success-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={tAdminPrompt('buttons.approve') || '审核通过'}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </button>
+                            )}
+                            {/* 审核拒绝按钮 */}
+                            {(record as any).approvalStatus !== 'REJECTED' && (
+                              <button
+                                onClick={() => openApprovalModal(record.id, record.title, 'REJECTED')}
+                                disabled={operationLoading}
+                                className="p-1.5 rounded-md text-error-500 hover:bg-error-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={tAdminPrompt('buttons.reject') || '审核拒绝'}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </button>
+                            )}
+                            {/* 重置为待审核按钮 */}
+                            {(record as any).approvalStatus !== 'PENDING' && (
+                              <button
+                                onClick={() => openApprovalModal(record.id, record.title, 'PENDING')}
+                                disabled={operationLoading}
+                                className="p-1.5 rounded-md text-warning-500 hover:bg-warning-300/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={tAdminPrompt('buttons.resetToPending') || '重置为待审核'}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                              </button>
+                            )}
+                          </>
                         )}
                         <button
                           onClick={() => handleEdit(record)}
@@ -665,17 +713,21 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
           <ModalContent className="sm:max-w-md">
             <ModalHeader>
               <ModalTitle>
-                {pendingApproval?.isApproved
+                {pendingApproval?.approvalStatus === 'APPROVED'
                   ? (tAdminPrompt('approval.confirmApproveTitle') || '确认审核通过')
-                  : (tAdminPrompt('approval.confirmUnapproveTitle') || '确认取消审核')
+                  : pendingApproval?.approvalStatus === 'REJECTED'
+                  ? (tAdminPrompt('approval.confirmRejectTitle') || '确认审核拒绝')
+                  : (tAdminPrompt('approval.confirmResetTitle') || '确认重置为待审核')
                 }
               </ModalTitle>
             </ModalHeader>
             <div className="p-6 pt-0">
               <p className="text-text-200 mb-4">
-                {pendingApproval?.isApproved
+                {pendingApproval?.approvalStatus === 'APPROVED'
                   ? (tAdminPrompt('approval.confirmApproveMessage', { title: pendingApproval?.promptTitle }) || `确定要审核通过提示词「${pendingApproval?.promptTitle}」吗？审核通过后，该提示词将在提示词广场公开显示。`)
-                  : (tAdminPrompt('approval.confirmUnapproveMessage', { title: pendingApproval?.promptTitle }) || `确定要取消审核提示词「${pendingApproval?.promptTitle}」吗？取消审核后，该提示词将不再在提示词广场显示。`)
+                  : pendingApproval?.approvalStatus === 'REJECTED'
+                  ? (tAdminPrompt('approval.confirmRejectMessage', { title: pendingApproval?.promptTitle }) || `确定要拒绝提示词「${pendingApproval?.promptTitle}」吗？拒绝后，该提示词将不会在提示词广场显示。`)
+                  : (tAdminPrompt('approval.confirmResetMessage', { title: pendingApproval?.promptTitle }) || `确定要将提示词「${pendingApproval?.promptTitle}」重置为待审核状态吗？`)
                 }
               </p>
               <div className="flex justify-end gap-3">
@@ -687,15 +739,17 @@ export default function AdminPromptsPage({ params }: AdminPromptsPageProps) {
                   {tAdminPrompt('approval.cancel') || '取消'}
                 </Button>
                 <Button
-                  variant={pendingApproval?.isApproved ? 'default' : 'destructive'}
+                  variant={pendingApproval?.approvalStatus === 'REJECTED' ? 'destructive' : 'default'}
                   onClick={confirmApproval}
                   disabled={operationLoading}
                 >
                   {operationLoading
                     ? (tCommon('processing') || '处理中...')
-                    : (pendingApproval?.isApproved
+                    : (pendingApproval?.approvalStatus === 'APPROVED'
                         ? (tAdminPrompt('buttons.approve') || '审核通过')
-                        : (tAdminPrompt('buttons.unapprove') || '取消审核')
+                        : pendingApproval?.approvalStatus === 'REJECTED'
+                        ? (tAdminPrompt('buttons.reject') || '审核拒绝')
+                        : (tAdminPrompt('buttons.resetToPending') || '重置为待审核')
                       )
                   }
                 </Button>

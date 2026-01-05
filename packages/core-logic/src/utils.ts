@@ -223,6 +223,15 @@ export const parseUrlParams = (search: string): Record<string, string> => {
   return result;
 };
 
+/**
+ * 判断 URL 是否为视频资源
+ */
+export const isVideo = (url: string | null | undefined): boolean => {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.quicktime'];
+  return videoExtensions.some(ext => url.toLowerCase().endsWith(ext)) || url.includes('video');
+};
+
 // ============== 复制到剪贴板 ==============
 
 export const copyToClipboard = async (text: string): Promise<boolean> => {

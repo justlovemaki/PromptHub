@@ -344,8 +344,10 @@ export class PromptService {
 
     const conditions = [
       eq(prompt.isPublic, true),
-      eq(prompt.isApproved, true),
-      like(prompt.tags, '%imageGeneration%')
+      eq(prompt.approvalStatus, "APPROVED"),
+      like(prompt.tags, '%imageGeneration%'),
+      // 确保 imageUrls 有值（不为空、不为 null、不为空数组 "[]"）
+      sql`${prompt.imageUrls} IS NOT NULL AND ${prompt.imageUrls} != '' AND ${prompt.imageUrls} != '[]'`
     ];
 
     if (search) {

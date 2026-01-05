@@ -1,16 +1,17 @@
 'use client'
 
-import { useState, useEffect, use, useRef } from 'react'
+import { useState, useEffect, use, useRef, useCallback } from 'react'
 import { Sparkles, Search, Copy, Check, Heart, X, ChevronLeft, ChevronRight, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/i18n/client'
 import { useSession } from '@/lib/auth-client'
-import { api } from '@promptmanager/core-logic'
+import { api, isVideo } from '@promptmanager/core-logic'
 import { usePathname } from 'next/navigation'
 import ParticlesBackground from '@/components/landing/ParticlesBackground'
 import TopNavbar from '@/components/layout/TopNavbar'
 import Footer from '@/components/layout/Footer'
 import { trackPromptAction, trackFavorite, trackSearch } from '@/lib/umami'
+import { decryptData, isEncryptedResponse } from '@/lib/crypto'
 
 interface Prompt {
   id: string
@@ -86,6 +87,8 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
   // Masonry layout state
   const [columns, setColumns] = useState<Prompt[][]>([])
   const containerRef = useRef<HTMLDivElement>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const isLoadingRef = useRef(false)
 
   // 格式化时间到分钟
   const formatDateTime = (dateString: string) => {
@@ -124,7 +127,13 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
       if (response.ok) {
         const result = await response.json()
         if (result.success) {
-          const data = result.data as PromptListResponse
+          // 处理加密响应
+          let data: PromptListResponse
+          if (isEncryptedResponse(result)) {
+            data = decryptData<PromptListResponse>(result.data)
+          } else {
+            data = result.data as PromptListResponse
+          }
           
           if (isLoadMore) {
             // 去重：使用 Map 确保每个 ID 只出现一次
@@ -190,22 +199,43 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
     return () => clearTimeout(debounceTimer)
   }, [searchQuery])
 
-  // Load more on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (loading || loadingMore || !pagination.hasMore) return
+  // 使用 useCallback 包装 fetchPrompts 以便在 Intersection Observer 中使用
+  const loadMore = useCallback(() => {
+    if (isLoadingRef.current || !pagination.hasMore) return
+    isLoadingRef.current = true
+    fetchPrompts(pagination.page + 1, true).finally(() => {
+      isLoadingRef.current = false
+    })
+  }, [pagination.page, pagination.hasMore, searchQuery])
 
-      if (
-        window.innerHeight + window.scrollY >= 
-        document.documentElement.scrollHeight - 200
-      ) {
-        fetchPrompts(pagination.page + 1, true)
+  // 使用 Intersection Observer 实现提前加载
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+        if (entry.isIntersecting && !loading && !loadingMore && pagination.hasMore) {
+          loadMore()
+        }
+      },
+      {
+        // rootMargin: 在视口底部之前 800px 就开始加载
+        // 这样用户在滚动时会提前触发加载，而不是等到完全滚动到底部
+        rootMargin: '0px 0px 800px 0px',
+        threshold: 0
       }
+    )
+
+    const currentRef = loadMoreRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
     }
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [loading, loadingMore, pagination.hasMore, pagination.page])
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [loading, loadingMore, pagination.hasMore, loadMore])
 
   // Check favorites
   useEffect(() => {
@@ -416,19 +446,37 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
                         <div className="relative">
                           {/* Placeholder with 3:2 aspect ratio */}
                           <div className="w-full pb-[66.67%] bg-[var(--bg-300)]/30" />
-                          <img
-                            src={firstImage}
-                            alt={prompt.title}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                            onLoad={(e) => {
-                              const img = e.target as HTMLImageElement;
-                              img.classList.remove('absolute', 'inset-0', 'h-full');
-                              img.classList.add('relative', 'h-auto');
-                              const placeholder = img.previousElementSibling as HTMLElement;
-                              if (placeholder) placeholder.style.display = 'none';
-                            }}
-                          />
+                          {isVideo(firstImage) ? (
+                            <video
+                              src={firstImage}
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              autoPlay
+                              muted
+                              loop
+                              playsInline
+                              onLoadedData={(e) => {
+                                const video = e.target as HTMLVideoElement;
+                                video.classList.remove('absolute', 'inset-0', 'h-full');
+                                video.classList.add('relative', 'h-auto');
+                                const placeholder = video.previousElementSibling as HTMLElement;
+                                if (placeholder) placeholder.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={firstImage}
+                              alt={prompt.title}
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                              onLoad={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.classList.remove('absolute', 'inset-0', 'h-full');
+                                img.classList.add('relative', 'h-auto');
+                                const placeholder = img.previousElementSibling as HTMLElement;
+                                if (placeholder) placeholder.style.display = 'none';
+                              }}
+                            />
+                          )}
                         </div>
                       ) : (
                         <div className="w-full aspect-[3/2] bg-[var(--bg-300)]/30 flex items-center justify-center">
@@ -450,8 +498,8 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--bg-400)]/10">
                         <div className="flex items-center gap-2">
                           {prompt.author && (
-                            <span className="text-xs font-medium text-[var(--text-300)] bg-[var(--primary-100)]/10 px-2 py-0.5 rounded-full text-[var(--primary-100)] flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary-100)]" />
+                            <span className="text-xs font-medium text-[var(--text-300)] bg-[var(--primary-100)]/10 px-2 py-0.5 rounded-full hover:text-[var(--primary-100)] flex items-center gap-1">
+                              @
                               {prompt.author}
                             </span>
                           )}
@@ -501,6 +549,11 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
           ))}
         </div>
 
+        {/* Load More Trigger - 用于 Intersection Observer 检测 */}
+        {pagination.hasMore && !loading && (
+          <div ref={loadMoreRef} className="h-4" aria-hidden="true" />
+        )}
+
         {/* Loading State */}
         {(loading || loadingMore) && (
           <div className="flex items-center justify-center py-12">
@@ -540,19 +593,35 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
               {/* Image Side (Left/Top) */}
               {selectedPrompt.imageUrls && selectedPrompt.imageUrls.length > 0 && (
                 <div className="w-full md:w-1/2 bg-black/5 relative min-h-[300px] md:min-h-full group">
-                  <img
-                    src={selectedPrompt.imageUrls[0]}
-                    alt={selectedPrompt.title}
-                    className="w-full h-full object-contain md:object-cover absolute inset-0 cursor-pointer"
-                    onClick={() => {
-                      setViewerImages(selectedPrompt.imageUrls!.filter(Boolean))
-                      setCurrentImageIndex(0)
-                      setShowImageViewer(true)
-                    }}
-                  />
+                  {isVideo(selectedPrompt.imageUrls[0]) ? (
+                    <video
+                      src={selectedPrompt.imageUrls[0]}
+                      className="w-full h-full object-contain md:object-cover absolute inset-0 cursor-pointer"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      onClick={() => {
+                        setViewerImages(selectedPrompt.imageUrls!.filter(Boolean))
+                        setCurrentImageIndex(0)
+                        setShowImageViewer(true)
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={selectedPrompt.imageUrls[0]}
+                      alt={selectedPrompt.title}
+                      className="w-full h-full object-contain md:object-cover absolute inset-0 cursor-pointer"
+                      onClick={() => {
+                        setViewerImages(selectedPrompt.imageUrls!.filter(Boolean))
+                        setCurrentImageIndex(0)
+                        setShowImageViewer(true)
+                      }}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                     <span className="px-4 py-2 bg-black/50 rounded-full text-white text-sm font-medium backdrop-blur-md">
-                      {t('viewImages')}
+                      {isVideo(selectedPrompt.imageUrls[0]) ? t('viewVideo') : t('viewImages')}
                     </span>
                   </div>
                 </div>
@@ -568,8 +637,8 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
                     </h2>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-300)]">
                       {selectedPrompt.author && (
-                        <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 rounded-full bg-[var(--primary-100)]" />
+                        <span className="flex items-center gap-1 text-[var(--primary-100)]">
+                          @
                           {selectedPrompt.author}
                         </span>
                       )}
@@ -691,12 +760,23 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
                 </>
               )}
 
-              <img
-                src={viewerImages[currentImageIndex]}
-                alt="Full size view"
-                className="max-w-full max-h-full object-contain"
-                onClick={(e) => e.stopPropagation()}
-              />
+              {isVideo(viewerImages[currentImageIndex]) ? (
+                <video
+                  src={viewerImages[currentImageIndex]}
+                  className="max-w-full max-h-full object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <img
+                  src={viewerImages[currentImageIndex]}
+                  alt="Full size view"
+                  className="max-w-full max-h-full object-contain"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              )}
               
               {viewerImages.length > 1 && (
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 text-white rounded-full text-sm">

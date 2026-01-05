@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 // 请求体验证 schema
 const approveSchema = z.object({
   id: z.string().min(1, 'Prompt ID is required'),
-  isApproved: z.boolean()
+  approvalStatus: z.enum(['PENDING', 'APPROVED', 'REJECTED'])
 })
 
 export async function POST(request: NextRequest) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { id, isApproved } = validationResult.data
+    const { id, approvalStatus } = validationResult.data
 
     // 检查提示词是否存在
     const existingPrompt = await db.query.prompt.findFirst({
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // 更新审核状态
     const [updatedPrompt] = await db.update(prompt)
       .set({
-        isApproved,
+        approvalStatus,
         // updatedAt: new Date()
       })
       .where(eq(prompt.id, id))

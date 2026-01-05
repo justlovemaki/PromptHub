@@ -94,6 +94,9 @@ export const membership = pgTable("membership", {
 	userSpaceUnique: uniqueIndex("membership_user_space_unique").on(table.userId, table.spaceId),
 }));
 
+// 审核状态枚举
+export const approvalStatusEnum = pgEnum("approval_status", ["PENDING", "APPROVED", "REJECTED"]);
+
 // 提示词表 - 核心业务对象
 export const prompt = pgTable("prompt", {
 	id: text("id").primaryKey().notNull(),
@@ -104,7 +107,7 @@ export const prompt = pgTable("prompt", {
 	imageUrls: text("image_urls").default("[]"), // JSON字符串存储图片链接数组
 	author: text("author").default(""),
 	isPublic: boolean("is_public").default(false),
-	isApproved: boolean("is_approved").default(false), // 审核状态：只有公开且已审核的提示词才能在广场显示
+	approvalStatus: approvalStatusEnum("approval_status").default("PENDING"), // 审核状态：PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝
 	useCount: integer("use_count").default(0),
 	spaceId: text("space_id").notNull().references(() => space.id, { onDelete: "cascade" }),
 	createdBy: text("created_by").notNull().references(() => user.id, { onDelete: "cascade" }),
@@ -113,7 +116,7 @@ export const prompt = pgTable("prompt", {
 }, (table) => ({
 	spaceIdIndex: index("prompt_space_id_idx").on(table.spaceId),
 	createdByIndex: index("prompt_created_by_idx").on(table.createdBy),
-	isApprovedIndex: index("prompt_is_approved_idx").on(table.isApproved), // 审核状态索引，用于快速筛选已审核的提示词
+	approvalStatusIndex: index("prompt_approval_status_idx").on(table.approvalStatus), // 审核状态索引，用于快速筛选不同审核状态的提示词
 }));
 
 // 提示词使用历史表（为统计和分析准备）

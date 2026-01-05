@@ -55,7 +55,7 @@ jobs:
               <p style='margin: 0; color: #666;'>📅 检查时间: ${timestamp}</p>
             </div>
             <p style='font-size: 16px; color: #666;'>请登录管理后台进行审核：</p>
-            <a href='${app_url}/admin/prompts?isPublic=true&isApproved=false' 
+            <a href='${app_url}/admin/prompts?isPublic=true&approvalStatus=PENDING'
                style='display: inline-block; background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 10px 0;'>
               前往审核
             </a>

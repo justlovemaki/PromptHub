@@ -21,7 +21,9 @@
   "close": "Close",
   "noDescription": "No description",
   "hasImages": "Contains images",
+  "hasVideos": "Contains videos",
   "imagesCount": "{{count}} image(s)",
+  "videosCount": "{{count}} video(s)",
   "filterByTag": "Filter by Tag",
   "clearFilter": "Clear Filter",
   "allTags": "All Tags",
@@ -60,6 +62,7 @@
     "image": "Image Mode"
   },
   "noImage": "No Image",
+  "noVideo": "No Video",
   "totalPrompts": "Total",
   "totalPromptsUnit": "prompt(s)",
   "pagination": {

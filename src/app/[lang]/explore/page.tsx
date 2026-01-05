@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/i18n/client'
 import { useTags } from '@/hooks/useTags'
 import { useSession } from '@/lib/auth-client'
-import { api } from '@promptmanager/core-logic'
+import { api, isVideo } from '@promptmanager/core-logic'
 import ParticlesBackground from '@/components/landing/ParticlesBackground'
 import TopNavbar from '@/components/layout/TopNavbar'
 import Footer from '@/components/layout/Footer'
 import { trackPromptAction, trackFavorite, trackSearch, trackFilter, trackViewModeChange } from '@/lib/umami'
+import { decryptData, isEncryptedResponse } from '@/lib/crypto'
 
 interface Prompt {
   id: string
@@ -107,7 +108,13 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
       if (response.ok) {
         const result = await response.json()
         if (result.success) {
-          const data = result.data as PromptListResponse
+          // 处理加密响应
+          let data: PromptListResponse
+          if (isEncryptedResponse(result)) {
+            data = decryptData<PromptListResponse>(result.data)
+          } else {
+            data = result.data as PromptListResponse
+          }
           setPrompts(data.prompts || [])
           setPagination(prev => ({
             ...prev,
@@ -509,19 +516,30 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                       {viewMode === 'image' && (
                         <div className="w-full h-44 bg-[var(--bg-300)]/50 relative overflow-hidden">
                           {firstImage ? (
-                            <img
-                              src={firstImage}
-                              alt={prompt.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement
-                                target.style.display = 'none'
-                                const parent = target.parentElement
-                                if (parent) {
-                                  parent.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-[var(--text-300)] gap-2 bg-[var(--bg-300)]/30"><svg class="w-10 h-10 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span class="text-xs font-medium opacity-50">${t('noImage')}</span></div>`
-                                }
-                              }}
-                            />
+                            isVideo(firstImage) ? (
+                              <video
+                                src={firstImage}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                              />
+                            ) : (
+                              <img
+                                src={firstImage}
+                                alt={prompt.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement
+                                  target.style.display = 'none'
+                                  const parent = target.parentElement
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-[var(--text-300)] gap-2 bg-[var(--bg-300)]/30"><svg class="w-10 h-10 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span class="text-xs font-medium opacity-50">${t('noImage')}</span></div>`
+                                  }
+                                }}
+                              />
+                            )
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full text-[var(--text-300)] gap-2 bg-[var(--bg-300)]/30">
                               <svg className="w-10 h-10 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -541,9 +559,8 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                           <div className="flex items-center gap-2 min-w-0">
                             {prompt.author ? (
                               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[var(--primary-100)]/10 rounded-full min-w-0">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary-100)] shrink-0" />
                                 <span className="text-[10px] font-bold text-[var(--primary-100)] truncate">
-                                  {prompt.author}
+                                  @{prompt.author}
                                 </span>
                               </div>
                             ) : (
@@ -564,7 +581,7 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                                   setShowImageViewer(true)
                                 }}
                                 className="p-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 rounded-xl transition-all shadow-sm active:scale-95 group/img"
-                                title={t('hasImages')}
+                                title={isVideo(firstImage || '') ? t('hasVideos') : t('hasImages')}
                               >
                                 <Sparkles className="w-3.5 h-3.5 group-hover/img:animate-pulse" />
                               </button>
@@ -779,15 +796,16 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                         className="inline-flex items-center px-4 py-1.5 text-sm bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-2xl hover:bg-purple-500/20 transition-all font-bold"
                       >
                         <Sparkles className="w-4 h-4 mr-2" />
-                        {t('imagesCount', { count: selectedPrompt.imageUrls.filter((url: string) => url && url.trim()).length })}
+                        {isVideo(selectedPrompt.imageUrls[0])
+                          ? t('videosCount', { count: selectedPrompt.imageUrls.filter((url: string) => url && url.trim()).length })
+                          : t('imagesCount', { count: selectedPrompt.imageUrls.filter((url: string) => url && url.trim()).length })}
                       </button>
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-sm">
                     {selectedPrompt.author && (
                       <div className="flex items-center gap-2 px-3 py-1 bg-[var(--primary-100)]/10 rounded-full">
-                        <div className="w-2 h-2 rounded-full bg-[var(--primary-100)]" />
-                        <span className="font-bold text-[var(--primary-100)]">{selectedPrompt.author}</span>
+                        <span className="font-bold text-[var(--primary-100)]">@{selectedPrompt.author}</span>
                       </div>
                     )}
                     <div className="flex items-center gap-2 text-[var(--text-300)] font-medium">
@@ -947,15 +965,25 @@ export default function ExplorePage({ params }: { params: Promise<{ lang: string
                 className="max-w-[90vw] max-h-[90vh] flex items-center justify-center relative group"
                 onClick={(e) => e.stopPropagation()}
               >
-                <img
-                  src={viewerImages[currentImageIndex]}
-                  alt={`Image ${currentImageIndex + 1}`}
-                  className="max-w-full max-h-full object-contain rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3E图片加载失败%3C/text%3E%3C/svg%3E'
-                  }}
-                />
+                {isVideo(viewerImages[currentImageIndex]) ? (
+                  <video
+                    src={viewerImages[currentImageIndex]}
+                    className="max-w-full max-h-full object-contain rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5"
+                    controls
+                    autoPlay
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={viewerImages[currentImageIndex]}
+                    alt={`Image ${currentImageIndex + 1}`}
+                    className="max-w-full max-h-full object-contain rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3E图片加载失败%3C/text%3E%3C/svg%3E'
+                    }}
+                  />
+                )}
               </motion.div>
 
               {/* 右箭头 */}

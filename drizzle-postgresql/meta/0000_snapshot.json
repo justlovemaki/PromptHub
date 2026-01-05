@@ -1,5 +1,5 @@
 {
-  "id": "2a4c50c0-fb8a-4189-8d20-8d03af0247e5",
+  "id": "a6578891-6af8-4256-b8c9-ac65b16ede30",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -486,12 +486,13 @@
           "notNull": false,
           "default": false
         },
-        "is_approved": {
-          "name": "is_approved",
-          "type": "boolean",
+        "approval_status": {
+          "name": "approval_status",
+          "type": "approval_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
-          "default": false
+          "default": "'PENDING'"
         },
         "use_count": {
           "name": "use_count",
@@ -558,11 +559,11 @@
           "method": "btree",
           "with": {}
         },
-        "prompt_is_approved_idx": {
-          "name": "prompt_is_approved_idx",
+        "prompt_approval_status_idx": {
+          "name": "prompt_approval_status_idx",
           "columns": [
             {
-              "expression": "is_approved",
+              "expression": "approval_status",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1318,6 +1319,15 @@
     }
   },
   "enums": {
+    "public.approval_status": {
+      "name": "approval_status",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
     "public.log_category": {
       "name": "log_category",
       "schema": "public",

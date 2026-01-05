@@ -32,12 +32,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 查询待审核的公开提示词数量（isPublic = true 且 isApproved = false）
+    // 查询待审核的公开提示词数量（isPublic = true 且 approvalStatus = PENDING）
     const result = await db.select({ count: sql<number>`count(*)` })
       .from(prompt)
       .where(and(
         eq(prompt.isPublic, true),
-        eq(prompt.isApproved, false)
+        eq(prompt.approvalStatus, "PENDING")
       ))
     
     const pendingCount = result[0]?.count || 0

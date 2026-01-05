@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalHeader, ModalTitle, Button, Input, Textarea } from '@promptmanager/ui-components'
 import TagSelector from './TagSelector'
 import { useTranslation } from '@/i18n/client'
-import { type Prompt } from '@promptmanager/core-logic'
+import { type Prompt, isVideo } from '@promptmanager/core-logic'
 import { type FormEvent, useState } from 'react'
 
 interface PromptModalProps {
@@ -386,25 +386,35 @@ export default function PromptModal({
             className="max-w-[95vw] max-h-[95vh] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={previewImageUrl}
-              alt="预览图片"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.style.display = 'none'
-                const errorDiv = document.createElement('div')
-                errorDiv.className = 'text-white text-center p-8 bg-red-500/20 rounded-lg'
-                errorDiv.innerHTML = `
-                  <svg class="h-16 w-16 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p class="text-lg font-medium">图片加载失败</p>
-                  <p class="text-sm text-gray-300 mt-2">请检查图片链接是否正确</p>
-                `
-                target.parentElement?.appendChild(errorDiv)
-              }}
-            />
+            {isVideo(previewImageUrl) ? (
+              <video
+                src={previewImageUrl}
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                controls
+                autoPlay
+                playsInline
+              />
+            ) : (
+              <img
+                src={previewImageUrl}
+                alt="预览图片"
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                  const errorDiv = document.createElement('div')
+                  errorDiv.className = 'text-white text-center p-8 bg-red-500/20 rounded-lg'
+                  errorDiv.innerHTML = `
+                    <svg class="h-16 w-16 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-lg font-medium">资源加载失败</p>
+                    <p class="text-sm text-gray-300 mt-2">请检查资源链接是否正确</p>
+                  `
+                  target.parentElement?.appendChild(errorDiv)
+                }}
+              />
+            )}
           </div>
         </div>
       )}

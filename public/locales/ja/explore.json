@@ -21,7 +21,9 @@
   "close": "閉じる",
   "noDescription": "説明なし",
   "hasImages": "画像を含む",
+  "hasVideos": "ビデオを含む",
   "imagesCount": "{{count}} 枚の画像",
+  "videosCount": "{{count}} 本のビデオ",
   "filterByTag": "タグでフィルター",
   "clearFilter": "フィルターをクリア",
   "allTags": "すべてのタグ",
@@ -60,6 +62,7 @@
     "image": "画像モード"
   },
   "noImage": "画像なし",
+  "noVideo": "ビデオなし",
   "totalPrompts": "合計",
   "totalPromptsUnit": "件のプロンプト",
   "pagination": {

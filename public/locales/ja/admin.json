@@ -125,7 +125,8 @@
     "updatedAt": "更新日時",
     "actions": "操作",
     "notUpdated": "未更新",
-    "noTags": "タグなし"
+    "noTags": "タグなし",
+    "hasResources": "リソースあり"
   },
   "visibility": {
     "public": "公開",
@@ -138,10 +139,13 @@
     "all": "すべて",
     "pending": "承認待ち",
     "approved": "承認済み",
+    "rejected": "却下",
     "confirmApproveTitle": "承認の確認",
-    "confirmUnapproveTitle": "承認取り消しの確認",
+    "confirmRejectTitle": "却下の確認",
+    "confirmResetTitle": "承認待ちへのリセット確認",
     "confirmApproveMessage": "プロンプト「{{title}}」を承認してもよろしいですか？承認後、プロンプト広場に公開されます。",
-    "confirmUnapproveMessage": "プロンプト「{{title}}」の承認を取り消してもよろしいですか？取り消し後、プロンプト広場に表示されなくなります。",
+    "confirmRejectMessage": "プロンプト「{{title}}」を却下してもよろしいですか？却下後、プロンプト広場に表示されなくなります。",
+    "confirmResetMessage": "プロンプト「{{title}}」を承認待ち状態にリセットしてもよろしいですか？",
     "cancel": "キャンセル"
   },
   "buttons": {
@@ -152,7 +156,8 @@
     "save": "変更を保存",
     "saving": "保存中...",
     "approve": "承認する",
-    "unapprove": "承認を取り消す"
+    "reject": "却下する",
+    "resetToPending": "承認待ちにリセット"
   },
   "labels": {
     "title": "タイトル",

@@ -120,14 +120,14 @@ function DataTable<T extends Record<string, any>>({
         <div className="flex items-center space-x-2">
           <button
             onClick={() => onChange(1, pageSize)}
-            disabled={current <= 1}
+            disabled={current <= 1 || loading}
             className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {tDashboard('dataTable.pagination.first')}
           </button>
           <button
             onClick={() => onChange(current - 1, pageSize)}
-            disabled={current <= 1}
+            disabled={current <= 1 || loading}
             className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {tDashboard('dataTable.pagination.previous')}
@@ -137,14 +137,14 @@ function DataTable<T extends Record<string, any>>({
           </span>
           <button
             onClick={() => onChange(current + 1, pageSize)}
-            disabled={current >= totalPages}
+            disabled={current >= totalPages || loading}
             className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {tDashboard('dataTable.pagination.next')}
           </button>
           <button
             onClick={() => onChange(totalPages, pageSize)}
-            disabled={current >= totalPages}
+            disabled={current >= totalPages || loading}
             className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {tDashboard('dataTable.pagination.last')}

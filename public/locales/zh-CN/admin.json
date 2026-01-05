@@ -125,7 +125,8 @@
     "updatedAt": "更新时间",
     "actions": "操作",
     "notUpdated": "未更新",
-    "noTags": "暂无标签"
+    "noTags": "暂无标签",
+    "hasResources": "包含资源"
   },
   "visibility": {
     "public": "公开",
@@ -137,11 +138,14 @@
     "filterLabel": "审核状态",
     "all": "全部",
     "pending": "待审核",
-    "approved": "已审核",
+    "approved": "已通过",
+    "rejected": "已拒绝",
     "confirmApproveTitle": "确认审核通过",
-    "confirmUnapproveTitle": "确认取消审核",
+    "confirmRejectTitle": "确认审核拒绝",
+    "confirmResetTitle": "确认重置为待审核",
     "confirmApproveMessage": "确定要审核通过提示词「{{title}}」吗？审核通过后，该提示词将在提示词广场公开显示。",
-    "confirmUnapproveMessage": "确定要取消审核提示词「{{title}}」吗？取消审核后，该提示词将不再在提示词广场显示。",
+    "confirmRejectMessage": "确定要拒绝提示词「{{title}}」吗？拒绝后，该提示词将不会在提示词广场显示。",
+    "confirmResetMessage": "确定要将提示词「{{title}}」重置为待审核状态吗？",
     "cancel": "取消"
   },
   "buttons": {
@@ -152,7 +156,8 @@
     "save": "保存更改",
     "saving": "保存中...",
     "approve": "审核通过",
-    "unapprove": "取消审核"
+    "reject": "审核拒绝",
+    "resetToPending": "重置为待审核"
   },
   "labels": {
     "title": "标题",

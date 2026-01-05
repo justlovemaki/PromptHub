@@ -47,6 +47,16 @@ export const MembershipSchema = z.object({
 
 export type Membership = z.infer<typeof MembershipSchema>;
 
+// 审核状态类型
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+// 审核状态常量
+export const APPROVAL_STATUS = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
 // 提示词类型
 export const PromptSchema = z.object({
   id: z.string(),
@@ -57,6 +67,7 @@ export const PromptSchema = z.object({
   imageUrls: z.array(z.string()).default([]).optional(), // 字符串数组存储图片链接
   author: z.string().default('').optional(),
   isPublic: z.boolean().default(false),
+  approvalStatus: z.enum(['PENDING', 'APPROVED', 'REJECTED']).default('PENDING').optional(),
   useCount: z.number().default(0),
   spaceId: z.string(),
   createdBy: z.string(),
