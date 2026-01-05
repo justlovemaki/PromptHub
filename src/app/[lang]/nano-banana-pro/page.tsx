@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, use, useRef, useCallback } from 'react'
+import { useState, useEffect, use, useRef, useCallback, useMemo } from 'react'
 import { Sparkles, Search, Copy, Check, Heart, X, ChevronLeft, ChevronRight, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from '@/i18n/client'
+import { useTags } from '@/hooks/useTags'
 import { useSession } from '@/lib/auth-client'
 import { api, isVideo } from '@promptmanager/core-logic'
 import { usePathname } from 'next/navigation'
@@ -41,6 +42,7 @@ interface PromptListResponse {
 export default function NanoBananaPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = use(params)
   const { t } = useTranslation(lang, 'nanobanana')
+  const { allTags } = useTags(lang)
   const { data: session } = useSession()
   const pathname = usePathname()
   
@@ -90,6 +92,10 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
   const containerRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const isLoadingRef = useRef(false)
+
+  // Create a lookup map for faster name retrieval
+  const keyToNameMap = useMemo(() => new Map(allTags.map(t => [t.key, t.name])), [allTags])
+  const getName = (key: string) => keyToNameMap.get(key) || key
 
   // 格式化时间到分钟
   const formatDateTime = (dateString: string) => {
@@ -668,12 +674,21 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
                   )}
 
                   {selectedPrompt.tags && selectedPrompt.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedPrompt.tags.map((tag, i) => (
-                        <span key={i} className="px-3 py-1 bg-[var(--bg-300)]/50 rounded-lg text-sm text-[var(--text-200)]">
-                          {tag}
-                        </span>
-                      ))}
+                    <div className="mb-6">
+                      <h3 className="text-xs font-bold text-[var(--primary-100)] uppercase tracking-widest mb-3 opacity-80">
+                        {t('tags') || '标签'}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedPrompt.tags.map((tag, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center px-4 py-1.5 text-sm font-bold bg-[var(--primary-100)]/10 text-[var(--primary-100)] rounded-full border border-[var(--primary-100)]/20 hover:bg-[var(--primary-100)]/20 hover:border-[var(--primary-100)]/40 transition-all cursor-default shadow-sm"
+                          >
+                            <span className="mr-1.5 text-[var(--primary-100)]/60">#</span>
+                            {getName(tag)}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
 
