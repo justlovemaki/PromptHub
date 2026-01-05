@@ -10,6 +10,7 @@ import { usePathname } from 'next/navigation'
 import ParticlesBackground from '@/components/landing/ParticlesBackground'
 import TopNavbar from '@/components/layout/TopNavbar'
 import Footer from '@/components/layout/Footer'
+import { ScrollToTop } from '@/components/ScrollToTop'
 import { trackPromptAction, trackFavorite, trackSearch } from '@/lib/umami'
 import { decryptData, isEncryptedResponse } from '@/lib/crypto'
 
@@ -789,6 +790,7 @@ export default function NanoBananaPage({ params }: { params: Promise<{ lang: str
       </AnimatePresence>
 
       <Footer lang={lang} />
+      <ScrollToTop />
     </div>
   )
 }
