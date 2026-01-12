@@ -96,7 +96,7 @@ async function getPublicPrompts() {
       
       const result = await sql`
         SELECT id, "updated_at" as "updatedAt"
-        FROM prompt 
+        FROM prompt
         WHERE "is_public" = true
       `;
       
@@ -117,7 +117,7 @@ async function getPublicPrompts() {
       
       const result = await sql`
         SELECT id, "updated_at" as "updatedAt"
-        FROM prompt 
+        FROM prompt
         WHERE "is_public" = true
       `;
       
@@ -180,15 +180,16 @@ async function generateStaticSitemap() {
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
-  // 获取公开提示词
-  console.log('\n📦 获取公开提示词...');
-  const publicPrompts = await getPublicPrompts();
+  // 获取公开提示词（已禁用）
+  // console.log('\n📦 获取公开提示词...');
+  // const publicPrompts = await getPublicPrompts();
   
-  if (publicPrompts.length > 0) {
-    console.log(`   ✓ 找到 ${publicPrompts.length} 个公开提示词`);
-  } else {
-    console.log('   ⚠️  没有找到公开提示词');
-  }
+  // if (publicPrompts.length > 0) {
+  //   console.log(`   ✓ 找到 ${publicPrompts.length} 个公开提示词`);
+  // } else {
+  //   console.log('   ⚠️  没有找到公开提示词');
+  // }
+  const publicPrompts = [];
 
   // 按语言生成 sitemap 文件
   const sitemapFiles = [];
