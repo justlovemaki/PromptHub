@@ -3,7 +3,7 @@ name: Daily Check
 on:
   schedule:
     # 每天 UTC 时间 5:00 (北京时间 13:00) 执行
-    - cron: '0 5 * * *'
+    - cron: '0 5 */7 * *'
   workflow_dispatch: # 允许手动触发
     inputs:
       confirm:
@@ -43,19 +43,3 @@ jobs:
           git commit -m "chore: update version to ${{ steps.update_version.outputs.version }}" || echo "No changes to commit"
           git push
           
-      - name: Call combined-daily-check endpoint
-        run: |
-          echo "执行每日检查..."
-          curl -X POST "${{ secrets.DEPLOYMENT_URL }}/api/combined-daily-check" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json" \
-            -v
-          
-      - name: Check response
-        run: |
-          if [ $? -eq 0 ]; then
-            echo "✅ 每日检查执行成功"
-          else
-            echo "❌ 每日检查执行失败"
-            exit 1
-          fi
