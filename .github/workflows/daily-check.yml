@@ -1,0 +1,61 @@
+name: Daily Check
+
+on:
+  schedule:
+    # 每天 UTC 时间 5:00 (北京时间 13:00) 执行
+    - cron: '0 5 * * *'
+  workflow_dispatch: # 允许手动触发
+    inputs:
+      confirm:
+        description: '确认执行每日检查'
+        required: true
+        default: 'yes'
+        type: choice
+        options:
+          - yes
+          - no
+
+jobs:
+  daily-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Update version to current date
+        id: update_version
+        run: |
+          NEW_VERSION=$(date +'%Y.%m.%d')
+          echo "Updating version to $NEW_VERSION"
+          echo $NEW_VERSION > version
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Commit and push version change
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add version
+          git commit -m "chore: update version to ${{ steps.update_version.outputs.version }}" || echo "No changes to commit"
+          git push
+          
+      - name: Call combined-daily-check endpoint
+        run: |
+          echo "执行每日检查..."
+          curl -X POST "${{ secrets.DEPLOYMENT_URL }}/api/combined-daily-check" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -v
+          
+      - name: Check response
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "✅ 每日检查执行成功"
+          else
+            echo "❌ 每日检查执行失败"
+            exit 1
+          fi
